@@ -1,0 +1,93 @@
+package sqlancer.presto.gen;
+
+import sqlancer.Randomly;
+import sqlancer.common.ast.newast.Node;
+import sqlancer.common.gen.UntypedExpressionGenerator;
+import sqlancer.common.query.ExpectedErrors;
+import sqlancer.common.query.SQLQueryAdapter;
+import sqlancer.presto.PrestoGlobalState;
+import sqlancer.presto.PrestoSchema.PrestoColumn;
+import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
+import sqlancer.presto.ast.PrestoExpression;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PrestoTableGenerator {
+
+    public SQLQueryAdapter getQuery(PrestoGlobalState globalState) {
+        ExpectedErrors errors = new ExpectedErrors();
+        StringBuilder sb = new StringBuilder();
+        String tableName = globalState.getSchema().getFreeTableName();
+        sb.append("CREATE TABLE ");
+        String catalog = globalState.getDbmsSpecificOptions().catalog;
+        String schema = globalState.getDatabaseName();
+
+        sb.append(catalog).append(".");
+        sb.append(schema).append(".");
+
+        sb.append(tableName);
+        sb.append("(");
+        List<PrestoColumn> columns = getNewColumns();
+        UntypedExpressionGenerator<Node<PrestoExpression>, PrestoColumn> gen = new PrestoUntypedExpressionGenerator(
+            globalState).setColumns(columns);
+        for (int i = 0; i < columns.size(); i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            sb.append(columns.get(i).getName());
+            sb.append(" ");
+            sb.append(columns.get(i).getType());
+//            if (globalState.getDbmsSpecificOptions().testCollate && Randomly.getBooleanWithRatherLowProbability()
+//                    && columns.get(i).getType().getPrimitiveDataType() == PrestoDataType.VARCHAR) {
+//                sb.append(" COLLATE ");
+//                sb.append(getRandomCollate());
+//            }
+//            if (globalState.getDbmsSpecificOptions().testIndexes && Randomly.getBooleanWithRatherLowProbability()) {
+//                sb.append(" UNIQUE");
+//            }
+//            if (globalState.getDbmsSpecificOptions().testNotNullConstraints
+//                    && Randomly.getBooleanWithRatherLowProbability()) {
+//                sb.append(" NOT NULL");
+//            }
+//            if (globalState.getDbmsSpecificOptions().testCheckConstraints
+//                    && Randomly.getBooleanWithRatherLowProbability()) {
+//                sb.append(" CHECK(");
+//                sb.append(PrestoToStringVisitor.asString(gen.generateExpression()));
+//                PrestoErrors.addExpressionErrors(errors);
+//                sb.append(")");
+//            }
+//            if (Randomly.getBoolean() && globalState.getDbmsSpecificOptions().testDefaultValues) {
+//                sb.append(" DEFAULT(");
+//                sb.append(PrestoToStringVisitor.asString(gen.generateConstant()));
+//                sb.append(")");
+//            }
+        }
+//        if (globalState.getDbmsSpecificOptions().testIndexes && Randomly.getBoolean()) {
+//            errors.add("Invalid type for index");
+//            List<PrestoColumn> primaryKeyColumns = Randomly.nonEmptySubset(columns);
+//            sb.append(", PRIMARY KEY(");
+//            sb.append(primaryKeyColumns.stream().map(c -> c.getName()).collect(Collectors.joining(", ")));
+//            sb.append(")");
+//        }
+        sb.append(")");
+
+        System.out.println("... generate database statement ..." + sb);
+        return new SQLQueryAdapter(sb.toString(), errors, true);
+    }
+
+    public static String getRandomCollate() {
+        return Randomly.fromOptions("NOCASE", "NOACCENT", "NOACCENT.NOCASE", "C", "POSIX");
+    }
+
+    private static List<PrestoColumn> getNewColumns() {
+        List<PrestoColumn> columns = new ArrayList<>();
+        for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
+            String columnName = String.format("c%d", i);
+            PrestoCompositeDataType columnType = PrestoCompositeDataType.getRandomWithoutNull();
+            columns.add(new PrestoColumn(columnName, columnType, false, false));
+        }
+        return columns;
+    }
+
+}
