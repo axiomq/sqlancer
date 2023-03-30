@@ -143,8 +143,7 @@ public class ClickHouseProvider extends SQLProviderAdapter<ClickHouseGlobalState
         }
         con.close();
         con = DriverManager.getConnection(
-                String.format("jdbc:clickhouse://%s:%d/%s?socket_timeout=300000%s", host, port, databaseName,
-                        clickHouseOptions.enableAnalyzer ? "&allow_experimental_analyzer=1" : ""),
+                String.format("jdbc:clickhouse://%s:%d/%s?socket_timeout=300000", host, port, databaseName),
                 globalState.getOptions().getUserName(), globalState.getOptions().getPassword());
         return new SQLConnection(con);
     }
