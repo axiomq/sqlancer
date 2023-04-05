@@ -2,7 +2,7 @@ package sqlancer.presto.gen;
 
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
-import sqlancer.common.gen.UntypedExpressionGenerator;
+import sqlancer.common.gen.TypedExpressionGenerator;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.presto.PrestoGlobalState;
@@ -29,38 +29,21 @@ public class PrestoTableGenerator {
         sb.append(tableName);
         sb.append("(");
         List<PrestoColumn> columns = getNewColumns();
-        UntypedExpressionGenerator<Node<PrestoExpression>, PrestoColumn> gen = new PrestoUntypedExpressionGenerator(
-            globalState).setColumns(columns);
+        TypedExpressionGenerator<Node<PrestoExpression>, PrestoColumn, PrestoCompositeDataType> typedExpressionGenerator = new PrestoTypedExpressionGenerator(globalState).setColumns(columns);
         for (int i = 0; i < columns.size(); i++) {
             if (i != 0) {
                 sb.append(", ");
             }
-            sb.append(columns.get(i).getName());
+            PrestoColumn column = columns.get(i);
+            sb.append(column.getName());
             sb.append(" ");
-            sb.append(columns.get(i).getType());
-//            if (globalState.getDbmsSpecificOptions().testCollate && Randomly.getBooleanWithRatherLowProbability()
-//                    && columns.get(i).getType().getPrimitiveDataType() == PrestoDataType.VARCHAR) {
-//                sb.append(" COLLATE ");
-//                sb.append(getRandomCollate());
-//            }
+            sb.append(column.getType());
 //            if (globalState.getDbmsSpecificOptions().testIndexes && Randomly.getBooleanWithRatherLowProbability()) {
 //                sb.append(" UNIQUE");
 //            }
 //            if (globalState.getDbmsSpecificOptions().testNotNullConstraints
-//                    && Randomly.getBooleanWithRatherLowProbability()) {
+//                && Randomly.getBooleanWithRatherLowProbability()) {
 //                sb.append(" NOT NULL");
-//            }
-//            if (globalState.getDbmsSpecificOptions().testCheckConstraints
-//                    && Randomly.getBooleanWithRatherLowProbability()) {
-//                sb.append(" CHECK(");
-//                sb.append(PrestoToStringVisitor.asString(gen.generateExpression()));
-//                PrestoErrors.addExpressionErrors(errors);
-//                sb.append(")");
-//            }
-//            if (Randomly.getBoolean() && globalState.getDbmsSpecificOptions().testDefaultValues) {
-//                sb.append(" DEFAULT(");
-//                sb.append(PrestoToStringVisitor.asString(gen.generateConstant()));
-//                sb.append(")");
 //            }
         }
 //        if (globalState.getDbmsSpecificOptions().testIndexes && Randomly.getBoolean()) {
@@ -72,12 +55,7 @@ public class PrestoTableGenerator {
 //        }
         sb.append(")");
 
-        System.out.println("... generate database statement ..." + sb);
         return new SQLQueryAdapter(sb.toString(), errors, true);
-    }
-
-    public static String getRandomCollate() {
-        return Randomly.fromOptions("NOCASE", "NOACCENT", "NOACCENT.NOCASE", "C", "POSIX");
     }
 
     private static List<PrestoColumn> getNewColumns() {

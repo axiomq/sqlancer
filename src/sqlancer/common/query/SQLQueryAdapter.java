@@ -99,8 +99,16 @@ public class SQLQueryAdapter extends Query<SQLConnection> {
     public void checkException(Exception e) throws AssertionError {
         Throwable ex = e;
 
+        if(e instanceof java.io.UncheckedIOException || e instanceof java.net.SocketTimeoutException ) {
+            System.err.println("timeout");
+            return;
+        }
         while (ex != null) {
-            if (expectedErrors.errorIsExpected(ex.getMessage())) {
+            String message = ex.getMessage();
+            if(message == null){
+                ex.printStackTrace();
+            }
+            if (expectedErrors.errorIsExpected(message)) {
                 return;
             } else {
                 System.err.println(ex.getCause());

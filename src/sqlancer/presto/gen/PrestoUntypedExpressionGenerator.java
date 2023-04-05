@@ -200,8 +200,8 @@ public final class PrestoUntypedExpressionGenerator extends UntypedExpressionGen
                 }
                 return PrestoConstant.createDecimalConstant(globalState.getRandomly().getDouble());
             default:
-                System.out.print("PrestoExpressionGenerator.generateConstant ");
-                System.out.println("... AssertionError ..." + type.name());
+//                System.out.print("PrestoExpressionGenerator.generateConstant ");
+//                System.out.println("... AssertionError ..." + type.name());
                 throw new AssertionError();
         }
     }
@@ -343,25 +343,6 @@ public final class PrestoUntypedExpressionGenerator extends UntypedExpressionGen
 
         public static PrestoUnaryPostfixOperator getRandom() {
             return Randomly.fromOptions(values());
-        }
-
-    }
-
-    public static final class PrestoCollate implements Operator {
-
-        private final String textRepr;
-
-        private PrestoCollate(String textRepr) {
-            this.textRepr = textRepr;
-        }
-
-        @Override
-        public String getTextRepresentation() {
-            return "COLLATE " + textRepr;
-        }
-
-        public static PrestoCollate getRandom() {
-            return new PrestoCollate(PrestoTableGenerator.getRandomCollate());
         }
 
     }

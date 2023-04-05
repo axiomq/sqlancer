@@ -97,7 +97,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         int secondCount = 0;
         unoptimizedQueryString = "SELECT SUM(count) FROM (" + PrestoToStringVisitor.asString(select) + ") as res";
 
-        System.out.println("unoptimizedQueryString : " + unoptimizedQueryString);
+//        System.out.println("unoptimizedQueryString : " + unoptimizedQueryString);
         errors.add("canceling statement due to statement timeout");
         SQLQueryAdapter q = new SQLQueryAdapter(unoptimizedQueryString, errors);
         SQLancerResultSet rs;
@@ -137,7 +137,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         int firstCount = 0;
         try (Statement stat = con.createStatement()) {
             optimizedQueryString = PrestoToStringVisitor.asString(select);
-            System.out.println("optimizedQueryString : " + optimizedQueryString);
+//            System.out.println("optimizedQueryString : " + optimizedQueryString);
             if (options.logEachSelect()) {
                 logger.writeCurrent(optimizedQueryString);
             }
@@ -147,7 +147,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
             throw new IgnoreMeException();
         }
         return firstCount;

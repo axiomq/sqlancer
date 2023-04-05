@@ -23,15 +23,15 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         DECIMAL,
         VARCHAR,
         CHAR,
-        //  VARBINARY,
-        //  JSON,
+        VARBINARY,
+        JSON,
         DATE,
         TIME,
         TIMESTAMP,
-        //  TIME_WITH_TIME_ZONE,
-        //  TIMESTAMP_WITH_TIME_ZONE,
-        //  INTERVAL_YEAR_TO_MONTH,
-        //  INTERVAL_DAY_TO_SECOND,
+        TIME_WITH_TIME_ZONE,
+        TIMESTAMP_WITH_TIME_ZONE,
+        INTERVAL_YEAR_TO_MONTH,
+        INTERVAL_DAY_TO_SECOND,
         //  ARRAY,
         //  MAP,
         //  ROW,
@@ -60,6 +60,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 case DECIMAL:
                     return true;
                 case VARCHAR:
+                case VARBINARY:
+                case JSON:
                 case CHAR:
                     return false;
                 default:
@@ -68,11 +70,11 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
 
         public static List<PrestoDataType> getNumericTypes() {
-            return Arrays.asList(INT, FLOAT, DECIMAL, VARCHAR, CHAR, DATE, TIME, TIMESTAMP);
+            return Arrays.asList(INT, FLOAT, DECIMAL, VARCHAR, CHAR, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
         }
 
         public static List<PrestoDataType> getTextTypes() {
-            return Arrays.asList(VARCHAR, CHAR);
+            return Arrays.asList(VARCHAR, CHAR, VARBINARY, JSON);
         }
 
     }
@@ -127,6 +129,12 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                     size = Math.toIntExact(8);
                     scale = Math.toIntExact(4);
                     break;
+                case VARBINARY:
+                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                    break;
+                case JSON:
+                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                    break;
                 case VARCHAR:
                     size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
                     break;
@@ -135,7 +143,52 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                     break;
                 case DATE:
                 case TIME:
+                case TIME_WITH_TIME_ZONE:
                 case TIMESTAMP:
+                case TIMESTAMP_WITH_TIME_ZONE:
+                case INTERVAL_DAY_TO_SECOND:
+                case INTERVAL_YEAR_TO_MONTH:
+                    size = 0;
+                    break;
+                default:
+                    throw new AssertionError(type);
+            }
+
+            return new PrestoCompositeDataType(type, size, scale);
+        }
+
+        public static PrestoCompositeDataType fromDataType(PrestoDataType type) {
+            int size = -1;
+            int scale = -1;
+            switch (type) {
+                case INT:
+                    size = Randomly.fromOptions(1, 2, 4, 8);
+                    break;
+                case FLOAT:
+                    size = Randomly.fromOptions(4, 8);
+                    break;
+                case DECIMAL:
+                    size = Math.toIntExact(8);
+                    scale = Math.toIntExact(4);
+                    break;
+                case JSON:
+                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                    break;
+                case VARCHAR:
+                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                    break;
+                case CHAR:
+                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                    break;
+                case BOOLEAN:
+                case VARBINARY:
+                case DATE:
+                case TIME:
+                case TIMESTAMP:
+                case TIMESTAMP_WITH_TIME_ZONE:
+                case TIME_WITH_TIME_ZONE:
+                case INTERVAL_DAY_TO_SECOND:
+                case INTERVAL_YEAR_TO_MONTH:
                     size = 0;
                     break;
                 default:
@@ -161,6 +214,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                         default:
                             throw new AssertionError(size);
                     }
+                case VARBINARY:
+                    return "VARBINARY";
+                case JSON:
+                    return "JSON";
                 case VARCHAR:
                     return "VARCHAR" + "(" + size + ")";
                 case CHAR:
@@ -177,15 +234,23 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 case DECIMAL:
                     return "DECIMAL" + "(" + size + ", " + scale + ")";
                 case BOOLEAN:
-                    return Randomly.fromOptions("BOOLEAN");
+                    return "BOOLEAN";
+                case TIMESTAMP_WITH_TIME_ZONE:
+                    return "TIMESTAMP WITH TIME ZONE";
                 case TIMESTAMP:
-                    return Randomly.fromOptions("TIMESTAMP");
+                    return "TIMESTAMP";
+                case INTERVAL_YEAR_TO_MONTH:
+                    return "INTERVAL YEAR TO MONTH";
+                case INTERVAL_DAY_TO_SECOND:
+                    return "INTERVAL DAY TO SECOND";
                 case DATE:
-                    return Randomly.fromOptions("DATE");
+                    return "DATE";
                 case TIME:
-                    return Randomly.fromOptions("TIME");
+                    return "TIME";
+                case TIME_WITH_TIME_ZONE:
+                    return "TIME WITH TIME ZONE";
                 case NULL:
-                    return Randomly.fromOptions("NULL");
+                    return "NULL";
                 default:
                     throw new AssertionError(getPrimitiveDataType());
             }
@@ -327,10 +392,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
         type = type.toUpperCase();
 
-        System.out.println(type);
-        System.out.println(sizeString);
-        System.out.println(size);
-        System.out.println(precision);
+        // System.out.println(type);
+        // System.out.println(sizeString);
+        // System.out.println(size);
+        // System.out.println(precision);
 
         typeString = "tinyint";
         bracesStart = typeString.indexOf('(');
@@ -358,10 +423,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
         type = type.toUpperCase();
 
-        System.out.println(type);
-        System.out.println(sizeString);
-        System.out.println(size);
-        System.out.println(precision);
+        // System.out.println(type);
+        // System.out.println(sizeString);
+        // System.out.println(size);
+        // System.out.println(precision);
 
         typeString = "decimal(6, 4)";
         bracesStart = typeString.indexOf('(');
@@ -389,10 +454,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
         type = type.toUpperCase();
 
-        System.out.println(type);
-        System.out.println(sizeString);
-        System.out.println(size);
-        System.out.println(precision);
+        // System.out.println(type);
+        // System.out.println(sizeString);
+        // System.out.println(size);
+        // System.out.println(precision);
     }
 
     private static PrestoCompositeDataType getColumnType(String typeString) {
@@ -437,6 +502,9 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             case "VARCHAR":
                 primitiveType = PrestoDataType.VARCHAR;
                 break;
+            case "VARBINARY":
+                primitiveType = PrestoDataType.VARBINARY;
+                break;
             case "CHAR":
                 primitiveType = PrestoDataType.CHAR;
                 break;
@@ -464,8 +532,23 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             case "TIME":
                 primitiveType = PrestoDataType.TIME;
                 break;
+            case "TIME WITH TIME ZONE":
+                primitiveType = PrestoDataType.TIME_WITH_TIME_ZONE;
+                break;
             case "TIMESTAMP":
                 primitiveType = PrestoDataType.TIMESTAMP;
+                break;
+            case "TIMESTAMP WITH TIME ZONE":
+                primitiveType = PrestoDataType.TIMESTAMP_WITH_TIME_ZONE;
+                break;
+            case "INTERVAL DAY TO SECOND":
+                primitiveType = PrestoDataType.INTERVAL_YEAR_TO_MONTH;
+                break;
+            case "INTERVAL YEAR TO MONTH":
+                primitiveType = PrestoDataType.INTERVAL_DAY_TO_SECOND;
+                break;
+            case "JSON":
+                primitiveType = PrestoDataType.JSON;
                 break;
             case "NULL":
                 primitiveType = PrestoDataType.NULL;
