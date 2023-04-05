@@ -17,6 +17,7 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
         } else if (expr instanceof PrestoCastFunction) {
             visit((PrestoCastFunction) expr);
         } else {
+            System.err.println(expr);
             throw new AssertionError(expr.getClass());
         }
     }

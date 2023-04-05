@@ -53,9 +53,18 @@ public final class PrestoErrors {
         errors.add("Cannot subtract infinite timestamps");
         errors.add("Timestamp difference is out of bounds");
 
-        //
+        // Presto errors
         errors.add("side of logical expression must evaluate to a boolean");
         errors.add("cannot be applied to");
+        errors.add("LIKE expression must evaluate to a varchar");
+        errors.add("JOIN ON clause must evaluate to a boolean");
+        errors.add("Unexpected parameters");
+
+        //  SELECT SUM(count) FROM (SELECT CAST((-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000 IS NOT NULL AND -179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000) AS BIGINT)as count FROM t0) as res
+        errors.add("Decimal overflow");
+
+        //  9223372036854775808
+        errors.add("Invalid numeric literal");
     }
 
     private static void addRegexErrors(ExpectedErrors errors) {

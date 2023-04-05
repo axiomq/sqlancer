@@ -1,5 +1,6 @@
 package sqlancer.presto.ast;
 
+import sqlancer.Randomly;
 import sqlancer.common.ast.BinaryOperatorNode;
 import sqlancer.common.ast.newast.NewUnaryPrefixOperatorNode;
 import sqlancer.common.ast.newast.Node;
@@ -38,9 +39,15 @@ public class PrestoUnaryPrefixOperation extends NewUnaryPrefixOperatorNode<Prest
         };
 
         private final String textRepresentation;
+        private final PrestoSchema.PrestoDataType[] dataTypes;
 
         PrestoUnaryPrefixOperator(String textRepresentation, PrestoSchema.PrestoDataType... dataTypes) {
             this.textRepresentation = textRepresentation;
+            this.dataTypes = dataTypes.clone();
+        }
+
+        public PrestoSchema.PrestoDataType getRandomInputDataTypes() {
+            return Randomly.fromOptions(dataTypes);
         }
 
         public abstract PrestoSchema.PrestoDataType getExpressionType();

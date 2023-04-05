@@ -57,16 +57,16 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         Randomly r = globalState.getRandomly();
         if (Objects.requireNonNull(a) == Action.INSERT) {
             return r.getInteger(0, globalState.getOptions().getMaxNumberInserts());
-        //            case UPDATE:
-        //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumUpdates + 1);
-        //        case VACUUM: // seems to be ignored
-        //            case ANALYZE: // seems to be ignored
-        //            case EXPLAIN:
-        //                return r.getInteger(0, 2);
-        //            case DELETE:
-        //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumDeletes + 1);
-        //            case CREATE_VIEW:
-        //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumViews + 1);
+            //            case UPDATE:
+            //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumUpdates + 1);
+            //        case VACUUM: // seems to be ignored
+            //            case ANALYZE: // seems to be ignored
+            //            case EXPLAIN:
+            //                return r.getInteger(0, 2);
+            //            case DELETE:
+            //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumDeletes + 1);
+            //            case CREATE_VIEW:
+            //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumViews + 1);
         }
         throw new AssertionError(a);
     }
