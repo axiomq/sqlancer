@@ -42,6 +42,7 @@ public class PrestoQueryPartitioningBase
             return value;
         }
 
+        // TODO: check this
         switch (value) {
             case "-0.0":
                 return "0.0";

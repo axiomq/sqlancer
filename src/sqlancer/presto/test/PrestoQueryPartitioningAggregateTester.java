@@ -15,7 +15,7 @@ import sqlancer.presto.PrestoToStringVisitor;
 import sqlancer.presto.ast.PrestoCastFunction;
 import sqlancer.presto.ast.PrestoExpression;
 import sqlancer.presto.ast.PrestoSelect;
-import sqlancer.presto.gen.PrestoTypedExpressionGenerator.PrestoAggregateFunction;
+import sqlancer.presto.ast.PrestoAggregateFunction;
 import sqlancer.presto.gen.PrestoUntypedExpressionGenerator.PrestoBinaryArithmeticOperator;
 import sqlancer.presto.gen.PrestoUntypedExpressionGenerator.PrestoUnaryPostfixOperator;
 import sqlancer.presto.gen.PrestoUntypedExpressionGenerator.PrestoUnaryPrefixOperator;

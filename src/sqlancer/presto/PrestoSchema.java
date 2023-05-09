@@ -70,7 +70,15 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
 
         public static List<PrestoDataType> getNumericTypes() {
-            return Arrays.asList(INT, FLOAT, DECIMAL, VARCHAR, CHAR, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
+            return Arrays.asList(INT, FLOAT, DECIMAL, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
+        }
+
+        public static List<PrestoDataType> getTemporalTypes() {
+            return Arrays.asList(DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
+        }
+
+        public static List<PrestoDataType> getIntervalTypes() {
+            return Arrays.asList(INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND);
         }
 
         public static List<PrestoDataType> getTextTypes() {
@@ -356,108 +364,6 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
 
         return columns;
-    }
-
-    public static void main(String[] args) {
-
-        String typeString;
-        int bracesStart;
-        String type;
-        String sizeString;
-        int size;
-        int precision;
-
-        typeString = "char(67)";
-        bracesStart = typeString.indexOf('(');
-        if (bracesStart != -1) {
-            type = typeString.substring(0, bracesStart);
-            sizeString = typeString.substring(bracesStart + 1, typeString.indexOf(")"));
-
-            String[] sizes = sizeString.split(",");
-            if (sizes.length == 2) {
-                size = Integer.parseInt(sizes[0].strip());
-                precision = Integer.parseInt(sizes[1].strip());
-            } else if (sizes.length == 1) {
-                size = Integer.parseInt(sizes[0].strip());
-                precision = 0;
-            } else {
-                size = 0;
-                precision = 0;
-            }
-        } else {
-            type = typeString;
-            sizeString = "";
-            size = 0;
-            precision = 0;
-        }
-        type = type.toUpperCase();
-
-        // System.out.println(type);
-        // System.out.println(sizeString);
-        // System.out.println(size);
-        // System.out.println(precision);
-
-        typeString = "tinyint";
-        bracesStart = typeString.indexOf('(');
-        if (bracesStart != -1) {
-            type = typeString.substring(0, bracesStart);
-            sizeString = typeString.substring(bracesStart + 1, typeString.indexOf(")"));
-
-            String[] sizes = sizeString.split(",");
-            if (sizes.length == 2) {
-                size = Integer.parseInt(sizes[0].strip());
-                precision = Integer.parseInt(sizes[1].strip());
-            } else if (sizes.length == 1) {
-                size = Integer.parseInt(sizes[0].strip());
-                precision = 0;
-            } else {
-                size = 0;
-                precision = 0;
-            }
-
-        } else {
-            type = typeString;
-            sizeString = "";
-            size = 0;
-            precision = 0;
-        }
-        type = type.toUpperCase();
-
-        // System.out.println(type);
-        // System.out.println(sizeString);
-        // System.out.println(size);
-        // System.out.println(precision);
-
-        typeString = "decimal(6, 4)";
-        bracesStart = typeString.indexOf('(');
-        if (bracesStart != -1) {
-            type = typeString.substring(0, bracesStart);
-            sizeString = typeString.substring(bracesStart + 1, typeString.indexOf(")"));
-
-            String[] sizes = sizeString.split(",");
-            if (sizes.length == 2) {
-                size = Integer.parseInt(sizes[0].strip());
-                precision = Integer.parseInt(sizes[1].strip());
-            } else if (sizes.length == 1) {
-                size = Integer.parseInt(sizes[0].strip());
-                precision = 0;
-            } else {
-                size = 0;
-                precision = 0;
-            }
-
-        } else {
-            type = typeString;
-            sizeString = "";
-            size = 0;
-            precision = 0;
-        }
-        type = type.toUpperCase();
-
-        // System.out.println(type);
-        // System.out.println(sizeString);
-        // System.out.println(size);
-        // System.out.println(precision);
     }
 
     private static PrestoCompositeDataType getColumnType(String typeString) {
