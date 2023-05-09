@@ -55,9 +55,6 @@ public final class PrestoUntypedExpressionGenerator extends UntypedExpressionGen
             return functionNode;
         }
         List<Expression> possibleOptions = new ArrayList<>(Arrays.asList(Expression.values()));
-//        if (!globalState.getDbmsSpecificOptions().testCollate) {
-//            possibleOptions.remove(Expression.COLLATE);
-//        }
 //        if (!globalState.getDbmsSpecificOptions().testFunctions) {
 //            possibleOptions.remove(Expression.FUNC);
 //        }
@@ -81,9 +78,6 @@ public final class PrestoUntypedExpressionGenerator extends UntypedExpressionGen
 //        }
         Expression expr = Randomly.fromList(possibleOptions);
         switch (expr) {
-//            case COLLATE:
-//                return new NewUnaryPostfixOperatorNode<PrestoExpression>(generateExpression(depth + 1),
-//                    PrestoCollate.getRandom());
 //            case UNARY_PREFIX:
 //                return new NewUnaryPrefixOperatorNode<PrestoExpression>(generateExpression(depth + 1),
 //                    PrestoUnaryPrefixOperator.getRandom());
@@ -91,13 +85,14 @@ public final class PrestoUntypedExpressionGenerator extends UntypedExpressionGen
 //                return new NewUnaryPostfixOperatorNode<PrestoExpression>(generateExpression(depth + 1),
 //                    PrestoUnaryPostfixOperator.getRandom());
             case BINARY_COMPARISON:
-                Operator op = PrestoBinaryComparisonOperator.getRandom();
+                Operator operator = PrestoBinaryComparisonOperator.getRandom();
+//                type
                 return new NewBinaryOperatorNode<PrestoExpression>(generateExpression(depth + 1),
-                    generateExpression(depth + 1), op);
+                    generateExpression(depth + 1), operator);
             case BINARY_LOGICAL:
-                op = PrestoBinaryLogicalOperator.getRandom();
+                operator = PrestoBinaryLogicalOperator.getRandom();
                 NewBinaryOperatorNode<PrestoExpression> binaryOperatorNode = new NewBinaryOperatorNode<>(generateExpression(depth + 1),
-                    generateExpression(depth + 1), op);
+                    generateExpression(depth + 1), operator);
                 return binaryOperatorNode;
             case BINARY_ARITHMETIC:
                 return new NewBinaryOperatorNode<PrestoExpression>(generateExpression(depth + 1),
