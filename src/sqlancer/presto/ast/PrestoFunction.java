@@ -38,22 +38,6 @@ public enum PrestoFunction {
         }
     },
 
-    // bool functions
-    LIKE(PrestoDataType.BOOLEAN, PrestoDataType.VARCHAR, PrestoDataType.VARCHAR, PrestoDataType.VARCHAR) {
-        @Override
-        List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-                                                               PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
-            return getLastArgAsConstantString(gen, depth, argumentTypes2, returnType2);
-        }
-
-        private List<Node<PrestoExpression>> getLastArgAsConstantString(PrestoTypedExpressionGenerator gen, int depth,
-                                                                        PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
-            List<Node<PrestoExpression>> args = super.getArgumentsForReturnType(gen, depth, argumentTypes2, returnType2);
-            args.set(2, PrestoConstant.createStringConstant(gen.getRandomly().getChar()));
-            return args;
-        }
-    },
-
     // MATH and numeric functions
     ABS_INT("ABS", PrestoDataType.INT, PrestoDataType.INT),
     // ABS_FLOAT("ABS", PrestoDataType.INT, PrestoDataType.FLOAT),
@@ -120,11 +104,14 @@ public enum PrestoFunction {
             }
             return argTypes;
         }
-    },
+    }
+
+    ;
+//    ,
     // System info function
     /* see https://github.com/cockroachdb/cockroach/issues/44203 */
-    CURRENT_DATABASE(PrestoDataType.VARCHAR), CURRENT_SCHEMA(PrestoDataType.VARCHAR),
-    CURRENT_USER(PrestoDataType.VARCHAR), VERSION(PrestoDataType.VARCHAR);
+//    CURRENT_DATABASE(PrestoDataType.VARCHAR), CURRENT_SCHEMA(PrestoDataType.VARCHAR),
+//    CURRENT_USER(PrestoDataType.VARCHAR), VERSION(PrestoDataType.VARCHAR);
 
 
     private PrestoDataType returnType;
@@ -196,6 +183,10 @@ public enum PrestoFunction {
 
     public static List<PrestoFunction> getFunctionsCompatibleWith(PrestoCompositeDataType returnType) {
         return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+
     }
 
 }

@@ -448,10 +448,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 primitiveType = PrestoDataType.TIMESTAMP_WITH_TIME_ZONE;
                 break;
             case "INTERVAL DAY TO SECOND":
-                primitiveType = PrestoDataType.INTERVAL_YEAR_TO_MONTH;
+                primitiveType = PrestoDataType.INTERVAL_DAY_TO_SECOND;
                 break;
             case "INTERVAL YEAR TO MONTH":
-                primitiveType = PrestoDataType.INTERVAL_DAY_TO_SECOND;
+                primitiveType = PrestoDataType.INTERVAL_YEAR_TO_MONTH;
                 break;
             case "JSON":
                 primitiveType = PrestoDataType.JSON;

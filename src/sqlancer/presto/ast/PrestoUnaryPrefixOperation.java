@@ -18,20 +18,20 @@ public class PrestoUnaryPrefixOperation extends NewUnaryPrefixOperatorNode<Prest
     }
 
     public enum PrestoUnaryPrefixOperator implements BinaryOperatorNode.Operator {
-        NOT("NOT", PrestoSchema.PrestoDataType.BOOLEAN, PrestoSchema.PrestoDataType.INT) {
+        NOT("NOT", PrestoSchema.PrestoDataType.BOOLEAN) {
             @Override
             public PrestoSchema.PrestoDataType getExpressionType() {
                 return PrestoSchema.PrestoDataType.BOOLEAN;
             }
         },
 
-        UNARY_PLUS("+", PrestoSchema.PrestoDataType.INT) {
+        UNARY_PLUS("+", PrestoSchema.PrestoDataType.INT, PrestoSchema.PrestoDataType.FLOAT, PrestoSchema.PrestoDataType.DECIMAL) {
             @Override
             public PrestoSchema.PrestoDataType getExpressionType() {
                 return PrestoSchema.PrestoDataType.INT;
             }
         },
-        UNARY_MINUS("-", PrestoSchema.PrestoDataType.INT) {
+        UNARY_MINUS("-", PrestoSchema.PrestoDataType.INT, PrestoSchema.PrestoDataType.FLOAT, PrestoSchema.PrestoDataType.DECIMAL) {
             @Override
             public PrestoSchema.PrestoDataType getExpressionType() {
                 return PrestoSchema.PrestoDataType.INT;
@@ -55,6 +55,10 @@ public class PrestoUnaryPrefixOperation extends NewUnaryPrefixOperatorNode<Prest
         @Override
         public String getTextRepresentation() {
             return this.textRepresentation;
+        }
+
+        public PrestoSchema.PrestoDataType getExpressionType(PrestoSchema.PrestoDataType type) {
+            return type;
         }
     }
 
