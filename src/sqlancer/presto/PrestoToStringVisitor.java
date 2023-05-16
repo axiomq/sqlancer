@@ -16,6 +16,10 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
             visit((PrestoJoin) expr);
         } else if (expr instanceof PrestoCastFunction) {
             visit((PrestoCastFunction) expr);
+        } else if (expr instanceof FunctionWithoutParenthesis) {
+            visit((FunctionWithoutParenthesis) expr);
+        } else if (expr instanceof PrestoAtTimeZoneOperator) {
+            visit((PrestoAtTimeZoneOperator) expr);
         } else {
             System.err.println(expr);
             throw new AssertionError(expr.getClass());
@@ -40,6 +44,16 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
 
     private void visit(PrestoConstant constant) {
         sb.append(constant.toString());
+    }
+
+    private void visit(PrestoAtTimeZoneOperator timeZoneOperator) {
+        visit(timeZoneOperator.getExpr());
+        sb.append(" AT TIME ZONE ");
+        sb.append("'").append(timeZoneOperator.getTimeZone().toString()).append("'");
+    }
+
+    private void visit(FunctionWithoutParenthesis functionWithoutParenthesis) {
+        sb.append(functionWithoutParenthesis.getExpr());
     }
 
     private void visit(PrestoSelect select) {

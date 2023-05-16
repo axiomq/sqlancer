@@ -185,8 +185,4 @@ public enum PrestoFunction {
         return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
     }
 
-    public static void main(String[] args) {
-
-    }
-
 }

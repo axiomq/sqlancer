@@ -73,6 +73,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             return Arrays.asList(INT, FLOAT, DECIMAL, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
         }
 
+        public static List<PrestoDataType> getNumberTypes() {
+            return Arrays.asList(INT, FLOAT, DECIMAL);
+        }
+
         public static List<PrestoDataType> getTemporalTypes() {
             return Arrays.asList(DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
         }
