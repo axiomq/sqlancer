@@ -15,9 +15,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static sqlancer.presto.PrestoSchema.PrestoDataType.*;
+import static sqlancer.presto.ast.PrestoConstant.createTimezoneConstant;
 
 public final class PrestoTypedExpressionGenerator extends
-    TypedExpressionGenerator<Node<PrestoExpression>, PrestoSchema.PrestoColumn, PrestoSchema.PrestoCompositeDataType> {
+        TypedExpressionGenerator<Node<PrestoExpression>, PrestoSchema.PrestoColumn, PrestoSchema.PrestoCompositeDataType> {
 
     private final Randomly randomly;
 
@@ -50,102 +51,73 @@ public final class PrestoTypedExpressionGenerator extends
         switch (type.getPrimitiveDataType()) {
             case NULL:
                 return PrestoConstant
-                    .createNullConstant();
+                        .createNullConstant();
             case CHAR:
                 return PrestoConstant.PrestoTextConstant
-                    .createStringConstant(randomly.getAlphabeticChar(), type.getSize());
+                        .createStringConstant(randomly.getAlphabeticChar(), type.getSize());
             case VARCHAR:
                 return PrestoConstant.PrestoTextConstant
-                    .createStringConstant(randomly.getString(), type.getSize());
+                        .createStringConstant(randomly.getString(), type.getSize());
             case VARBINARY:
                 return PrestoConstant.createVarbinaryConstant(randomly.getString());
             case JSON:
                 return PrestoConstant.PrestoJsonConstant.createJsonConstant();
             case TIME:
                 return PrestoConstant
-                    .createTimeConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createTimeConstant(randomly.getLong(0, System.currentTimeMillis()));
             case TIME_WITH_TIME_ZONE:
                 return PrestoConstant
-                    .createTimeWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createTimeWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
             case TIMESTAMP:
                 return PrestoConstant
-                    .createTimestampConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createTimestampConstant(randomly.getLong(0, System.currentTimeMillis()));
             case TIMESTAMP_WITH_TIME_ZONE:
                 return PrestoConstant
-                    .createTimestampWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createTimestampWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
             case INTERVAL_YEAR_TO_MONTH:
                 return PrestoConstant
-                    .createIntervalYearToMonth(randomly.getLong(0, System.currentTimeMillis()));
+                        .createIntervalYearToMonth(randomly.getLong(0, System.currentTimeMillis()));
             case INTERVAL_DAY_TO_SECOND:
                 return PrestoConstant
-                    .createIntervalDayToSecond(randomly.getLong(0, System.currentTimeMillis()));
+                        .createIntervalDayToSecond(randomly.getLong(0, System.currentTimeMillis()));
             case INT:
                 return PrestoConstant.PrestoIntConstant
-                    .createIntConstant(Randomly.getNonCachedInteger());
+                        .createIntConstant(Randomly.getNonCachedInteger());
             case FLOAT:
                 return PrestoConstant.PrestoFloatConstant
-                    .createFloatConstant(randomly.getDouble());
+                        .createFloatConstant(randomly.getDouble());
             case BOOLEAN:
                 return PrestoConstant.PrestoBooleanConstant
-                    .createBooleanConstant(Randomly.getBoolean());
+                        .createBooleanConstant(Randomly.getBoolean());
             case DATE:
                 return PrestoConstant
-                    .createDateConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createDateConstant(randomly.getLong(0, System.currentTimeMillis()));
             case DECIMAL:
                 return PrestoConstant
-                    .createDecimalConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createDecimalConstant(randomly.getLong(0, System.currentTimeMillis()));
             default:
                 throw new AssertionError("Unknown type: " + type);
         }
     }
 
-//    @Override
-//    public Node<PrestoExpression> generateExpression(PrestoSchema.PrestoCompositeDataType type, int depth) {
-//        if (depth >= maxDepth || Randomly.getBooleanWithSmallProbability()) {
-//            return generateLeafNode(type);
-//        }
-//
-//        List<Expression> possibleOptions = new ArrayList<>(Arrays.asList(Expression.values()));
-//        PrestoTypedExpressionGenerator.Expression expr = Randomly.fromList(possibleOptions);
-//        BinaryOperatorNode.Operator op;
-//        switch (expr) {
-//            case BINARY_LOGICAL:
-//                op = PrestoTypedExpressionGenerator.PrestoBinaryLogicalOperator.getRandom();
-//                break;
-//            case BINARY_ARITHMETIC:
-//                op = PrestoTypedExpressionGenerator.PrestoBinaryLogicalOperator.getRandom();
-//                break;
-//            case BINARY_COMPARISON:
-//                op = PrestoBinaryComparisonOperator.getRandom();
-//                break;
-//            default:
-//                throw new AssertionError();
-//        }
-//
-//        int depth1 = depth + 1;
-//        return new NewBinaryOperatorNode<>(generateExpression(type, depth1), generateExpression(type, depth1), op);
-//
-//    }
-
     @Override
     public Node<PrestoExpression> generateExpression(PrestoSchema.PrestoCompositeDataType type, int depth) {
-        // if (type == PrestoDataType.FLOAT && Randomly.getBooleanWithRatherLowProbability()) {
-        // type = PrestoDataType.INT;
-        // }
         if (allowAggregates && Randomly.getBoolean()) {
             return generateAggregate(type);
         }
         if (depth >= globalState.getOptions().getMaxExpressionDepth() || Randomly.getBoolean()) {
             return generateLeafNode(type);
         } else {
-            List<PrestoFunction> applicableFunctions = PrestoFunction.getFunctionsCompatibleWith(type);
-            if (Randomly.getBooleanWithRatherLowProbability() && !applicableFunctions.isEmpty()) {
-                PrestoFunction function = Randomly.fromList(applicableFunctions);
-                return getFunction(type, depth, function);
-            }
-            if (Randomly.getBooleanWithRatherLowProbability()) {
-                return new PrestoCastFunction(generateExpression(getRandomType(), depth + 1), type);
-            }
+            // TODO: apply function
+//            List<PrestoFunction> applicableFunctions = PrestoFunction.getFunctionsCompatibleWith(type);
+//            if (Randomly.getBooleanWithRatherLowProbability() && !applicableFunctions.isEmpty()) {
+//                PrestoFunction function = Randomly.fromList(applicableFunctions);
+//                return getFunction(type, depth, function);
+//            }
+//            if (Randomly.getBooleanWithRatherLowProbability()) {
+//                Node<PrestoExpression> expressionNode = generateCast(type, depth);
+//                return new PrestoCastFunction(expressionNode, type);
+//            }
             if (Randomly.getBooleanWithRatherLowProbability()) {
                 return getCase(type, depth);
             }
@@ -165,11 +137,13 @@ public final class PrestoTypedExpressionGenerator extends
                 case TIME_WITH_TIME_ZONE:
                 case TIMESTAMP_WITH_TIME_ZONE:
                     return generateTemporalExpression(type, depth);
-                case VARBINARY:
-                case JSON:
                 case INTERVAL_YEAR_TO_MONTH:
                 case INTERVAL_DAY_TO_SECOND:
+                    return generateIntervalExpression(type, depth);
+                case VARBINARY:
+                case JSON:
 //                case ARRAY:
+//                case MAP:
                     return generateLeafNode(type); // TODO
                 default:
                     throw new AssertionError(type);
@@ -177,11 +151,16 @@ public final class PrestoTypedExpressionGenerator extends
         }
     }
 
+    private Node<PrestoExpression> generateCast(PrestoSchema.PrestoCompositeDataType type, int depth) {
+        // check can cast
+        return generateExpression(getRandomType(), depth + 1);
+    }
+
     private NewCaseOperatorNode<PrestoExpression> getCase(PrestoSchema.PrestoCompositeDataType type, int depth) {
         List<Node<PrestoExpression>> conditions = new ArrayList<>();
         List<Node<PrestoExpression>> cases = new ArrayList<>();
         for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
-            conditions.add(generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN), depth + 1));
+            conditions.add(generateExpression(type, depth + 1));
             cases.add(generateExpression(type, depth + 1));
         }
         Node<PrestoExpression> elseExpr = null;
@@ -232,7 +211,10 @@ public final class PrestoTypedExpressionGenerator extends
         StringExpression exprType = Randomly.fromOptions(StringExpression.values());
         switch (exprType) {
             case CONCAT:
-                return new NewBinaryOperatorNode<>(generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR), depth + 1), generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR), depth + 1), PrestBinaryStringOperator.CONCAT);
+                Node<PrestoExpression> left = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR), depth + 1);
+                Node<PrestoExpression> right = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR), depth + 1);
+                PrestBinaryStringOperator operator = PrestBinaryStringOperator.CONCAT;
+                return new NewBinaryOperatorNode<>(left, right, operator);
             default:
                 throw new AssertionError(exprType);
         }
@@ -249,11 +231,11 @@ public final class PrestoTypedExpressionGenerator extends
                 return getBinaryLogical(depth);
             case AND_OR_CHAIN:
                 return getAndOrChain(depth);
-            case REGEX:
-                return getRegex(depth);
+//            case REGEX:
+//                return getRegex(depth);
             case IS_NULL:
                 return new PrestoUnaryPostfixOperation(generateExpression(getRandomType(), depth + 1), Randomly
-                    .fromOptions(PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NULL, PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NOT_NULL));
+                        .fromOptions(PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NULL, PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NOT_NULL));
             case IN:
                 return getInOperation(depth);
             case BETWEEN:
@@ -266,7 +248,7 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> generateNumericExpression(int depth) {
-        PrestoSchema.PrestoDataType dataType = Randomly.fromList(PrestoSchema.PrestoDataType.getNumericTypes());
+        PrestoSchema.PrestoDataType dataType = Randomly.fromList(PrestoSchema.PrestoDataType.getNumberTypes());
         PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(dataType);
         if (Randomly.getBoolean()) {
             BinaryOperatorNode.Operator operator = PrestoBinaryArithmeticOperator.getRandom();
@@ -276,54 +258,82 @@ public final class PrestoTypedExpressionGenerator extends
         } else {
             BinaryOperatorNode.Operator operator = PrestoUnaryArithmeticOperator.MINUS;
             Node<PrestoExpression> left = generateExpression(type, depth);
-            ;
             return new NewUnaryPrefixOperatorNode<>(left, operator);
         }
     }
 
     private Node<PrestoExpression> generateTemporalExpression(PrestoSchema.PrestoCompositeDataType type, int depth) {
+        if (Randomly.getBooleanWithSmallProbability()) {
+            Node<PrestoExpression> left = generateExpression(
+                    type, depth);
+            Node<PrestoExpression> right = generateExpression(
+                    PrestoSchema.PrestoCompositeDataType.fromDataType(
+                            Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())
+                    ), depth);
+            BinaryOperatorNode.Operator operator = PrestoBinaryTemporalOperator.getRandom();
+            return new NewBinaryOperatorNode<>(left, right, operator);
+        }
 
-        if(Randomly.getBooleanWithSmallProbability()) {
-            if (type.getPrimitiveDataType() == INTERVAL_YEAR_TO_MONTH || type.getPrimitiveDataType() == INTERVAL_DAY_TO_SECOND) {
-                if (Randomly.getBoolean()) {
-                    Node<PrestoExpression> left = generateExpression(type, depth);
-                    Node<PrestoExpression> right = generateExpression(type, depth);
-                }else {
-                    Node<PrestoExpression> left = generateExpression(type, depth);
-                    Node<PrestoExpression> right = generateExpression(type, depth);
-                }
+        // timestamp at time zone
+        if (Randomly.getBooleanWithSmallProbability()) {
+            if (type.getPrimitiveDataType() == TIMESTAMP || type.getPrimitiveDataType() == TIMESTAMP_WITH_TIME_ZONE) {
+                return new PrestoAtTimeZoneOperator(
+                        generateExpression(type, depth + 1), createTimezoneConstant());
             }
         }
         return generateLeafNode(type);
+    }
 
-//        if (Randomly.getBoolean()) {
-//            BinaryOperatorNode.Operator operator = PrestoBinaryTemporalOperator.getRandom();
-//            Node<PrestoExpression> left = generateExpression(type, depth);
-//            Node<PrestoExpression> right = generateExpression(type, depth);
-//            return new NewBinaryOperatorNode<>(left, right, operator);
-//        }
+    private Node<PrestoExpression> generateIntervalExpression(PrestoSchema.PrestoCompositeDataType type, int depth) {
+        if (Randomly.getBooleanWithSmallProbability()) {
+            Node<PrestoExpression> left = generateExpression(
+                    PrestoSchema.PrestoCompositeDataType.fromDataType(
+                            Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())
+                    ), depth);
+
+            Node<PrestoExpression> right;
+            if (Randomly.getBoolean()) {
+                right = generateExpression(
+                        PrestoSchema.PrestoCompositeDataType.fromDataType(
+                                Randomly.fromList(PrestoSchema.PrestoDataType.getTemporalTypes())
+                        ), depth);
+            } else {
+                right = generateExpression(
+                        PrestoSchema.PrestoCompositeDataType.fromDataType(
+                                Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())
+                        ), depth);
+            }
+            BinaryOperatorNode.Operator operator = PrestoBinaryTemporalOperator.getRandom();
+            if (Randomly.getBoolean())
+                return new NewBinaryOperatorNode<>(left, right, operator);
+            else
+                return new NewBinaryOperatorNode<>(right, left, operator);
+        }
+        return generateLeafNode(type);
+
         // functions
 
         // timestamp at time zone
-
-//        if (Randomly.getBoolean()) {
-//        } else {
-//            BinaryOperatorNode.Operator operator = PrestoUnaryArithmeticOperator.MINUS;
-//            Node<PrestoExpression> left = generateExpression(type, depth);
-//            return new NewUnaryPrefixOperatorNode<>(left, operator);
-//        }
     }
 
     private Node<PrestoExpression> getLike(int depth) {
         PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR);
         Node<PrestoExpression> expression = generateExpression(type, depth + 1);
         Node<PrestoExpression> pattern = generateExpression(type, depth + 1);
-        PrestoConstant.PrestoTextConstant patternString = new PrestoConstant.PrestoTextConstant(randomly.getString());
         if (Randomly.getBoolean()) {
             return new NewBinaryOperatorNode<>(expression, pattern, PrestoLikeOperator.getRandom());
         } else {
-            Node<PrestoExpression> escape = new PrestoConstant.PrestoTextConstant(randomly.getChar(), 1);
-            return new NewTernaryNode<>(expression, pattern, escape, "LIKE", "ESCAPE");
+            String randomlyString = randomly.getString();
+            String randomlyChar = randomly.getChar();
+            Node<PrestoExpression> escape = new PrestoConstant.PrestoTextConstant(randomlyChar, 1);
+            int index = randomlyString.indexOf(randomlyChar);
+            while (index > -1) {
+                String wildcard = Randomly.fromOptions("%", "_");
+                randomlyString = randomlyString.substring(0, index + 1) + wildcard + randomlyString.substring(index + 1);
+                index = randomlyString.indexOf(randomlyChar, index + 1);
+            }
+            PrestoConstant.PrestoTextConstant patternString = new PrestoConstant.PrestoTextConstant(randomlyString);
+            return new NewTernaryNode<>(expression, patternString, escape, "LIKE", "ESCAPE");
         }
     }
 
@@ -337,7 +347,8 @@ public final class PrestoTypedExpressionGenerator extends
         PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN);
         Node<PrestoExpression> left = generateExpression(type, depth + 1);
         Node<PrestoExpression> right = generateExpression(type, depth + 1);
-        return new NewBinaryOperatorNode<>(left, right, PrestoBinaryLogicalOperator.getRandom());
+        BinaryOperatorNode.Operator operator = PrestoBinaryLogicalOperator.getRandom();
+        return new NewBinaryOperatorNode<>(left, right, operator);
     }
 
     private Node<PrestoExpression> getBetween(int depth) {
@@ -345,7 +356,7 @@ public final class PrestoTypedExpressionGenerator extends
         Node<PrestoExpression> expression = generateExpression(type, depth + 1);
         Node<PrestoExpression> left = generateExpression(type, depth + 1);
         Node<PrestoExpression> right = generateExpression(type, depth + 1);
-        return new NewBetweenOperatorNode<PrestoExpression>(expression, left, right, Randomly.getBoolean());
+        return new NewBetweenOperatorNode<>(expression, left, right, Randomly.getBoolean());
     }
 
     private Node<PrestoExpression> getInOperation(int depth) {
@@ -353,21 +364,22 @@ public final class PrestoTypedExpressionGenerator extends
         Node<PrestoExpression> left = generateExpression(type, depth + 1);
         List<Node<PrestoExpression>> inList = generateExpressions(type, Randomly.smallNumber() + 1, depth + 1);
         boolean isNegated = Randomly.getBoolean();
-        return new NewInOperatorNode<PrestoExpression>(left, inList, isNegated);
+        return new NewInOperatorNode<>(left, inList, isNegated);
     }
 
     private Node<PrestoExpression> getAndOrChain(int depth) {
         Node<PrestoExpression> left = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN), depth + 1);
         for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
             Node<PrestoExpression> right = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN), depth + 1);
-            left = new NewBinaryOperatorNode<>(left, right, PrestoBinaryLogicalOperator.getRandom());
+            BinaryOperatorNode.Operator operator = PrestoBinaryLogicalOperator.getRandom();
+            left = new NewBinaryOperatorNode<>(left, right, operator);
         }
         return left;
     }
 
     private Node<PrestoExpression> getBinaryComparison(int depth) {
         PrestoSchema.PrestoCompositeDataType type = getRandomType();
-        BinaryOperatorNode.Operator op = PrestoBinaryComparisonOperator.getRandom();
+        BinaryOperatorNode.Operator op = PrestoBinaryComparisonOperator.getRandomForType(type);
         Node<PrestoExpression> left = generateExpression(type, depth + 1);
         Node<PrestoExpression> right = generateExpression(type, depth + 1);
         return new NewBinaryOperatorNode<>(left, right, op);
@@ -388,9 +400,9 @@ public final class PrestoTypedExpressionGenerator extends
     @Override
     protected Node<PrestoExpression> generateColumn(PrestoSchema.PrestoCompositeDataType type) {
         List<PrestoSchema.PrestoColumn> columnList = columns
-            .stream()
-            .filter(c -> c.getType().getPrimitiveDataType() == type.getPrimitiveDataType())
-            .collect(Collectors.toList());
+                .stream()
+                .filter(c -> c.getType().getPrimitiveDataType() == type.getPrimitiveDataType())
+                .collect(Collectors.toList());
         PrestoSchema.PrestoColumn column = Randomly.fromList(columnList);
         return new PrestoColumnReference(column);
     }
@@ -414,8 +426,8 @@ public final class PrestoTypedExpressionGenerator extends
             return Collections.emptyList();
         } else {
             List<PrestoSchema.PrestoColumn> columnList = columns.stream()
-                .filter(c -> c.getType().getPrimitiveDataType() == dataType)
-                .collect(Collectors.toList());
+                    .filter(c -> c.getType().getPrimitiveDataType() == dataType)
+                    .collect(Collectors.toList());
             return columnList;
         }
     }
@@ -430,9 +442,10 @@ public final class PrestoTypedExpressionGenerator extends
         return columns.stream().anyMatch(c -> c.getType() == type);
     }
 
-    public NewFunctionNode<PrestoExpression, PrestoAggregateFunction> generateArgsForAggregate(PrestoAggregateFunction aggregateFunction) {
+    public NewFunctionNode<PrestoExpression, PrestoAggregateFunction> generateArgsForAggregate
+            (PrestoAggregateFunction aggregateFunction) {
         return new NewFunctionNode<PrestoExpression, PrestoAggregateFunction>(
-            generateExpressions(aggregateFunction.getNrArgs()), aggregateFunction);
+                generateExpressions(aggregateFunction.getNrArgs()), aggregateFunction);
     }
 
     public Node<PrestoExpression> generateAggregate() {
@@ -442,7 +455,7 @@ public final class PrestoTypedExpressionGenerator extends
 
     private Node<PrestoExpression> generateAggregate(PrestoSchema.PrestoCompositeDataType type) {
         PrestoAggregateFunction agg = Randomly
-            .fromList(PrestoAggregateFunction.getAggregates(type.getPrimitiveDataType()));
+                .fromList(PrestoAggregateFunction.getAggregates(type.getPrimitiveDataType()));
         return generateArgsForAggregate(type, agg);
     }
 
@@ -478,7 +491,8 @@ public final class PrestoTypedExpressionGenerator extends
         return expr;
     }
 
-    public Node<PrestoExpression> generateExpressionWithColumns(List<PrestoSchema.PrestoColumn> columns, int remainingDepth) {
+    public Node<PrestoExpression> generateExpressionWithColumns(List<PrestoSchema.PrestoColumn> columns,
+                                                                int remainingDepth) {
         if (columns.isEmpty() || remainingDepth <= 2 && Randomly.getBooleanWithRatherLowProbability()) {
             return generateConstant(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
         }
@@ -503,13 +517,15 @@ public final class PrestoTypedExpressionGenerator extends
         return new NewBinaryOperatorNode<>(generateExpression(column.getType(), remainingDepth - 1), generateExpression(column.getType(), remainingDepth - 1), op);
     }
 
-    private Node<PrestoExpression> generateExpressionWithColumns(List<PrestoSchema.PrestoColumn> columns, PrestoSchema.PrestoCompositeDataType prestoCompositeDataType,
-                                                                 int remainingDepth) {
+    private Node<PrestoExpression> generateExpressionWithColumns
+            (List<PrestoSchema.PrestoColumn> columns, PrestoSchema.PrestoCompositeDataType prestoCompositeDataType,
+             int remainingDepth) {
         return null;
     }
 
-    private Node<PrestoExpression> generatePredicate(List<PrestoSchema.PrestoColumn> columns, PrestoSchema.PrestoCompositeDataType prestoCompositeDataType,
-                                                     int remainingDepth) {
+    private Node<PrestoExpression> generatePredicate
+            (List<PrestoSchema.PrestoColumn> columns, PrestoSchema.PrestoCompositeDataType prestoCompositeDataType,
+             int remainingDepth) {
         return null;
     }
 
@@ -578,7 +594,7 @@ public final class PrestoTypedExpressionGenerator extends
         BINARY_COMPARISON,
         BINARY_LOGICAL,
         AND_OR_CHAIN,
-        REGEX,
+        //        REGEX,
         IS_NULL,
         IN,
         BETWEEN,
@@ -624,11 +640,10 @@ public final class PrestoTypedExpressionGenerator extends
 
     public enum PrestoBinaryComparisonOperator implements BinaryOperatorNode.Operator {
         EQUALS("="),
+        NOT_EQUALS("<>"), NOT_EQUALS_ALT("!="),
+        IS_DISTINCT_FROM("IS DISTINCT FROM"), IS_NOT_DISTINCT_FROM("IS NOT DISTINCT FROM"),
         GREATER(">"), GREATER_EQUALS(">="),
-        SMALLER("<"), SMALLER_EQUALS("<="),
-        NOT_EQUALS("<>"),
-        NOT_EQUALS_ALT("!="),
-        IS_DISTINCT_FROM("IS DISTINCT FROM"), IS_NOT_DISTINCT_FROM("IS NOT DISTINCT FROM");
+        SMALLER("<"), SMALLER_EQUALS("<=");
 
         private final String textRepresentation;
 
@@ -642,6 +657,32 @@ public final class PrestoTypedExpressionGenerator extends
 
         public static BinaryOperatorNode.Operator getRandomStringOperator() {
             return Randomly.fromOptions(EQUALS, NOT_EQUALS, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);
+        }
+
+        public static BinaryOperatorNode.Operator getRandomForType(PrestoSchema.PrestoCompositeDataType type) {
+            PrestoSchema.PrestoDataType dataType = type.getPrimitiveDataType();
+
+            switch (dataType) {
+                case BOOLEAN:
+                case INT:
+                case FLOAT:
+                case DECIMAL:
+                case DATE:
+                case TIME:
+                case TIMESTAMP:
+                case TIME_WITH_TIME_ZONE:
+                case TIMESTAMP_WITH_TIME_ZONE:
+                    return getRandom();
+                case VARCHAR:
+                case CHAR:
+                case VARBINARY:
+                case JSON:
+                case INTERVAL_YEAR_TO_MONTH:
+                case INTERVAL_DAY_TO_SECOND:
+                    return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);
+                default:
+                    return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);
+            }
         }
 
         @Override

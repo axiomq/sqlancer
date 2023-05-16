@@ -379,7 +379,7 @@ public final class PrestoUntypedExpressionGenerator extends UntypedExpressionGen
     }
 
     public enum PrestoBinaryArithmeticOperator implements Operator {
-        CONCAT("||"),
+//        CONCAT("||"),
         ADD("+"), SUB("-"), MULT("*"), DIV("/"), MOD("%"),
 //        AND("&"), OR("|"),
 //        LSHIFT("<<"), RSHIFT(">>")
