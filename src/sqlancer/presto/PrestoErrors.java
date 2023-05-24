@@ -8,6 +8,7 @@ public final class PrestoErrors {
     }
 
     public static void addExpressionErrors(ExpectedErrors errors) {
+        /*
         errors.add("with non-constant precision is not supported");
         errors.add("Like pattern must not end with escape character");
         errors.add("Could not convert string");
@@ -52,14 +53,12 @@ public final class PrestoErrors {
         // timestamp
         errors.add("Cannot subtract infinite timestamps");
         errors.add("Timestamp difference is out of bounds");
-
+*/
         // Presto errors
         errors.add("cannot be applied to");
         errors.add("LIKE expression must evaluate to a varchar");
         errors.add("JOIN ON clause must evaluate to a boolean");
         errors.add("Unexpected parameters");
-        errors.add("Cannot cast");
-        errors.add("Value cannot be cast to");
 
         //  SELECT SUM(count) FROM (SELECT CAST((-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000 IS NOT NULL AND -179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0000) AS BIGINT)as count FROM t0) as res
         errors.add("Decimal overflow");
@@ -68,10 +67,27 @@ public final class PrestoErrors {
         errors.add("subtraction overflow");
 
         // cast
-        errors.add("Cannot cast");
+//        errors.add("Cannot cast");
+        errors.add("Value cannot be cast to");
+        errors.add("Cannot cast DECIMAL");
+        errors.add("Cannot cast BIGINT");
+        errors.add("Cannot cast INTEGER");
 
         //  9223372036854775808
         errors.add("Invalid numeric literal");
+
+        errors.add("Division by zero");
+        errors.add("/ by zero");
+
+        errors.add("Cannot subtract hour, minutes or seconds from a date");
+        errors.add("Cannot add hour, minutes or seconds to a date");
+
+        errors.add("DECIMAL scale must be in range");
+        errors.add("multiplication overflow");
+        errors.add("addition overflow");
+        errors.add("subtraction overflow");
+        errors.add("Decimal overflow");
+        errors.add("IN value and list items must be the same type");
     }
 
     private static void addRegexErrors(ExpectedErrors errors) {

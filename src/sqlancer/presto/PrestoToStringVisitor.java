@@ -20,6 +20,10 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
             visit((FunctionWithoutParenthesis) expr);
         } else if (expr instanceof PrestoAtTimeZoneOperator) {
             visit((PrestoAtTimeZoneOperator) expr);
+        } else if (expr instanceof PrestoMultiValuedComparison) {
+            visit((PrestoMultiValuedComparison) expr);
+        }  else if (expr instanceof PrestoQuantifiedComparison) {
+            visit((PrestoQuantifiedComparison) expr);
         } else {
             System.err.println(expr);
             throw new AssertionError(expr.getClass());
@@ -49,7 +53,7 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
     private void visit(PrestoAtTimeZoneOperator timeZoneOperator) {
         visit(timeZoneOperator.getExpr());
         sb.append(" AT TIME ZONE ");
-        sb.append("'").append(timeZoneOperator.getTimeZone().toString()).append("'");
+        sb.append(timeZoneOperator.getTimeZone());
     }
 
     private void visit(FunctionWithoutParenthesis functionWithoutParenthesis) {
@@ -110,4 +114,29 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
         sb.append(")");
     }
 
+    public void visit(PrestoMultiValuedComparison comp) {
+        sb.append("(");
+        visit(comp.getLeft());
+        sb.append(" ");
+        sb.append(comp.getOp().getStringRepresentation());
+        sb.append(" ");
+        sb.append(comp.getType());
+        sb.append(" (VALUES ");
+        visit(comp.getRight());
+        sb.append(")");
+        sb.append(")");
+    }
+
+    public void visit(PrestoQuantifiedComparison comp) {
+        sb.append("(");
+        visit(comp.getLeft());
+        sb.append(" ");
+        sb.append(comp.getOp().getStringRepresentation());
+        sb.append(" ");
+        sb.append(comp.getType());
+        sb.append(" ( ");
+        visit(comp.getRight());
+        sb.append(" ) ");
+        sb.append(")");
+    }
 }

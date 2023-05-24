@@ -117,9 +117,10 @@ public class SQLQueryAdapter extends Query<SQLConnection> {
                 ex.printStackTrace();
             }
             if (expectedErrors.errorIsExpected(message)) {
+                System.err.println("EXPECTED: \n query:" + query + " \n cause:" + ex.getCause());
                 return;
             } else {
-                System.err.println(ex.getCause());
+                System.err.println("UNEXPECTED: \n query:" + query + " \n cause:" + ex.getCause());
                 ex = ex.getCause();
             }
         }
