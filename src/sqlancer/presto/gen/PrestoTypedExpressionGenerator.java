@@ -4,6 +4,7 @@ import sqlancer.Randomly;
 import sqlancer.common.ast.BinaryOperatorNode;
 import sqlancer.common.ast.newast.*;
 import sqlancer.common.gen.TypedExpressionGenerator;
+import sqlancer.common.schema.AbstractTableColumn;
 import sqlancer.presto.PrestoGlobalState;
 import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.ast.*;
@@ -21,7 +22,6 @@ public final class PrestoTypedExpressionGenerator extends
         TypedExpressionGenerator<Node<PrestoExpression>, PrestoSchema.PrestoColumn, PrestoSchema.PrestoCompositeDataType> {
 
     private final Randomly randomly;
-
     private final PrestoGlobalState globalState;
     private final int maxDepth;
 
@@ -82,7 +82,7 @@ public final class PrestoTypedExpressionGenerator extends
                         .createIntervalDayToSecond(randomly.getLong(0, System.currentTimeMillis()));
             case INT:
                 return PrestoConstant.PrestoIntConstant
-                        .createIntConstant(Randomly.getNonCachedInteger());
+                        .createIntConstant(type, Randomly.getNonCachedInteger());
             case FLOAT:
                 return PrestoConstant.PrestoFloatConstant
                         .createFloatConstant(randomly.getDouble());
@@ -94,7 +94,7 @@ public final class PrestoTypedExpressionGenerator extends
                         .createDateConstant(randomly.getLong(0, System.currentTimeMillis()));
             case DECIMAL:
                 return PrestoConstant
-                        .createDecimalConstant(randomly.getLong(0, System.currentTimeMillis()));
+                        .createDecimalConstant(type, randomly.getLong(0, System.currentTimeMillis()));
             default:
                 throw new AssertionError("Unknown type: " + type);
         }
@@ -108,12 +108,13 @@ public final class PrestoTypedExpressionGenerator extends
         if (depth >= globalState.getOptions().getMaxExpressionDepth() || Randomly.getBoolean()) {
             return generateLeafNode(type);
         } else {
-            // TODO: apply function
+            // TODO: functions
 //            List<PrestoFunction> applicableFunctions = PrestoFunction.getFunctionsCompatibleWith(type);
 //            if (Randomly.getBooleanWithRatherLowProbability() && !applicableFunctions.isEmpty()) {
 //                PrestoFunction function = Randomly.fromList(applicableFunctions);
 //                return getFunction(type, depth, function);
 //            }
+            // TODO: cast
 //            if (Randomly.getBooleanWithRatherLowProbability()) {
 //                Node<PrestoExpression> expressionNode = generateCast(type, depth);
 //                return new PrestoCastFunction(expressionNode, type);
@@ -242,9 +243,57 @@ public final class PrestoTypedExpressionGenerator extends
                 return getBetween(depth);
             case LIKE:
                 return getLike(depth);
+            case MULTI_VALUED_COMPARISON: // TODO other operators
+                return getMultiValuedComparison(depth);
             default:
                 throw new AssertionError(exprType);
         }
+    }
+
+    private Node<PrestoExpression> getMultiValuedComparison(int depth) {
+        PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(getComparableTypes()));
+        PrestoMultiValuedComparisonType comparisonType = PrestoMultiValuedComparisonType.getRandom();
+        PrestoMultiValuedComparisonOperator comparisonOperator = PrestoMultiValuedComparisonOperator.getRandomForType(type);
+        Node<PrestoExpression> left = generateExpression(type, depth + 1);
+        // sub-query
+        List<PrestoSchema.PrestoColumn> columnsOfType = columns.stream().filter(c -> c.getType() == type).collect(Collectors.toList());
+        if (Randomly.getBooleanWithRatherLowProbability() && !columnsOfType.isEmpty()) {
+            PrestoSchema.PrestoColumn column = Randomly.fromList(columnsOfType);
+            PrestoSelect subquery = generateSubquery(List.of(column));
+            return new PrestoQuantifiedComparison(left, subquery, comparisonType, comparisonOperator);
+        }
+        int nr = Randomly.smallNumber() + 2;
+        List<Node<PrestoExpression>> rightList = new ArrayList<>();
+        for (int i = 0; i < nr; i++) {
+            rightList.add(generateConstant(type));
+        }
+        return new PrestoMultiValuedComparison(left, rightList, comparisonType, comparisonOperator);
+    }
+
+    private PrestoSelect generateSubquery(List<PrestoSchema.PrestoColumn> columns) {
+        PrestoSelect select = new PrestoSelect();
+        List<Node<PrestoExpression>> allColumns = columns.stream()
+                .map((c) -> new ColumnReferenceNode<PrestoExpression, PrestoSchema.PrestoColumn>(c)).collect(Collectors.toList());
+        select.setFetchColumns(allColumns);
+        List<PrestoSchema.PrestoTable> tables = columns.stream()
+                .map(AbstractTableColumn::getTable).collect(Collectors.toList());
+        List<TableReferenceNode<PrestoExpression, PrestoSchema.PrestoTable>> tableList = tables.stream()
+                .map(t -> new TableReferenceNode<PrestoExpression, PrestoSchema.PrestoTable>(t))
+                .distinct()
+                .collect(Collectors.toList());
+        List<Node<PrestoExpression>> tableNodeList = tables.stream()
+                .map(t -> new TableReferenceNode<PrestoExpression, PrestoSchema.PrestoTable>(t))
+                .collect(Collectors.toList());
+        select.setFromList(tableNodeList);
+        TypedExpressionGenerator<Node<PrestoExpression>, PrestoSchema.PrestoColumn, PrestoSchema.PrestoCompositeDataType> typedExpressionGenerator = new PrestoTypedExpressionGenerator(globalState).setColumns(columns);
+        Node<PrestoExpression> predicate = typedExpressionGenerator.generatePredicate();
+        select.setWhereClause(predicate);
+        if (Randomly.getBooleanWithSmallProbability()) {
+            select.setOrderByExpressions(typedExpressionGenerator.generateOrderBys());
+        }
+        List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, globalState);
+        select.setJoinList(joins);
+        return select;
     }
 
     private Node<PrestoExpression> generateNumericExpression(int depth) {
@@ -425,10 +474,9 @@ public final class PrestoTypedExpressionGenerator extends
         if (columns == null) {
             return Collections.emptyList();
         } else {
-            List<PrestoSchema.PrestoColumn> columnList = columns.stream()
+            return columns.stream()
                     .filter(c -> c.getType().getPrimitiveDataType() == dataType)
                     .collect(Collectors.toList());
-            return columnList;
         }
     }
 
@@ -474,11 +522,12 @@ public final class PrestoTypedExpressionGenerator extends
     public List<Node<PrestoExpression>> generateOrderBys() {
         List<Node<PrestoExpression>> expressions = new ArrayList<>();
         int nr = Randomly.smallNumber() + 1;
-        ArrayList<PrestoSchema.PrestoColumn> hsqldbColumns = new ArrayList<>(columns);
-        for (int i = 0; i < nr && !hsqldbColumns.isEmpty(); i++) {
-            PrestoSchema.PrestoColumn randomColumn = Randomly.fromList(hsqldbColumns);
+        ArrayList<PrestoSchema.PrestoColumn> prestoColumns = new ArrayList<>(columns);
+        prestoColumns.removeIf(c -> !c.isOrderable());
+        for (int i = 0; i < nr && !prestoColumns.isEmpty(); i++) {
+            PrestoSchema.PrestoColumn randomColumn = Randomly.fromList(prestoColumns);
             PrestoColumnReference columnReference = new PrestoColumnReference(randomColumn);
-            hsqldbColumns.remove(randomColumn);
+            prestoColumns.remove(randomColumn);
             expressions.add(columnReference);
         }
         return expressions;
@@ -598,8 +647,8 @@ public final class PrestoTypedExpressionGenerator extends
         IS_NULL,
         IN,
         BETWEEN,
-        LIKE
-//        , MULTI_VALUED_COMPARISON
+        LIKE,
+        MULTI_VALUED_COMPARISON
     }
 
     public enum PrestoBinaryLogicalOperator implements BinaryOperatorNode.Operator {

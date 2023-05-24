@@ -2,8 +2,11 @@ package sqlancer.presto.ast;
 
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
+import sqlancer.presto.PrestoConstantUtils;
 import sqlancer.presto.PrestoSchema;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -36,6 +39,18 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         return new PrestoJsonConstant();
     }
 
+    public static Node<PrestoExpression> createFloatConstant(PrestoSchema.PrestoCompositeDataType type, double val) {
+        switch (type.getSize()) {
+            case 4:
+                float floatValue = (float) val;
+                return new PrestoFloatConstant(floatValue);
+            case 8:
+                return new PrestoFloatConstant(val);
+            default:
+                return new PrestoFloatConstant(val);
+        }
+    }
+
     public static Node<PrestoExpression> createFloatConstant(double val) {
         return new PrestoFloatConstant(val);
     }
@@ -44,8 +59,30 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         return new PrestoDecimalConstant(val);
     }
 
+    public static Node<PrestoExpression> createDecimalConstant(PrestoSchema.PrestoCompositeDataType type, double val) {
+        int scale = type.getScale();
+        int precision = type.getSize();
+        BigDecimal finalBD = PrestoConstantUtils.getDecimal(val, scale, precision);
+        return new PrestoDecimalConstant(finalBD.doubleValue());
+    }
+
     public static Node<PrestoExpression> createIntConstant(long val) {
         return new PrestoIntConstant(val);
+    }
+
+    public static Node<PrestoExpression> createIntConstant(PrestoSchema.PrestoCompositeDataType type, long val) {
+        switch (type.getSize()) {
+            case 1:
+                return new PrestoIntConstant((byte) val);
+            case 2:
+                return new PrestoIntConstant((short) val);
+            case 4:
+                return new PrestoIntConstant((int) val);
+            case 8:
+                return new PrestoIntConstant(val);
+            default:
+                return new PrestoIntConstant(val);
+        }
     }
 
     public static Node<PrestoExpression> createNullConstant() {
@@ -252,9 +289,9 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public String toString() {
             if (value == Double.POSITIVE_INFINITY) {
-                return "'+Inf'";
+                return "infinity()";
             } else if (value == Double.NEGATIVE_INFINITY) {
-                return "'-Inf'";
+                return "-infinity()";
             }
             return String.valueOf(value);
         }
@@ -547,12 +584,10 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
                     String randString = rand.getString();
                     String string = randString.substring(0, Math.min(randString.length(), 250));
                     string = string.replace("'", "");
-                    // TODO: check
-                    string = string.replace("\r", "");
-                    string = string.replace("\n", "");
-                    string = string.replace("\t", "");
-                    string = string.replace("\\", "");
-                    val = string;
+                    // https://www.rfc-editor.org/rfc/rfc8259#page-8
+                    string = PrestoConstantUtils.removeAllControlChars(string);
+                    string = string.replace("\\", "\\\\");
+
                     value = "{\"val\": \"" + string + "\"}";
                     break;
                 case NUMBER:
@@ -1187,5 +1222,87 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         }
 
     }
+
+    public static void main(String[] args) {
+
+//        long nonCachedInteger = Randomly.getNonCachedInteger();
+//        double aDouble = new Randomly().getDouble();
+//        double val = aDouble + ((int)nonCachedInteger);
+//
+//        System.out.println(val);
+//
+//        int scale = 4;
+//        int precision = 8;
+//        int longPart = precision - scale;
+//
+//        BigDecimal bigDecimal = new BigDecimal(val).setScale(scale, RoundingMode.CEILING);
+//
+//        // long part
+//        long lng = (long) val;
+//
+//        double d1 = val - lng;
+//
+//        String x_str = Long.toString(lng);
+//        long new_x = Long.parseLong(x_str.substring(x_str.length() - longPart));
+//        System.out.println(new_x);
+//
+//
+//        long r = Math.abs(lng / (int)Math.pow(10,longPart - 1));
+//
+//        System.out.println(r);
+//
+//        System.out.println(longPart);
+//        System.out.println(bigDecimal);
+//        System.out.println(lng);
+//        System.out.println(d1);
+//
+//        System.out.println();
+//        System.out.println();
+//        System.out.println();
+//        System.out.println("---------------------------------");
+//        System.out.println();
+//
+//        double finalD = new_x + d1;
+//        BigDecimal finalBD = new BigDecimal(finalD).setScale(scale, RoundingMode.CEILING);
+//        double doubleValue = finalBD.doubleValue();
+//        System.out.println(doubleValue);
+//
+//
+//        System.out.println();
+
+
+        long nonCachedInteger = Randomly.getNonCachedInteger();
+        double aDouble = new Randomly().getDouble();
+        double val = aDouble + ((int) nonCachedInteger);
+
+        System.out.println(val);
+
+        int scale = 4;
+        int precision = 8;
+        int longPart = precision - scale;
+
+
+        // long part
+        long lng = (long) val;
+        double d1 = val - lng;
+
+        String x_str = Long.toString(lng);
+        long new_x = Long.parseLong(x_str.substring(x_str.length() - longPart));
+
+        System.out.println();
+        System.out.println("---------------------------------");
+        System.out.println();
+
+        double finalD = new_x + d1;
+        BigDecimal finalBD = new BigDecimal(finalD).setScale(scale, RoundingMode.CEILING);
+        double doubleValue = finalBD.doubleValue();
+        System.out.println(doubleValue);
+
+
+        System.out.println();
+
+
+    }
+
 
 }

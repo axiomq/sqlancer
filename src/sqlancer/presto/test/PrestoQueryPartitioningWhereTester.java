@@ -15,6 +15,7 @@ public class PrestoQueryPartitioningWhereTester extends PrestoQueryPartitioningB
     public PrestoQueryPartitioningWhereTester(PrestoGlobalState state) {
         super(state);
         PrestoErrors.addGroupByErrors(errors);
+        PrestoErrors.addExpressionErrors(errors);
     }
 
     @Override

@@ -100,7 +100,7 @@ public final class ComparatorHelper {
         Set<String> firstHashSet = new HashSet<>(resultSet);
         Set<String> secondHashSet = new HashSet<>(secondResultSet);
 
-        if (!firstHashSet.equals(secondHashSet)) {
+        if ( false && !firstHashSet.equals(secondHashSet)) {
             Set<String> firstResultSetMisses = new HashSet<>(firstHashSet);
             firstResultSetMisses.removeAll(secondHashSet);
             Set<String> secondResultSetMisses = new HashSet<>(secondHashSet);

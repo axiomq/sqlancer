@@ -43,9 +43,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
     public void check() throws SQLException {
         PrestoTables randomTables = s.getRandomTableNonEmptyTables();
         List<PrestoColumn> columns = randomTables.getColumns();
-        PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(state).setColumns(columns);
 
-        Node<PrestoExpression> randomWhereCondition = gen.generatePredicate();
 
         List<PrestoTable> tables = randomTables.getTables();
 
@@ -54,6 +52,8 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
             .collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, state);
 
+        PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(state).setColumns(columns);
+        Node<PrestoExpression> randomWhereCondition = gen.generatePredicate();
         int secondCount = getSecondQuery(new ArrayList<>(tableList), randomWhereCondition, joins);
 
         int firstCount = getFirstQueryCount(con,
@@ -97,7 +97,6 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         int secondCount = 0;
         unoptimizedQueryString = "SELECT SUM(count) FROM (" + PrestoToStringVisitor.asString(select) + ") as res";
 
-//        System.out.println("unoptimizedQueryString : " + unoptimizedQueryString);
         errors.add("canceling statement due to statement timeout");
         SQLQueryAdapter q = new SQLQueryAdapter(unoptimizedQueryString, errors);
         SQLancerResultSet rs;

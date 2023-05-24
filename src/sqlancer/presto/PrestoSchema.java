@@ -73,6 +73,12 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             return Arrays.asList(INT, FLOAT, DECIMAL, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
         }
 
+        public static List<PrestoDataType> getComparableTypes() {
+            return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR,
+//                    VARBINARY, JSON,
+                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE, INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND);
+        }
+
         public static List<PrestoDataType> getNumberTypes() {
             return Arrays.asList(INT, FLOAT, DECIMAL);
         }
@@ -89,6 +95,14 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             return Arrays.asList(VARCHAR, CHAR, VARBINARY, JSON);
         }
 
+        public boolean isOrderable() {
+            switch (this) {
+                case JSON:
+                    return false;
+                default:
+                    return true;
+            }
+        }
     }
 
     public static class PrestoCompositeDataType {
@@ -287,6 +301,10 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
 
         public boolean isNullable() {
             return isNullable;
+        }
+
+        public boolean isOrderable() {
+            return getType().getPrimitiveDataType().isOrderable();
         }
 
     }
