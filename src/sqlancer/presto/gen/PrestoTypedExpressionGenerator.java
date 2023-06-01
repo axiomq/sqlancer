@@ -222,7 +222,9 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> generateBooleanExpression(int depth) {
-        BooleanExpression exprType = Randomly.fromOptions(BooleanExpression.values());
+        List<BooleanExpression> booleanExpressions = new ArrayList<>(List.of(BooleanExpression.values()));
+        booleanExpressions.remove(BooleanExpression.BETWEEN);
+        BooleanExpression exprType = Randomly.fromList(booleanExpressions);
         switch (exprType) {
             case NOT:
                 return generateNOT(depth + 1);
