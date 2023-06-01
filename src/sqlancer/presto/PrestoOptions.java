@@ -36,8 +36,8 @@ public class PrestoOptions implements DBMSSpecificOptions<PrestoOptions.PrestoOr
     @Parameter(names = "--test-casts", description = "Allow generating casts in expressions", arity = 1)
     public boolean testCasts = true;
 
-    @Parameter(names = "--test-between", description = "Allow generating the BETWEEN operator in expressions", arity = 1)
-    public boolean testBetween = true;
+    @Parameter(names = "--test-between", description = "Allow generating the BETWEEN operator in expressions (FALSE by default : Presto null handling in BETWEEN operator : https://prestodb.io/docs/current/functions/comparison.html )", arity = 1)
+    public boolean testBetween = false;
 
     @Parameter(names = "--test-in", description = "Allow generating the IN operator in expressions", arity = 1)
     public boolean testIn = true;
