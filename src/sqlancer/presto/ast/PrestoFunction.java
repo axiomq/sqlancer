@@ -1,6 +1,5 @@
 package sqlancer.presto.ast;
 
-import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
 import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
@@ -12,8 +11,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum PrestoFunction {
+public enum PrestoFunction implements PrestoFunctions {
 
+    IF(null) {
+        @Override
+        public boolean isCompatibleWithReturnType(PrestoSchema.PrestoCompositeDataType returnType) {
+            return true;
+        }
+
+        @Override
+        public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
+            return new PrestoSchema.PrestoDataType[]{PrestoSchema.PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType(),
+                    returnType.getPrimitiveDataType()};
+        }
+    },
+    NULLIF(null) {
+        @Override
+        public boolean isCompatibleWithReturnType(PrestoSchema.PrestoCompositeDataType returnType) {
+            return true;
+        }
+
+        @Override
+        public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
+            return new PrestoDataType[]{returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
+        }
+    };
+/*
     IF(null) {
         @Override
         public boolean isCompatibleWithReturnType(PrestoSchema.PrestoCompositeDataType returnType) {
@@ -82,7 +105,7 @@ public enum PrestoFunction {
     SUBSTRING3("SUBSTRING", PrestoDataType.VARCHAR, PrestoDataType.VARCHAR, PrestoDataType.INT),
     SUBSTRING4("SUBSTRING", PrestoDataType.VARCHAR, PrestoDataType.VARCHAR, PrestoDataType.INT,
             PrestoDataType.INT),
-    /* https://github.com/cockroachdb/cockroach/issues/44152 */
+    *//* https://github.com/cockroachdb/cockroach/issues/44152 *//*
     TO_ENGLISH(PrestoDataType.VARCHAR, PrestoDataType.INT),
     TO_HEX1("TO_HEX", PrestoDataType.VARCHAR, PrestoDataType.INT),
 //    TO_HEX("TO_HEX", PrestoDataType.VARCHAR, PrestoDataType.BYTES),
@@ -107,11 +130,15 @@ public enum PrestoFunction {
     }
 
     ;
+
+
 //    ,
     // System info function
-    /* see https://github.com/cockroachdb/cockroach/issues/44203 */
+    / * see https://github.com/cockroachdb/cockroach/issues/44203 * /
 //    CURRENT_DATABASE(PrestoDataType.VARCHAR), CURRENT_SCHEMA(PrestoDataType.VARCHAR),
 //    CURRENT_USER(PrestoDataType.VARCHAR), VERSION(PrestoDataType.VARCHAR);
+
+    */
 
 
     private PrestoDataType returnType;

@@ -222,8 +222,12 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> generateBooleanExpression(int depth) {
-        List<BooleanExpression> booleanExpressions = new ArrayList<>(List.of(BooleanExpression.values()));
-        booleanExpressions.remove(BooleanExpression.BETWEEN);
+        List<BooleanExpression> booleanExpressions = Arrays.stream(BooleanExpression.values()).collect(Collectors.toList());
+        if (!globalState.getDbmsSpecificOptions().testBetween)
+            booleanExpressions.remove(BooleanExpression.BETWEEN);
+
+        booleanExpressions.remove(BooleanExpression.REGEX);
+
         BooleanExpression exprType = Randomly.fromList(booleanExpressions);
         switch (exprType) {
             case NOT:
@@ -234,8 +238,8 @@ public final class PrestoTypedExpressionGenerator extends
                 return getBinaryLogical(depth);
             case AND_OR_CHAIN:
                 return getAndOrChain(depth);
-//            case REGEX:
-//                return getRegex(depth);
+            case REGEX:
+                return getRegex(depth);
             case IS_NULL:
                 return new PrestoUnaryPostfixOperation(generateExpression(getRandomType(), depth + 1), Randomly
                         .fromOptions(PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NULL, PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NOT_NULL));
@@ -645,7 +649,7 @@ public final class PrestoTypedExpressionGenerator extends
         BINARY_COMPARISON,
         BINARY_LOGICAL,
         AND_OR_CHAIN,
-        //        REGEX,
+        REGEX,
         IS_NULL,
         IN,
         BETWEEN,
