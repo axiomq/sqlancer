@@ -112,9 +112,9 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         }
         String catalogName = globalState.getDbmsSpecificOptions().catalog;
         String databaseName = globalState.getDatabaseName();
-        globalState.getState().logStatement("DROP SCHEMA IF EXISTS " + databaseName);
-        globalState.getState().logStatement("CREATE SCHEMA IF NOT EXISTS " + databaseName);
-        globalState.getState().logStatement("USE " + databaseName);
+        globalState.getState().logStatement("DROP SCHEMA IF EXISTS " + catalogName + "." + databaseName);
+        globalState.getState().logStatement("CREATE SCHEMA IF NOT EXISTS " + catalogName + "." + databaseName);
+        globalState.getState().logStatement("USE " + catalogName + "." + databaseName);
         String url = String.format("jdbc:presto://%s:%d/%s?SSL=%b",
             host, port, catalogName, useSSl);
         Connection con = DriverManager.getConnection(url, username, password);
@@ -142,13 +142,13 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
             }
         }
         try (Statement s = con.createStatement()) {
-            s.execute("DROP SCHEMA IF EXISTS " + databaseName);
+            s.execute("DROP SCHEMA IF EXISTS " + catalogName + "." + databaseName);
         }
         try (Statement s = con.createStatement()) {
-            s.execute("CREATE SCHEMA IF NOT EXISTS " + databaseName);
+            s.execute("CREATE SCHEMA IF NOT EXISTS " + catalogName + "." + databaseName);
         }
         try (Statement s = con.createStatement()) {
-            s.execute("USE " + databaseName);
+            s.execute("USE " + catalogName + "." + databaseName);
         }
         return new SQLConnection(con);
 

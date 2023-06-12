@@ -49,54 +49,12 @@ public final class PrestoTypedExpressionGenerator extends
     @Override
     public Node<PrestoExpression> generateConstant(PrestoSchema.PrestoCompositeDataType type) {
         switch (type.getPrimitiveDataType()) {
-            case NULL:
-                return PrestoConstant
-                        .createNullConstant();
-            case CHAR:
-                return PrestoConstant.PrestoTextConstant
-                        .createStringConstant(randomly.getAlphabeticChar(), type.getSize());
-            case VARCHAR:
-                return PrestoConstant.PrestoTextConstant
-                        .createStringConstant(randomly.getString(), type.getSize());
-            case VARBINARY:
-                return PrestoConstant.createVarbinaryConstant(randomly.getString());
-            case JSON:
-                return PrestoConstant.PrestoJsonConstant.createJsonConstant();
-            case TIME:
-                return PrestoConstant
-                        .createTimeConstant(randomly.getLong(0, System.currentTimeMillis()));
-            case TIME_WITH_TIME_ZONE:
-                return PrestoConstant
-                        .createTimeWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
-            case TIMESTAMP:
-                return PrestoConstant
-                        .createTimestampConstant(randomly.getLong(0, System.currentTimeMillis()));
-            case TIMESTAMP_WITH_TIME_ZONE:
-                return PrestoConstant
-                        .createTimestampWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
-            case INTERVAL_YEAR_TO_MONTH:
-                return PrestoConstant
-                        .createIntervalYearToMonth(randomly.getLong(0, System.currentTimeMillis()));
-            case INTERVAL_DAY_TO_SECOND:
-                return PrestoConstant
-                        .createIntervalDayToSecond(randomly.getLong(0, System.currentTimeMillis()));
-            case INT:
-                return PrestoConstant.PrestoIntConstant
-                        .createIntConstant(type, Randomly.getNonCachedInteger());
-            case FLOAT:
-                return PrestoConstant.PrestoFloatConstant
-                        .createFloatConstant(randomly.getDouble());
-            case BOOLEAN:
-                return PrestoConstant.PrestoBooleanConstant
-                        .createBooleanConstant(Randomly.getBoolean());
-            case DATE:
-                return PrestoConstant
-                        .createDateConstant(randomly.getLong(0, System.currentTimeMillis()));
-            case DECIMAL:
-                return PrestoConstant
-                        .createDecimalConstant(type, randomly.getLong(0, System.currentTimeMillis()));
+            case ARRAY:
+                return PrestoConstant.createArrayConstant(type);
+//            case MAP:
+//                return PrestoConstant.createMapConstant(type);
             default:
-                throw new AssertionError("Unknown type: " + type);
+                return PrestoConstant.generateConstant(type);
         }
     }
 
@@ -109,15 +67,20 @@ public final class PrestoTypedExpressionGenerator extends
             return generateLeafNode(type);
         } else {
             // TODO: functions
-//            List<PrestoFunction> applicableFunctions = PrestoFunction.getFunctionsCompatibleWith(type);
-//            if (Randomly.getBooleanWithRatherLowProbability() && !applicableFunctions.isEmpty()) {
-//                PrestoFunction function = Randomly.fromList(applicableFunctions);
-//                return getFunction(type, depth, function);
+            List<PrestoDefaultFunction> applicableFunctions = PrestoDefaultFunction.getFunctionsCompatibleWith(type);
+            if (Randomly.getBooleanWithRatherLowProbability() && !applicableFunctions.isEmpty()) {
+                PrestoDefaultFunction function = Randomly.fromList(applicableFunctions);
+                return generateFunction(type, depth, function);
+            }
+            // TODO: try
+//            if (Randomly.getBooleanWithRatherLowProbability()) {
+//                return generateTry(type, depth);
 //            }
-            // TODO: cast
+
+// TODO: cast
+//
 //            if (Randomly.getBooleanWithRatherLowProbability()) {
 //                Node<PrestoExpression> expressionNode = generateCast(type, depth);
-//                return new PrestoCastFunction(expressionNode, type);
 //            }
             if (Randomly.getBooleanWithRatherLowProbability()) {
                 return getCase(type, depth);
@@ -141,9 +104,10 @@ public final class PrestoTypedExpressionGenerator extends
                 case INTERVAL_YEAR_TO_MONTH:
                 case INTERVAL_DAY_TO_SECOND:
                     return generateIntervalExpression(type, depth);
-                case VARBINARY:
                 case JSON:
-//                case ARRAY:
+                    return generateJsonExpression(type, depth);
+                case VARBINARY:
+                case ARRAY:
 //                case MAP:
                     return generateLeafNode(type); // TODO
                 default:
@@ -152,9 +116,31 @@ public final class PrestoTypedExpressionGenerator extends
         }
     }
 
+    private Node<PrestoExpression> generateJsonExpression(PrestoSchema.PrestoCompositeDataType type, int depth) {
+        return generateLeafNode(type);
+    }
+
     private Node<PrestoExpression> generateCast(PrestoSchema.PrestoCompositeDataType type, int depth) {
         // check can cast
-        return generateExpression(getRandomType(), depth + 1);
+        Node<PrestoExpression> expressionNode = generateExpression(getRandomType(), depth + 1);
+        return new PrestoCastFunction(expressionNode, type);
+    }
+
+    private Node<PrestoExpression> generateTry(PrestoSchema.PrestoCompositeDataType type, int depth) {
+        if (type.getPrimitiveDataType().isNumeric()) {
+            if (Randomly.getBooleanWithRatherLowProbability()) {
+                Node<PrestoExpression> expression = generateExpression(type);
+                return new NewFunctionNode<>(List.of(expression), "try");
+            }
+        }
+
+        List<PrestoDefaultFunction> applicableFunctions = PrestoDefaultFunction.getFunctionsCompatibleWith(type);
+        if (Randomly.getBooleanWithRatherLowProbability() && !applicableFunctions.isEmpty()) {
+            PrestoDefaultFunction function = Randomly.fromList(applicableFunctions);
+            Node<PrestoExpression> expression = generateFunction(type, depth, function);
+            return new NewFunctionNode<>(List.of(expression), "try");
+        }
+        return new NewFunctionNode<>(List.of(generateCast(type, depth)), "try");
     }
 
     private NewCaseOperatorNode<PrestoExpression> getCase(PrestoSchema.PrestoCompositeDataType type, int depth) {
@@ -172,7 +158,84 @@ public final class PrestoTypedExpressionGenerator extends
         return new NewCaseOperatorNode<>(expression, conditions, cases, elseExpr);
     }
 
-    private Node<PrestoExpression> getFunction(PrestoSchema.PrestoCompositeDataType type, int depth, PrestoFunction function) {
+    private Node<PrestoExpression> generateFunction2(PrestoSchema.PrestoCompositeDataType type, int depth, PrestoDefaultFunction function) {
+
+        PrestoSchema.PrestoDataType[] argumentTypes2 = function.getArgumentTypes(type);
+        List<Node<PrestoExpression>> arguments = function.getArgumentsForReturnType(this, depth, argumentTypes2, type);
+/*
+//        List<Node<PrestoExpression>> getArgumentsForReturnType (PrestoTypedExpressionGenerator gen,int depth,
+//        PrestoSchema.PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2){
+        List<Node<PrestoExpression>> arguments = new ArrayList<>();
+
+        // This is a workaround based on the assumption that array types should refer to the same element type.
+
+        PrestoSchema.PrestoCompositeDataType savedArrayType = null;
+//        if (returnType2.getPrimitiveDataType() == PrestoDataType.ARRAY) {
+//            savedArrayType = returnType2;
+//        }
+        for (PrestoSchema.PrestoDataType arg : argumentTypes2) {
+            PrestoSchema.PrestoCompositeDataType dataType;
+//            if (arg == PrestoDataType.ARRAY) {
+//                if (savedArrayType == null) {
+//                    savedArrayType = arg.get();
+//                }
+//                dataType = savedArrayType;
+//            } else
+            dataType = PrestoSchema.PrestoCompositeDataType.fromDataType(arg);
+            Node<PrestoExpression> expression = generateExpression(dataType, depth + 1);
+            arguments.add(expression);
+        }*/
+        return new NewFunctionNode<>(arguments, function);
+    }
+
+
+    private Node<PrestoExpression> generateFunction(PrestoSchema.PrestoCompositeDataType returnType, int depth, PrestoDefaultFunction function) {
+
+        PrestoSchema.PrestoDataType[] argumentTypes = function.getArgumentTypes(returnType);
+        List<Node<PrestoExpression>> arguments = new ArrayList<>();
+
+        // This is a workaround based on the assumption that array types should refer to the same element type.
+        PrestoSchema.PrestoCompositeDataType savedArrayType = null;
+        if (returnType.getPrimitiveDataType() == PrestoSchema.PrestoDataType.ARRAY) {
+            savedArrayType = returnType;
+        }
+        if (function.getNumberOfArguments() == -1) {
+            PrestoSchema.PrestoDataType dataType = argumentTypes[0];
+            // TODO: consider upper
+            long no = Randomly.getNotCachedInteger(2, 10);
+            for (int i = 0; i < no; i++) {
+                PrestoSchema.PrestoCompositeDataType type;
+
+                if (dataType == PrestoSchema.PrestoDataType.ARRAY) {
+                    if (savedArrayType == null) {
+                        savedArrayType = dataType.get();
+                    }
+                    type = savedArrayType;
+                } else {
+                    type = PrestoSchema.PrestoCompositeDataType.fromDataType(dataType);
+                }
+                arguments.add(generateExpression(type, depth + 1));
+            }
+        } else {
+            for (PrestoSchema.PrestoDataType arg : argumentTypes) {
+                PrestoSchema.PrestoCompositeDataType dataType;
+                if (arg == PrestoSchema.PrestoDataType.ARRAY) {
+                    if (savedArrayType == null) {
+                        savedArrayType = arg.get();
+                    }
+                    dataType = savedArrayType;
+                } else {
+                    dataType = PrestoSchema.PrestoCompositeDataType.fromDataType(arg);
+                }
+                Node<PrestoExpression> expression = generateExpression(dataType, depth + 1);
+                arguments.add(expression);
+            }
+        }
+        return new NewFunctionNode<>(arguments, function);
+    }
+
+
+    private Node<PrestoExpression> generateFunction3(PrestoSchema.PrestoCompositeDataType type, int depth, PrestoDefaultFunction function) {
 
         PrestoSchema.PrestoDataType[] argumentTypes2 = function.getArgumentTypes(type);
 //        List<Node<PrestoExpression>> arguments = getArgumentsForReturnType(gen, depth, argumentTypes2, type);
@@ -196,8 +259,16 @@ public final class PrestoTypedExpressionGenerator extends
 //                dataType = savedArrayType;
 //            } else
             dataType = PrestoSchema.PrestoCompositeDataType.fromDataType(arg);
-            arguments.add(generateExpression(dataType, depth + 1));
+            Node<PrestoExpression> expression = generateExpression(dataType, depth + 1);
+            arguments.add(expression);
         }
+        return new NewFunctionNode<>(arguments, function);
+    }
+
+
+    private Node<PrestoExpression> generateFunction(PrestoSchema.PrestoCompositeDataType type, int depth, PrestoFunction function) {
+        PrestoSchema.PrestoDataType[] argumentTypes = function.getArgumentTypes(type);
+        List<Node<PrestoExpression>> arguments = function.getArgumentsForReturnType(this, depth, argumentTypes, type);
         return new NewFunctionNode<>(arguments, function);
     }
 
@@ -257,12 +328,18 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> getMultiValuedComparison(int depth) {
-        PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(getComparableTypes()));
+
+        PrestoSchema.PrestoCompositeDataType type;
+        do {
+            type = PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(getOrderableTypes()));
+        } while (type.getPrimitiveDataType() == ARRAY && !type.getElementType().getPrimitiveDataType().isOrderable());
+
         PrestoMultiValuedComparisonType comparisonType = PrestoMultiValuedComparisonType.getRandom();
         PrestoMultiValuedComparisonOperator comparisonOperator = PrestoMultiValuedComparisonOperator.getRandomForType(type);
         Node<PrestoExpression> left = generateExpression(type, depth + 1);
         // sub-query
-        List<PrestoSchema.PrestoColumn> columnsOfType = columns.stream().filter(c -> c.getType() == type).collect(Collectors.toList());
+        PrestoSchema.PrestoCompositeDataType finalType = type;
+        List<PrestoSchema.PrestoColumn> columnsOfType = columns.stream().filter(c -> c.getType() == finalType).collect(Collectors.toList());
         if (Randomly.getBooleanWithRatherLowProbability() && !columnsOfType.isEmpty()) {
             PrestoSchema.PrestoColumn column = Randomly.fromList(columnsOfType);
             PrestoSelect subquery = generateSubquery(List.of(column));
@@ -342,21 +419,20 @@ public final class PrestoTypedExpressionGenerator extends
     private Node<PrestoExpression> generateIntervalExpression(PrestoSchema.PrestoCompositeDataType type, int depth) {
         if (Randomly.getBooleanWithSmallProbability()) {
             Node<PrestoExpression> left = generateExpression(
-                    PrestoSchema.PrestoCompositeDataType.fromDataType(
-                            Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())
-                    ), depth);
+//                    PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())),
+                    type,
+                    depth);
 
             Node<PrestoExpression> right;
             if (Randomly.getBoolean()) {
                 right = generateExpression(
-                        PrestoSchema.PrestoCompositeDataType.fromDataType(
-                                Randomly.fromList(PrestoSchema.PrestoDataType.getTemporalTypes())
-                        ), depth);
+                        PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(PrestoSchema.PrestoDataType.getTemporalTypes())),
+                        depth);
             } else {
                 right = generateExpression(
-                        PrestoSchema.PrestoCompositeDataType.fromDataType(
-                                Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())
-                        ), depth);
+//                    PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(PrestoSchema.PrestoDataType.getIntervalTypes())),
+                        type,
+                        depth);
             }
             BinaryOperatorNode.Operator operator = PrestoBinaryTemporalOperator.getRandom();
             if (Randomly.getBoolean())
@@ -496,32 +572,32 @@ public final class PrestoTypedExpressionGenerator extends
         return columns.stream().anyMatch(c -> c.getType() == type);
     }
 
-    public NewFunctionNode<PrestoExpression, PrestoAggregateFunction> generateArgsForAggregate
-            (PrestoAggregateFunction aggregateFunction) {
-        return new NewFunctionNode<PrestoExpression, PrestoAggregateFunction>(
+    public NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> generateArgsForAggregate
+            (PrestoAggregateFunctionOld aggregateFunction) {
+        return new NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld>(
                 generateExpressions(aggregateFunction.getNrArgs()), aggregateFunction);
     }
 
     public Node<PrestoExpression> generateAggregate() {
-        PrestoAggregateFunction aggrFunc = PrestoAggregateFunction.getRandom();
+        PrestoAggregateFunctionOld aggrFunc = PrestoAggregateFunctionOld.getRandom();
         return generateArgsForAggregate(aggrFunc);
     }
 
     private Node<PrestoExpression> generateAggregate(PrestoSchema.PrestoCompositeDataType type) {
-        PrestoAggregateFunction agg = Randomly
-                .fromList(PrestoAggregateFunction.getAggregates(type.getPrimitiveDataType()));
+        PrestoAggregateFunctionOld agg = Randomly
+                .fromList(PrestoAggregateFunctionOld.getAggregates(type.getPrimitiveDataType()));
         return generateArgsForAggregate(type, agg);
     }
 
     public Node<PrestoExpression> generateArgsForAggregate(PrestoSchema.PrestoCompositeDataType type,
-                                                           PrestoAggregateFunction agg) {
+                                                           PrestoAggregateFunctionOld agg) {
         List<PrestoSchema.PrestoDataType> types = agg.getReturnTypes(type.getPrimitiveDataType());
         List<Node<PrestoExpression>> args = new ArrayList<>();
         allowAggregates = false; //
         for (PrestoSchema.PrestoDataType argType : types) {
             args.add(generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(argType)));
         }
-        return new NewFunctionNode<PrestoExpression, PrestoAggregateFunction>(args, agg);
+        return new NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld>(args, agg);
     }
 
     @Override
@@ -732,6 +808,7 @@ public final class PrestoTypedExpressionGenerator extends
                 case CHAR:
                 case VARBINARY:
                 case JSON:
+                case ARRAY:
                 case INTERVAL_YEAR_TO_MONTH:
                 case INTERVAL_DAY_TO_SECOND:
                     return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);

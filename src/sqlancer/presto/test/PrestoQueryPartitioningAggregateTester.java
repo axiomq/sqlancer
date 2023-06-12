@@ -15,7 +15,7 @@ import sqlancer.presto.PrestoToStringVisitor;
 import sqlancer.presto.ast.PrestoCastFunction;
 import sqlancer.presto.ast.PrestoExpression;
 import sqlancer.presto.ast.PrestoSelect;
-import sqlancer.presto.ast.PrestoAggregateFunction;
+import sqlancer.presto.ast.PrestoAggregateFunctionOld;
 import sqlancer.presto.gen.PrestoUntypedExpressionGenerator.PrestoBinaryArithmeticOperator;
 import sqlancer.presto.gen.PrestoUntypedExpressionGenerator.PrestoUnaryPostfixOperator;
 import sqlancer.presto.gen.PrestoUntypedExpressionGenerator.PrestoUnaryPrefixOperator;
@@ -41,10 +41,10 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
     @Override
     public void check() throws SQLException {
         super.check();
-        PrestoAggregateFunction aggregateFunction = Randomly.fromOptions(PrestoAggregateFunction.MAX,
-            PrestoAggregateFunction.MIN, PrestoAggregateFunction.SUM, PrestoAggregateFunction.COUNT,
-            PrestoAggregateFunction.AVG/* , PrestoAggregateFunction.STDDEV_POP */);
-        NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate = gen
+        PrestoAggregateFunctionOld aggregateFunction = Randomly.fromOptions(PrestoAggregateFunctionOld.MAX,
+            PrestoAggregateFunctionOld.MIN, PrestoAggregateFunctionOld.SUM, PrestoAggregateFunctionOld.COUNT,
+            PrestoAggregateFunctionOld.AVG/* , PrestoAggregateFunction.STDDEV_POP */);
+        NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> aggregate = gen
             .generateArgsForAggregate(aggregateFunction);
         List<Node<PrestoExpression>> fetchColumns = new ArrayList<>();
         fetchColumns.add(aggregate);
@@ -74,7 +74,7 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
     }
 
     private String createMetamorphicUnionQuery(PrestoSelect select,
-                                               NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate, List<Node<PrestoExpression>> from) {
+                                               NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> aggregate, List<Node<PrestoExpression>> from) {
         String metamorphicQuery;
         Node<PrestoExpression> whereClause = gen.generateExpression(PrestoCompositeDataType.getRandomWithoutNull());
         Node<PrestoExpression> negatedClause = new NewUnaryPrefixOperatorNode<>(whereClause,
@@ -115,7 +115,7 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
         }
     }
 
-    private List<Node<PrestoExpression>> mapped(NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate) {
+    private List<Node<PrestoExpression>> mapped(NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> aggregate) {
         PrestoCastFunction count;
         switch (aggregate.getFunc()) {
             case COUNT:
@@ -124,22 +124,22 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
             case SUM:
                 return aliasArgs(List.of(aggregate));
             case AVG:
-                NewFunctionNode<PrestoExpression, PrestoAggregateFunction> sum = new NewFunctionNode<>(aggregate.getArgs(),
-                    PrestoAggregateFunction.SUM);
-                count = new PrestoCastFunction(new NewFunctionNode<>(aggregate.getArgs(), PrestoAggregateFunction.COUNT),
+                NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> sum = new NewFunctionNode<>(aggregate.getArgs(),
+                    PrestoAggregateFunctionOld.SUM);
+                count = new PrestoCastFunction(new NewFunctionNode<>(aggregate.getArgs(), PrestoAggregateFunctionOld.COUNT),
                     new PrestoCompositeDataType(PrestoDataType.FLOAT, 8, 0));
                 return aliasArgs(Arrays.asList(sum, count));
             case STDDEV_POP:
-                NewFunctionNode<PrestoExpression, PrestoAggregateFunction> sumSquared = new NewFunctionNode<>(
+                NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> sumSquared = new NewFunctionNode<>(
                     List.of(new NewBinaryOperatorNode<>(aggregate.getArgs().get(0), aggregate.getArgs().get(0),
                         PrestoBinaryArithmeticOperator.MULT)),
-                    PrestoAggregateFunction.SUM);
+                    PrestoAggregateFunctionOld.SUM);
                 count = new PrestoCastFunction(
-                    new NewFunctionNode<PrestoExpression, PrestoAggregateFunction>(aggregate.getArgs(),
-                        PrestoAggregateFunction.COUNT),
+                    new NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld>(aggregate.getArgs(),
+                        PrestoAggregateFunctionOld.COUNT),
                     new PrestoCompositeDataType(PrestoDataType.FLOAT, 8, 0));
-                NewFunctionNode<PrestoExpression, PrestoAggregateFunction> avg = new NewFunctionNode<>(aggregate.getArgs(),
-                    PrestoAggregateFunction.AVG);
+                NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> avg = new NewFunctionNode<>(aggregate.getArgs(),
+                    PrestoAggregateFunctionOld.AVG);
                 return aliasArgs(Arrays.asList(sumSquared, count, avg));
             default:
                 throw new AssertionError(aggregate.getFunc());
@@ -155,14 +155,14 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
         return args;
     }
 
-    private String getOuterAggregateFunction(NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate) {
+    private String getOuterAggregateFunction(NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> aggregate) {
         switch (aggregate.getFunc()) {
             case STDDEV_POP:
                 return "sqrt(SUM(agg0)/SUM(agg1)-SUM(agg2)*SUM(agg2))";
             case AVG:
                 return "SUM(agg0::FLOAT)/SUM(agg1)::FLOAT";
             case COUNT:
-                return PrestoAggregateFunction.SUM + "(agg0)";
+                return PrestoAggregateFunctionOld.SUM + "(agg0)";
             default:
                 return aggregate.getFunc().toString() + "(agg0)";
         }

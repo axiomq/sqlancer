@@ -32,8 +32,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         TIMESTAMP_WITH_TIME_ZONE,
         INTERVAL_YEAR_TO_MONTH,
         INTERVAL_DAY_TO_SECOND,
-        //  ARRAY,
-        //  MAP,
+        ARRAY,
+        //        MAP,
         //  ROW,
         //  IPADDRESS,
         //  UID,
@@ -59,13 +59,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 case FLOAT:
                 case DECIMAL:
                     return true;
-                case VARCHAR:
-                case VARBINARY:
-                case JSON:
-                case CHAR:
-                    return false;
                 default:
-                    throw new AssertionError(this);
+                    return false;
             }
         }
 
@@ -75,8 +70,19 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
 
         public static List<PrestoDataType> getComparableTypes() {
             return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR,
-//                    VARBINARY, JSON,
-                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE, INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND);
+                    VARBINARY, JSON,
+                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE,
+                    INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND);
+        }
+
+        public static List<PrestoDataType> getOrderableTypes() {
+            return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR,
+                    VARBINARY,
+//                    JSON,
+                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE,
+                    INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND
+                    , ARRAY
+            );
         }
 
         public static List<PrestoDataType> getNumberTypes() {
@@ -96,12 +102,15 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         }
 
         public boolean isOrderable() {
-            switch (this) {
-                case JSON:
-                    return false;
-                default:
-                    return true;
-            }
+            return getOrderableTypes().contains(this);
+        }
+
+        public boolean isComparable() {
+            return getComparableTypes().contains(this);
+        }
+
+        public PrestoCompositeDataType get() {
+            return PrestoCompositeDataType.fromDataType(this);
         }
     }
 
@@ -113,10 +122,23 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
 
         private final int scale;
 
+        private final PrestoCompositeDataType elementType;
+
         public PrestoCompositeDataType(PrestoDataType dataType, int size, int scale) {
             this.dataType = dataType;
             this.size = size;
             this.scale = scale;
+            this.elementType = null;
+        }
+
+        public PrestoCompositeDataType(PrestoDataType dataType, PrestoCompositeDataType elementType) {
+            if (dataType != PrestoDataType.ARRAY) {
+                throw new IllegalArgumentException();
+            }
+            this.dataType = dataType;
+            this.size = -1;
+            this.scale = -1;
+            this.elementType = elementType;
         }
 
         public PrestoDataType getPrimitiveDataType() {
@@ -167,6 +189,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 case CHAR:
                     size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
                     break;
+                case ARRAY:
+                    return new PrestoCompositeDataType(type, PrestoCompositeDataType.getRandomWithoutNull());
                 case DATE:
                 case TIME:
                 case TIME_WITH_TIME_ZONE:
@@ -206,6 +230,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 case CHAR:
                     size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
                     break;
+                case ARRAY:
+                    return new PrestoCompositeDataType(type, PrestoCompositeDataType.getRandomWithoutNull());
                 case BOOLEAN:
                 case VARBINARY:
                 case DATE:
@@ -275,6 +301,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                     return "TIME";
                 case TIME_WITH_TIME_ZONE:
                     return "TIME WITH TIME ZONE";
+                case ARRAY:
+                    return "ARRAY(" + elementType + ")";
                 case NULL:
                     return "NULL";
                 default:
@@ -282,6 +310,17 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             }
         }
 
+        public PrestoCompositeDataType getElementType() {
+            return elementType;
+        }
+
+        public boolean isOrderable(){
+            if (dataType == PrestoDataType.ARRAY) {
+                assert elementType != null;
+                return (elementType.isOrderable());
+            }
+            return dataType.isOrderable();
+        }
     }
 
     public static class PrestoColumn extends AbstractTableColumn<PrestoTable, PrestoCompositeDataType> {
@@ -477,6 +516,9 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 break;
             case "JSON":
                 primitiveType = PrestoDataType.JSON;
+                break;
+            case "ARRAY":
+                primitiveType = PrestoDataType.ARRAY;
                 break;
             case "NULL":
                 primitiveType = PrestoDataType.NULL;

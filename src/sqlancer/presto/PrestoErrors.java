@@ -95,6 +95,9 @@ public final class PrestoErrors {
         errors.add("subtraction overflow");
         errors.add("Decimal overflow");
         errors.add("IN value and list items must be the same type");
+
+        // ARRAY
+        errors.add("Unknown type: ARRAY");
     }
 
     private static void addRegexErrors(ExpectedErrors errors) {
