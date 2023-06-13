@@ -1,5 +1,9 @@
 package sqlancer;
 
+import sqlancer.common.query.ExpectedErrors;
+import sqlancer.common.query.SQLQueryAdapter;
+import sqlancer.common.query.SQLancerResultSet;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,10 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-
-import sqlancer.common.query.ExpectedErrors;
-import sqlancer.common.query.SQLQueryAdapter;
-import sqlancer.common.query.SQLancerResultSet;
 
 public final class ComparatorHelper {
 
@@ -37,7 +37,7 @@ public final class ComparatorHelper {
     }
 
     public static List<String> getResultSetFirstColumnAsString(String queryString, ExpectedErrors errors,
-            SQLGlobalState<?, ?> state) throws SQLException {
+                                                               SQLGlobalState<?, ?> state) throws SQLException {
         if (state.getOptions().logEachSelect()) {
             // TODO: refactor me
             state.getLogger().writeCurrent(queryString);
@@ -85,7 +85,7 @@ public final class ComparatorHelper {
     }
 
     public static void assumeResultSetsAreEqual(List<String> resultSet, List<String> secondResultSet,
-            String originalQueryString, List<String> combinedString, SQLGlobalState<?, ?> state) {
+                                                String originalQueryString, List<String> combinedString, SQLGlobalState<?, ?> state) {
         if (resultSet.size() != secondResultSet.size()) {
             String queryFormatString = "-- %s;" + System.lineSeparator() + "-- cardinality: %d"
                     + System.lineSeparator();
@@ -106,7 +106,8 @@ public final class ComparatorHelper {
         Set<String> firstHashSet = new HashSet<>(resultSet);
         Set<String> secondHashSet = new HashSet<>(secondResultSet);
 
-        if ( false && !firstHashSet.equals(secondHashSet)) {
+        boolean compare = state.getOptions().compareResultsContent();
+        if (compare && !firstHashSet.equals(secondHashSet)) {
             Set<String> firstResultSetMisses = new HashSet<>(firstHashSet);
             firstResultSetMisses.removeAll(secondHashSet);
             Set<String> secondResultSetMisses = new HashSet<>(secondHashSet);
@@ -127,8 +128,8 @@ public final class ComparatorHelper {
     }
 
     public static void assumeResultSetsAreEqual(List<String> resultSet, List<String> secondResultSet,
-            String originalQueryString, List<String> combinedString, SQLGlobalState<?, ?> state,
-            UnaryOperator<String> canonicalizationRule) {
+                                                String originalQueryString, List<String> combinedString, SQLGlobalState<?, ?> state,
+                                                UnaryOperator<String> canonicalizationRule) {
         // Overloaded version of assumeResultSetsAreEqual that takes a canonicalization function which is applied to
         // both result sets before their comparison.
         List<String> canonicalizedResultSet = resultSet.stream().map(canonicalizationRule).collect(Collectors.toList());
@@ -139,8 +140,8 @@ public final class ComparatorHelper {
     }
 
     public static List<String> getCombinedResultSet(String firstQueryString, String secondQueryString,
-            String thirdQueryString, List<String> combinedString, boolean asUnion, SQLGlobalState<?, ?> state,
-            ExpectedErrors errors) throws SQLException {
+                                                    String thirdQueryString, List<String> combinedString, boolean asUnion, SQLGlobalState<?, ?> state,
+                                                    ExpectedErrors errors) throws SQLException {
         List<String> secondResultSet;
         if (asUnion) {
             String unionString = firstQueryString + " UNION ALL " + secondQueryString + " UNION ALL "
@@ -160,8 +161,8 @@ public final class ComparatorHelper {
     }
 
     public static List<String> getCombinedResultSetNoDuplicates(String firstQueryString, String secondQueryString,
-            String thirdQueryString, List<String> combinedString, boolean asUnion, SQLGlobalState<?, ?> state,
-            ExpectedErrors errors) throws SQLException {
+                                                                String thirdQueryString, List<String> combinedString, boolean asUnion, SQLGlobalState<?, ?> state,
+                                                                ExpectedErrors errors) throws SQLException {
         String unionString;
         if (asUnion) {
             unionString = firstQueryString + " UNION " + secondQueryString + " UNION " + thirdQueryString;
@@ -181,11 +182,11 @@ public final class ComparatorHelper {
         }
 
         switch (value) {
-        case "-0.0":
-            return "0.0";
-        case "-0":
-            return "0";
-        default:
+            case "-0.0":
+                return "0.0";
+            case "-0":
+                return "0";
+            default:
         }
 
         return value;

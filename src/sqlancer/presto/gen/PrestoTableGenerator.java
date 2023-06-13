@@ -55,7 +55,7 @@ public class PrestoTableGenerator {
 //        }
         sb.append(")");
 
-        return new SQLQueryAdapter(sb.toString(), errors, true);
+        return new SQLQueryAdapter(sb.toString(), errors, true, false);
     }
 
     private static List<PrestoColumn> getNewColumns() {

@@ -32,8 +32,15 @@ public class SQLQueryAdapter extends Query<SQLConnection> {
     }
 
     public SQLQueryAdapter(String query, ExpectedErrors expectedErrors, boolean couldAffectSchema) {
-//        this.query = canonicalizeString(query);
-        this.query = query;
+        this(query, expectedErrors, couldAffectSchema, true);
+    }
+
+    public SQLQueryAdapter(String query, ExpectedErrors expectedErrors, boolean couldAffectSchema, boolean canonicalizeString) {
+        if (canonicalizeString) {
+            this.query = canonicalizeString(query);
+        } else {
+            this.query = query;
+        }
         this.expectedErrors = expectedErrors;
         this.couldAffectSchema = couldAffectSchema;
         checkQueryString();
@@ -107,13 +114,13 @@ public class SQLQueryAdapter extends Query<SQLConnection> {
     public void checkException(Exception e) throws AssertionError {
         Throwable ex = e;
 
-        if(e instanceof java.io.UncheckedIOException || e instanceof java.net.SocketTimeoutException ) {
+        if (e instanceof java.io.UncheckedIOException || e instanceof java.net.SocketTimeoutException) {
             System.err.println("timeout");
             return;
         }
         while (ex != null) {
             String message = ex.getMessage();
-            if(message == null){
+            if (message == null) {
                 ex.printStackTrace();
             }
             if (expectedErrors.errorIsExpected(message)) {

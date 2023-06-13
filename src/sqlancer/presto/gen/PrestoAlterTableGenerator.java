@@ -62,7 +62,7 @@ public final class PrestoAlterTableGenerator {
             default:
                 throw new AssertionError(action);
         }
-        return new SQLQueryAdapter(sb.toString(), errors, true);
+        return new SQLQueryAdapter(sb.toString(), errors, true, false);
     }
 
 }

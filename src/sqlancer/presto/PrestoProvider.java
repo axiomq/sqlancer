@@ -20,12 +20,12 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
     }
 
     public enum Action implements AbstractAction<PrestoGlobalState> {
-        //        SHOW_TABLES((g) -> new SQLQueryAdapter("SHOW TABLES")), //
+        //        SHOW_TABLES((g) -> new SQLQueryAdapter("SHOW TABLES", new ExpectedErrors(), false, false)), //
         INSERT(PrestoInsertGenerator::getQuery);
         //        , //
         //        CREATE_INDEX(PrestoIndexGenerator::getQuery), //
-        //        VACUUM((g) -> new SQLQueryAdapter("VACUUM")), //
-        //        ANALYZE((g) -> new SQLQueryAdapter("ANALYZE")), //
+        //        VACUUM((g) -> new SQLQueryAdapter("VACUUM", new ExpectedErrors(), false, false)), //
+        //        ANALYZE((g) -> new SQLQueryAdapter("ANALYZE", new ExpectedErrors(), false, false)), //
         //        DELETE(PrestoDeleteGenerator::generate), //
         //        UPDATE(PrestoUpdateGenerator::getQuery), //
         //        CREATE_VIEW(PrestoViewGenerator::generate), //

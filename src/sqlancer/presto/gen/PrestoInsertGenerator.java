@@ -38,7 +38,7 @@ public class PrestoInsertGenerator extends AbstractInsertGenerator<PrestoColumn>
         sb.append(" VALUES ");
         insertColumns(columns);
         PrestoErrors.addInsertErrors(errors);
-        return new SQLQueryAdapter(sb.toString(), errors);
+        return new SQLQueryAdapter(sb.toString(), errors, false, false);
     }
 
     @Override

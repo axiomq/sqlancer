@@ -48,8 +48,8 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         List<PrestoTable> tables = randomTables.getTables();
 
         List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList = tables.stream()
-            .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t))
-            .collect(Collectors.toList());
+                .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t))
+                .collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, state);
 
         PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(state).setColumns(columns);
@@ -57,16 +57,16 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         int secondCount = getSecondQuery(new ArrayList<>(tableList), randomWhereCondition, joins);
 
         int firstCount = getFirstQueryCount(con,
-            new ArrayList<>(tableList),
-            columns,
-            randomWhereCondition,
-            joins);
+                new ArrayList<>(tableList),
+                columns,
+                randomWhereCondition,
+                joins);
         if (firstCount == -1 || secondCount == -1) {
             throw new IgnoreMeException();
         }
         if (firstCount != secondCount) {
             throw new AssertionError(
-                optimizedQueryString + "; -- " + firstCount + "\n" + unoptimizedQueryString + " -- " + secondCount);
+                    optimizedQueryString + "; -- " + firstCount + "\n" + unoptimizedQueryString + " -- " + secondCount);
         }
     }
 
@@ -81,14 +81,14 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
 
         Node<PrestoExpression> asText = new NewPostfixTextNode<>(
 
-            new PrestoCastFunction(
-                new NewPostfixTextNode<>(
-                    randomWhereCondition,
-                    " IS NOT NULL AND " + PrestoToStringVisitor.asString(randomWhereCondition)
+                new PrestoCastFunction(
+                        new NewPostfixTextNode<>(
+                                randomWhereCondition,
+                                " IS NOT NULL AND " + PrestoToStringVisitor.asString(randomWhereCondition)
+                        ),
+                        new PrestoCompositeDataType(PrestoDataType.INT, 8, 0)
                 ),
-                new PrestoCompositeDataType(PrestoDataType.INT, 8, 0)
-            ),
-            "as count");
+                "as count");
 
         select.setFetchColumns(List.of(asText));
         select.setFromList(tableList);
@@ -98,7 +98,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         unoptimizedQueryString = "SELECT SUM(count) FROM (" + PrestoToStringVisitor.asString(select) + ") as res";
 
         errors.add("canceling statement due to statement timeout");
-        SQLQueryAdapter q = new SQLQueryAdapter(unoptimizedQueryString, errors);
+        SQLQueryAdapter q = new SQLQueryAdapter(unoptimizedQueryString, errors, false, false);
         SQLancerResultSet rs;
         try {
             rs = q.executeAndGetLogged(state);
@@ -117,12 +117,12 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
 
     private int getFirstQueryCount(SQLConnection con, List<Node<PrestoExpression>> tableList,
                                    List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition, List<Node<PrestoExpression>> joins)
-        throws SQLException {
+            throws SQLException {
         PrestoSelect select = new PrestoSelect();
         // select.setGroupByClause(groupBys);
         // PrestoAggregate aggr = new PrestoAggregate(
         List<Node<PrestoExpression>> allColumns = columns.stream()
-            .map((c) -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
+                .map((c) -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
         // PrestoAggregateFunction.COUNT);
         // select.setFetchColumns(Arrays.asList(aggr));
         select.setFetchColumns(allColumns);

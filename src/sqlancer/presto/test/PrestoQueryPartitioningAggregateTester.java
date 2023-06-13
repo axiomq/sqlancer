@@ -59,7 +59,7 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
 
         state.getState().getLocalState().log(
                 "--" + originalQuery + ";\n--" + metamorphicQuery + "\n-- " + firstResult + "\n-- " + secondResult);
-        if (firstResultType.equals("VARBINARY") || firstResultType.equals("ARRAY(VARBINARY)")  || firstResultType.equals("ARRAY(ARRAY(VARBINARY))") )
+        if (firstResultType.equals("VARBINARY") || firstResultType.equals("ARRAY(VARBINARY)") || firstResultType.equals("ARRAY(ARRAY(VARBINARY))"))
             throw new IgnoreMeException();
         if (firstResult == null && secondResult != null
                 || firstResult != null &&
@@ -95,7 +95,7 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
 
     private String getAggregateResult(String queryString) throws SQLException {
         String resultString;
-        SQLQueryAdapter q = new SQLQueryAdapter(queryString, errors);
+        SQLQueryAdapter q = new SQLQueryAdapter(queryString, errors, false, false);
         try (SQLancerResultSet result = q.executeAndGet(state)) {
             if (result == null) {
                 throw new IgnoreMeException();
@@ -107,9 +107,9 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
             }
             return resultString;
         } catch (SQLException e) {
-         if(errors.errorIsExpected(e.getMessage())){
-             throw new IgnoreMeException();
-         }
+            if (errors.errorIsExpected(e.getMessage())) {
+                throw new IgnoreMeException();
+            }
 
             if (!e.getMessage().contains("Not implemented type")) {
                 throw new AssertionError(queryString, e);
@@ -121,7 +121,7 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
 
     private String getAggregateResultType(String queryString) throws SQLException {
         String resultString;
-        SQLQueryAdapter q = new SQLQueryAdapter(queryString, errors);
+        SQLQueryAdapter q = new SQLQueryAdapter(queryString, errors, false, false);
         try (SQLancerResultSet result = q.executeAndGet(state)) {
             if (result == null) {
                 throw new IgnoreMeException();

@@ -30,7 +30,7 @@ public final class PrestoViewGenerator {
         ExpectedErrors errors = new ExpectedErrors();
         PrestoErrors.addExpressionErrors(errors);
         PrestoErrors.addGroupByErrors(errors);
-        return new SQLQueryAdapter(sb.toString(), errors, true);
+        return new SQLQueryAdapter(sb.toString(), errors, true, false);
     }
 
 }

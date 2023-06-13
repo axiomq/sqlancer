@@ -47,14 +47,14 @@ public final class PrestoIndexGenerator {
         if (Randomly.getBoolean()) {
             sb.append(" WHERE ");
             Node<PrestoExpression> expr = new PrestoTypedExpressionGenerator(globalState).setColumns(table.getColumns())
-                .generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
+                    .generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
             sb.append(PrestoToStringVisitor.asString(expr));
         }
         errors.add("already exists!");
 //        if (globalState.getDbmsSpecificOptions().testRowid) {
 //            errors.add("Cannot create an index on the rowid!");
 //        }
-        return new SQLQueryAdapter(sb.toString(), errors, true);
+        return new SQLQueryAdapter(sb.toString(), errors, true, false);
     }
 
 }

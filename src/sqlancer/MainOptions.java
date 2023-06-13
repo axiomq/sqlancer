@@ -126,6 +126,9 @@ public class MainOptions {
     @Parameter(names = "--use-reducer", description = "EXPERIMENTAL Attempt to reduce queries using a simple reducer")
     private boolean useReducer = false; // NOPMD
 
+    @Parameter(names = "--compare-content", description = "EXPERIMENTAL Should compare content of the result set ")
+    private boolean compareResultsContent = true;
+
     @Parameter(names = "--statement-reducer-max-steps", description = "EXPERIMENTAL Maximum steps the statement reducer will do")
     private long maxStatementReduceSteps = NO_REDUCE_LIMIT; // NOPMD
 
@@ -292,6 +295,11 @@ public class MainOptions {
     public boolean useReducer() {
         return useReducer;
     }
+
+    public boolean compareResultsContent() {
+        return compareResultsContent;
+    }
+
 
     public long getMaxStatementReduceSteps() {
         return maxStatementReduceSteps;

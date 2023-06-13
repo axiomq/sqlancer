@@ -37,7 +37,7 @@ public final class PrestoUpdateGenerator extends AbstractUpdateGenerator<PrestoC
         sb.append(" SET ");
         updateColumns(columns);
         PrestoErrors.addInsertErrors(errors);
-        return new SQLQueryAdapter(sb.toString(), errors);
+        return new SQLQueryAdapter(sb.toString(), errors, false, false);
     }
 
     @Override
