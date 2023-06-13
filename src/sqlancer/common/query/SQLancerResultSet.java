@@ -2,6 +2,7 @@ package sqlancer.common.query;
 
 import java.io.Closeable;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class SQLancerResultSet implements Closeable {
@@ -44,6 +45,10 @@ public class SQLancerResultSet implements Closeable {
 
     public long getLong(int i) throws SQLException {
         return rs.getLong(i);
+    }
+
+    public String getType(int i) throws SQLException {
+        return rs.getMetaData().getColumnTypeName(i);
     }
 
     public void registerEpilogue(Runnable runnableEpilogue) {
