@@ -572,32 +572,35 @@ public final class PrestoTypedExpressionGenerator extends
         return columns.stream().anyMatch(c -> c.getType() == type);
     }
 
-    public NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld> generateArgsForAggregate
-            (PrestoAggregateFunctionOld aggregateFunction) {
-        return new NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld>(
-                generateExpressions(aggregateFunction.getNrArgs()), aggregateFunction);
+    public Node<PrestoExpression> generateAggregate() {
+        PrestoAggregateFunction aggregateFunction = PrestoAggregateFunction.getRandom();
+        List<Node<PrestoExpression>> argsForAggregate = generateArgsForAggregate(aggregateFunction);
+        return new NewFunctionNode<>(argsForAggregate, aggregateFunction);
     }
 
-    public Node<PrestoExpression> generateAggregate() {
-        PrestoAggregateFunctionOld aggrFunc = PrestoAggregateFunctionOld.getRandom();
-        return generateArgsForAggregate(aggrFunc);
+    public List<Node<PrestoExpression>> generateArgsForAggregate(PrestoAggregateFunction aggregateFunction) {
+        PrestoSchema.PrestoDataType functionReturnType = aggregateFunction.getReturnType();
+        PrestoSchema.PrestoCompositeDataType returnType = PrestoSchema.PrestoCompositeDataType.fromDataType(functionReturnType);
+        List<Node<PrestoExpression>> expressions = aggregateFunction.getArgumentsForReturnType(this, (this.maxDepth - 1), returnType);
+        return expressions;
     }
 
     private Node<PrestoExpression> generateAggregate(PrestoSchema.PrestoCompositeDataType type) {
-        PrestoAggregateFunctionOld agg = Randomly
-                .fromList(PrestoAggregateFunctionOld.getAggregates(type.getPrimitiveDataType()));
-        return generateArgsForAggregate(type, agg);
+        PrestoAggregateFunction aggregateFunction = Randomly.fromList(PrestoAggregateFunction.getFunctionsCompatibleWith(type));
+        List<Node<PrestoExpression>> argsForAggregate = generateArgsForAggregate(type, aggregateFunction);
+        return new NewFunctionNode<>(argsForAggregate, aggregateFunction);
     }
 
-    public Node<PrestoExpression> generateArgsForAggregate(PrestoSchema.PrestoCompositeDataType type,
-                                                           PrestoAggregateFunctionOld agg) {
-        List<PrestoSchema.PrestoDataType> types = agg.getReturnTypes(type.getPrimitiveDataType());
-        List<Node<PrestoExpression>> args = new ArrayList<>();
+    public List<Node<PrestoExpression>> generateArgsForAggregate(PrestoSchema.PrestoCompositeDataType type,
+                                                                 PrestoAggregateFunction aggregateFunction) {
+        List<PrestoSchema.PrestoDataType> returnTypes = aggregateFunction.getReturnTypes(type.getPrimitiveDataType());
+        List<Node<PrestoExpression>> arguments = new ArrayList<>();
         allowAggregates = false; //
-        for (PrestoSchema.PrestoDataType argType : types) {
-            args.add(generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(argType)));
+        for (PrestoSchema.PrestoDataType argumentType : returnTypes) {
+            arguments.add(generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(argumentType)));
         }
-        return new NewFunctionNode<PrestoExpression, PrestoAggregateFunctionOld>(args, agg);
+//        return new NewFunctionNode<>(arguments, aggregateFunction);
+        return arguments;
     }
 
     @Override

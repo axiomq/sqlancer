@@ -2,12 +2,16 @@ package sqlancer.presto.ast;
 
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
+import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
 import sqlancer.presto.PrestoSchema.PrestoDataType;
 import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum PrestoAggregateFunction implements PrestoFunction {
 
@@ -25,6 +29,20 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{returnType.getPrimitiveDataType()};
         }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return PrestoDataType.getRandomWithoutNull();
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(getReturnType());
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
+        }
+
     },
 
     // TODO:
@@ -69,7 +87,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     COUNT("count", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.values())};
+            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.getRandomWithoutNull())};
         }
     },
     //    count_if(x) → bigint#
@@ -77,7 +95,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     COUNT_IF("count_if", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.values())};
+            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.getRandomWithoutNull())};
         }
     },
     //    every(boolean) → boolean#
@@ -103,6 +121,20 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{returnType.getPrimitiveDataType(), Randomly.fromList(PrestoDataType.getOrderableTypes())};
         }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromList(PrestoDataType.getOrderableTypes());
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(getReturnType());
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
+        }
+
     },
 
     // TODO:
@@ -122,6 +154,20 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{returnType.getPrimitiveDataType(), Randomly.fromList(PrestoDataType.getOrderableTypes())};
         }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromList(PrestoDataType.getOrderableTypes());
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(getReturnType());
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
+        }
+
     },
     // TODO:
     //
@@ -133,13 +179,27 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     MAX("max", null) {
         @Override
         public boolean isCompatibleWithReturnType(PrestoCompositeDataType returnType) {
-            return PrestoDataType.getComparableTypes().contains(returnType.getPrimitiveDataType());
+            return PrestoDataType.getOrderableTypes().contains(returnType.getPrimitiveDataType());
         }
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{returnType.getPrimitiveDataType()};
         }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromList(PrestoDataType.getOrderableTypes());
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(getReturnType());
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
+        }
+
     },
 
     // TODO:
@@ -158,6 +218,19 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{returnType.getPrimitiveDataType()};
+        }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromList(PrestoDataType.getOrderableTypes());
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(getReturnType());
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
         }
 
     },
@@ -233,6 +306,19 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{returnType.getPrimitiveDataType()};
         }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT, PrestoDataType.DECIMAL);
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(getReturnType());
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
+        }
     },
     //    sum(time interval type) → time interval type#
     //    Returns the average interval length of all input values.
@@ -276,7 +362,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     //    Zero is returned if all input values are null.
     //    This function should produce a standard error of 2.3%, which is the standard deviation of the (approximately normal)
     //    error distribution over all possible sets. It does not guarantee an upper bound on the error for any specific input set.
-    approx_distinct("approx_distinct", PrestoDataType.INT) {
+    APPROX_DISTINCT("approx_distinct", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{Randomly.fromList(PrestoDataType.getOrderableTypes())};
@@ -287,7 +373,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     //    Returns the approximate number of distinct input values. This function provides an approximation of count(DISTINCT x). Zero is returned if all input values are null.
     //
     //    This function should produce a standard error of no more than e, which is the standard deviation of the (approximately normal) error distribution over all possible sets. It does not guarantee an upper bound on the error for any specific input set. The current implementation of this function requires that e be in the range of [0.0040625, 0.26000].
-    approx_distinct_2("approx_distinct", PrestoDataType.INT) {
+    APPROX_DISTINCT_2("approx_distinct", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
             return new PrestoDataType[]{Randomly.fromList(PrestoDataType.getOrderableTypes()), PrestoDataType.FLOAT};
@@ -314,6 +400,19 @@ public enum PrestoAggregateFunction implements PrestoFunction {
             arguments.add(gen.generateExpression(returnType2, depth + 1));
             arguments.add(new PrestoConstant.PrestoFloatConstant(Randomly.getPercentage()));
             return arguments;
+        }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT);
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT));
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
         }
     },
 
@@ -344,6 +443,19 @@ public enum PrestoAggregateFunction implements PrestoFunction {
                 arguments.add(new PrestoConstant.PrestoFloatConstant(Randomly.getPercentage()));
             }
             return arguments;
+        }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT);
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT));
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
         }
     },
 
@@ -384,6 +496,19 @@ public enum PrestoAggregateFunction implements PrestoFunction {
             }
             return arguments;
         }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT);
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT));
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
+        }
     },
 
 
@@ -417,6 +542,19 @@ public enum PrestoAggregateFunction implements PrestoFunction {
                 arguments.add(new PrestoConstant.PrestoFloatConstant(Randomly.getPercentage()));
             }
             return arguments;
+        }
+
+        @Override
+        public PrestoDataType getReturnType() {
+            return Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT);
+        }
+
+        @Override
+        public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth, PrestoCompositeDataType returnType) {
+            if (returnType == null) {
+                returnType = PrestoCompositeDataType.fromDataType(Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT));
+            }
+            return super.getArgumentsForReturnType(gen, depth, returnType);
         }
     },
 
@@ -480,6 +618,15 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         this.argumentTypes = argumentTypes.clone();
     }
 
+    public static PrestoAggregateFunction getRandomMetamorphicOracle() {
+        return Randomly.fromOptions(ARBITRARY, AVG, AVG_INTERVAL_YM, AVG_INTERVAL_DS,
+                BOOL_AND, BOOL_OR, CHECKSUM, COUNT_ALL, COUNT_NOARGS, COUNT, COUNT_IF, EVERY,
+                GEOMETRIC_MEAN, MAX_BY, MIN_BY, MAX, MIN,
+                SUM, SUM_INTERVAL_YM, SUM_INTERVAL_DS,
+                BITWISE_AND_AGG, BITWISE_OR_AGG
+        );
+    }
+
     @Override
     public String getFunctionName() {
         return functionName;
@@ -495,5 +642,30 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         return argumentTypes.clone();
     }
 
+    @Override
+    public int getNumberOfArguments() {
+        return 1;
+    }
+
+
+    public static PrestoAggregateFunction getRandom() {
+        return Randomly.fromOptions(values());
+    }
+
+
+    public static List<PrestoAggregateFunction> getFunctionsCompatibleWith(PrestoCompositeDataType returnType) {
+        return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
+    }
+
+    public List<PrestoSchema.PrestoDataType> getReturnTypes(PrestoSchema.PrestoDataType dataType) {
+        return Collections.singletonList(dataType);
+    }
+
+    public PrestoDataType getReturnType() {
+        if (returnType == null) {
+            return Randomly.fromList(PrestoDataType.getOrderableTypes());
+        }
+        return returnType;
+    }
 }
 
