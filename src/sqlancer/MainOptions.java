@@ -126,8 +126,11 @@ public class MainOptions {
     @Parameter(names = "--use-reducer", description = "EXPERIMENTAL Attempt to reduce queries using a simple reducer")
     private boolean useReducer = false; // NOPMD
 
-    @Parameter(names = "--compare-content", description = "EXPERIMENTAL Should compare content of the result set ")
-    private boolean compareResultsContent = true;
+    @Parameter(names = "--compare-content", description = "EXPERIMENTAL Should compare content of the result set ", arity = 1)
+    private boolean compareResultsContent = true; // NOPMD
+
+    @Parameter(names = "--canonicalize-string", description = "EXPERIMENTAL Should canonicalize query string (add ';' at the end", arity = 1)
+    private boolean canonicalizeString = true; // NOPMD
 
     @Parameter(names = "--statement-reducer-max-steps", description = "EXPERIMENTAL Maximum steps the statement reducer will do")
     private long maxStatementReduceSteps = NO_REDUCE_LIMIT; // NOPMD
@@ -298,6 +301,10 @@ public class MainOptions {
 
     public boolean compareResultsContent() {
         return compareResultsContent;
+    }
+
+    public boolean canonicalizeString() {
+        return canonicalizeString;
     }
 
 

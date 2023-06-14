@@ -49,6 +49,7 @@ public final class PrestoErrors {
         errors.add("subtraction overflow");
         errors.add("Decimal overflow");
         errors.add("IN value and list items must be the same type");
+        errors.add("is not a valid timestamp literal");
 
         // ARRAY
         errors.add("Unknown type: ARRAY");

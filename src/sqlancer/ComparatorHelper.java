@@ -48,7 +48,8 @@ public final class ComparatorHelper {
                 e.printStackTrace();
             }
         }
-        SQLQueryAdapter q = new SQLQueryAdapter(queryString, errors);
+        boolean canonicalizeString = state.getOptions().canonicalizeString();
+        SQLQueryAdapter q = new SQLQueryAdapter(queryString, errors, true, canonicalizeString);
         List<String> resultSet = new ArrayList<>();
         SQLancerResultSet result = null;
         try {

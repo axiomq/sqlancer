@@ -16,7 +16,7 @@ public enum PrestoComparisonFunction implements PrestoFunction {
     GREATEST("greatest", null) {
         @Override
         public boolean isCompatibleWithReturnType(PrestoSchema.PrestoCompositeDataType returnType) {
-            return PrestoDataType.getComparableTypes().contains(returnType.getPrimitiveDataType());
+            return PrestoDataType.getOrderableTypes().contains(returnType.getPrimitiveDataType());
         }
 
 
@@ -35,7 +35,7 @@ public enum PrestoComparisonFunction implements PrestoFunction {
     LEAST("least", null) {
         @Override
         public boolean isCompatibleWithReturnType(PrestoSchema.PrestoCompositeDataType returnType) {
-            return PrestoDataType.getComparableTypes().contains(returnType.getPrimitiveDataType());
+            return PrestoDataType.getOrderableTypes().contains(returnType.getPrimitiveDataType());
         }
 
         @Override

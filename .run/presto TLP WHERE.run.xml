@@ -4,7 +4,7 @@
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="sqlancer.Main" />
     <module name="sqlancer" />
-    <option name="PROGRAM_PARAMETERS" value="--log-each-select true --print-statements true --num-threads 1 presto --oracle WHERE" />
+    <option name="PROGRAM_PARAMETERS" value="--random-string-generation ALPHANUMERIC --canonicalize-string false --compare-content false --log-each-select true --print-statements true --num-threads 1 presto --oracle WHERE" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="sqlancer.*" />
