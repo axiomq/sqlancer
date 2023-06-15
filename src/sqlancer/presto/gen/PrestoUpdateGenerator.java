@@ -16,12 +16,11 @@ import java.util.List;
 public final class PrestoUpdateGenerator extends AbstractUpdateGenerator<PrestoColumn> {
 
     private final PrestoGlobalState globalState;
-    private final boolean typed;
     private PrestoTypedExpressionGenerator gen;
 
     private PrestoUpdateGenerator(PrestoGlobalState globalState) {
         this.globalState = globalState;
-        this.typed = globalState.getDbmsSpecificOptions().typedGenerator;
+        globalState.getDbmsSpecificOptions();
     }
 
     public static SQLQueryAdapter getQuery(PrestoGlobalState globalState) {

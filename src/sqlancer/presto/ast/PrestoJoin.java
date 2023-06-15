@@ -63,7 +63,8 @@ public class PrestoJoin implements Node<PrestoExpression> {
         return onCondition;
     }
 
-    private void setOuterType(OuterType outerType) {
+    @SuppressWarnings("unused")
+	private void setOuterType(OuterType outerType) {
         this.outerType = outerType;
     }
 

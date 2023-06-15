@@ -25,8 +25,6 @@ public class PrestoConstantUtils {
     public static BigDecimal getDecimal(double val, int scale, int precision) {
         int part = precision - scale;
 
-        BigDecimal bd = new BigDecimal(val);
-
         // long part
         long lng = (long) val;
         // decimal places

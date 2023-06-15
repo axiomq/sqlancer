@@ -22,7 +22,7 @@ public final class PrestoAlterTableGenerator {
         errors.add("Table does not contain column rowid referenced in alter statement");
         StringBuilder sb = new StringBuilder("ALTER TABLE ");
         PrestoTable table = globalState.getSchema().getRandomTable(t -> !t.isView());
-        PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(globalState).setColumns(table.getColumns());
+        // PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(globalState).setColumns(table.getColumns());
         sb.append(table.getName());
         sb.append(" ");
         Action action = Randomly.fromOptions(Action.values());
