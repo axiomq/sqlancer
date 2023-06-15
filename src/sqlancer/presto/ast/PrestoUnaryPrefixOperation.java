@@ -25,13 +25,15 @@ public class PrestoUnaryPrefixOperation extends NewUnaryPrefixOperatorNode<Prest
             }
         },
 
-        UNARY_PLUS("+", PrestoSchema.PrestoDataType.INT, PrestoSchema.PrestoDataType.FLOAT, PrestoSchema.PrestoDataType.DECIMAL) {
+        UNARY_PLUS("+", PrestoSchema.PrestoDataType.INT, PrestoSchema.PrestoDataType.FLOAT,
+                PrestoSchema.PrestoDataType.DECIMAL) {
             @Override
             public PrestoSchema.PrestoDataType getExpressionType() {
                 return PrestoSchema.PrestoDataType.INT;
             }
         },
-        UNARY_MINUS("-", PrestoSchema.PrestoDataType.INT, PrestoSchema.PrestoDataType.FLOAT, PrestoSchema.PrestoDataType.DECIMAL) {
+        UNARY_MINUS("-", PrestoSchema.PrestoDataType.INT, PrestoSchema.PrestoDataType.FLOAT,
+                PrestoSchema.PrestoDataType.DECIMAL) {
             @Override
             public PrestoSchema.PrestoDataType getExpressionType() {
                 return PrestoSchema.PrestoDataType.INT;

@@ -13,8 +13,8 @@ public class PrestoGlobalState extends SQLGlobalState<PrestoOptions, PrestoSchem
 
     // BANE: check
 
-    //    public boolean usesPQS() {
-    //        return getDbmsSpecificOptions().oracles.stream().anyMatch(o -> o == MySQLOptions.MySQLOracleFactory.PQS);
-    //    }
+    // public boolean usesPQS() {
+    // return getDbmsSpecificOptions().oracles.stream().anyMatch(o -> o == MySQLOptions.MySQLOracleFactory.PQS);
+    // }
 
 }

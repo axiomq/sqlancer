@@ -12,7 +12,7 @@ public class PrestoMultiValuedComparison implements Node<PrestoExpression> {
     private final PrestoMultiValuedComparisonOperator op;
 
     public PrestoMultiValuedComparison(Node<PrestoExpression> left, List<Node<PrestoExpression>> right,
-                                       PrestoMultiValuedComparisonType type, PrestoMultiValuedComparisonOperator op) {
+            PrestoMultiValuedComparisonType type, PrestoMultiValuedComparisonOperator op) {
         this.left = left;
         this.right = right;
         this.type = type;

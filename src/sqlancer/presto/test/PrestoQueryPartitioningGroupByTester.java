@@ -39,15 +39,15 @@ public class PrestoQueryPartitioningGroupByTester extends PrestoQueryPartitionin
         String thirdQueryString = PrestoToStringVisitor.asString(select);
         List<String> combinedString = new ArrayList<>();
         List<String> secondResultSet = ComparatorHelper.getCombinedResultSetNoDuplicates(firstQueryString,
-            secondQueryString, thirdQueryString, combinedString, true, state, errors);
+                secondQueryString, thirdQueryString, combinedString, true, state, errors);
         ComparatorHelper.assumeResultSetsAreEqual(resultSet, secondResultSet, originalQueryString, combinedString,
-            state, PrestoQueryPartitioningBase::canonicalizeResultValue);
+                state, PrestoQueryPartitioningBase::canonicalizeResultValue);
     }
 
     @Override
     List<Node<PrestoExpression>> generateFetchColumns() {
         return Randomly.nonEmptySubset(targetTables.getColumns()).stream()
-            .map(c -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
+                .map(c -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
     }
 
 }

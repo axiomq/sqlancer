@@ -36,9 +36,9 @@ public class PrestoQueryPartitioningDistinctTester extends PrestoQueryPartitioni
         String thirdQueryString = PrestoToStringVisitor.asString(select);
         List<String> combinedString = new ArrayList<>();
         List<String> secondResultSet = ComparatorHelper.getCombinedResultSetNoDuplicates(firstQueryString,
-            secondQueryString, thirdQueryString, combinedString, true, state, errors);
+                secondQueryString, thirdQueryString, combinedString, true, state, errors);
         ComparatorHelper.assumeResultSetsAreEqual(resultSet, secondResultSet, originalQueryString, combinedString,
-            state, PrestoQueryPartitioningBase::canonicalizeResultValue);
+                state, PrestoQueryPartitioningBase::canonicalizeResultValue);
     }
 
 }

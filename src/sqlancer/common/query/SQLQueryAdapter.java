@@ -35,7 +35,8 @@ public class SQLQueryAdapter extends Query<SQLConnection> {
         this(query, expectedErrors, couldAffectSchema, true);
     }
 
-    public SQLQueryAdapter(String query, ExpectedErrors expectedErrors, boolean couldAffectSchema, boolean canonicalizeString) {
+    public SQLQueryAdapter(String query, ExpectedErrors expectedErrors, boolean couldAffectSchema,
+            boolean canonicalizeString) {
         if (canonicalizeString) {
             this.query = canonicalizeString(query);
         } else {

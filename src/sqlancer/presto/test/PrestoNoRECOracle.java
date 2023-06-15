@@ -44,23 +44,17 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         PrestoTables randomTables = s.getRandomTableNonEmptyTables();
         List<PrestoColumn> columns = randomTables.getColumns();
 
-
         List<PrestoTable> tables = randomTables.getTables();
 
         List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList = tables.stream()
-                .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t))
-                .collect(Collectors.toList());
+                .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, state);
 
         PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(state).setColumns(columns);
         Node<PrestoExpression> randomWhereCondition = gen.generatePredicate();
         int secondCount = getSecondQuery(new ArrayList<>(tableList), randomWhereCondition, joins);
 
-        int firstCount = getFirstQueryCount(con,
-                new ArrayList<>(tableList),
-                columns,
-                randomWhereCondition,
-                joins);
+        int firstCount = getFirstQueryCount(con, new ArrayList<>(tableList), columns, randomWhereCondition, joins);
         if (firstCount == -1 || secondCount == -1) {
             throw new IgnoreMeException();
         }
@@ -70,9 +64,8 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         }
     }
 
-    private int getSecondQuery(List<Node<PrestoExpression>> tableList,
-                               Node<PrestoExpression> randomWhereCondition,
-                               List<Node<PrestoExpression>> joins) throws SQLException {
+    private int getSecondQuery(List<Node<PrestoExpression>> tableList, Node<PrestoExpression> randomWhereCondition,
+            List<Node<PrestoExpression>> joins) throws SQLException {
         PrestoSelect select = new PrestoSelect();
 
         // select.setGroupByClause(groupBys);
@@ -82,12 +75,9 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         Node<PrestoExpression> asText = new NewPostfixTextNode<>(
 
                 new PrestoCastFunction(
-                        new NewPostfixTextNode<>(
-                                randomWhereCondition,
-                                " IS NOT NULL AND " + PrestoToStringVisitor.asString(randomWhereCondition)
-                        ),
-                        new PrestoCompositeDataType(PrestoDataType.INT, 8, 0)
-                ),
+                        new NewPostfixTextNode<>(randomWhereCondition,
+                                " IS NOT NULL AND " + PrestoToStringVisitor.asString(randomWhereCondition)),
+                        new PrestoCompositeDataType(PrestoDataType.INT, 8, 0)),
                 "as count");
 
         select.setFetchColumns(List.of(asText));
@@ -116,7 +106,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
     }
 
     private int getFirstQueryCount(SQLConnection con, List<Node<PrestoExpression>> tableList,
-                                   List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition, List<Node<PrestoExpression>> joins)
+            List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition, List<Node<PrestoExpression>> joins)
             throws SQLException {
         PrestoSelect select = new PrestoSelect();
         // select.setGroupByClause(groupBys);
@@ -129,14 +119,15 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
         select.setFromList(tableList);
         select.setWhereClause(randomWhereCondition);
         if (Randomly.getBooleanWithSmallProbability()) {
-            select.setOrderByExpressions(new PrestoTypedExpressionGenerator(state).setColumns(columns).generateOrderBys());
+            select.setOrderByExpressions(
+                    new PrestoTypedExpressionGenerator(state).setColumns(columns).generateOrderBys());
         }
         // select.setSelectType(SelectType.ALL);
         select.setJoinList(joins);
         int firstCount = 0;
         try (Statement stat = con.createStatement()) {
             optimizedQueryString = PrestoToStringVisitor.asString(select);
-//            System.out.println("optimizedQueryString : " + optimizedQueryString);
+            // System.out.println("optimizedQueryString : " + optimizedQueryString);
             if (options.logEachSelect()) {
                 logger.writeCurrent(optimizedQueryString);
             }
@@ -146,7 +137,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
                 }
             }
         } catch (SQLException e) {
-//            System.out.println(e.getMessage());
+            // System.out.println(e.getMessage());
             throw new IgnoreMeException();
         }
         return firstCount;

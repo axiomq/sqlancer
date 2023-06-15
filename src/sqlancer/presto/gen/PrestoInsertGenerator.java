@@ -43,7 +43,8 @@ public class PrestoInsertGenerator extends AbstractInsertGenerator<PrestoColumn>
 
     @Override
     protected void insertValue(PrestoColumn prestoColumn) {
-        Node<PrestoExpression> constant = new PrestoTypedExpressionGenerator(globalState).generateInsertConstant(prestoColumn.getType());
+        Node<PrestoExpression> constant = new PrestoTypedExpressionGenerator(globalState)
+                .generateInsertConstant(prestoColumn.getType());
         sb.append(PrestoToStringVisitor.asString(constant));
 
     }

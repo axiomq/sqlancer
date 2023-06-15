@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PrestoQueryPartitioningHavingTester extends PrestoQueryPartitioningBase
-    implements TestOracle<PrestoGlobalState> {
+        implements TestOracle<PrestoGlobalState> {
 
     public PrestoQueryPartitioningHavingTester(PrestoGlobalState state) {
         super(state);
@@ -46,9 +46,9 @@ public class PrestoQueryPartitioningHavingTester extends PrestoQueryPartitioning
         String thirdQueryString = PrestoToStringVisitor.asString(select);
         List<String> combinedString = new ArrayList<>();
         List<String> secondResultSet = ComparatorHelper.getCombinedResultSet(firstQueryString, secondQueryString,
-            thirdQueryString, combinedString, !orderBy, state, errors);
+                thirdQueryString, combinedString, !orderBy, state, errors);
         ComparatorHelper.assumeResultSetsAreEqual(resultSet, secondResultSet, originalQueryString, combinedString,
-            state, PrestoQueryPartitioningBase::canonicalizeResultValue);
+                state, PrestoQueryPartitioningBase::canonicalizeResultValue);
     }
 
     @Override

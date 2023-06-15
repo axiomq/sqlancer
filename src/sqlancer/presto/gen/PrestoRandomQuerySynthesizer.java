@@ -24,7 +24,7 @@ public final class PrestoRandomQuerySynthesizer {
     public static PrestoSelect generateSelect(PrestoGlobalState globalState, int nrColumns) {
         PrestoTables targetTables = globalState.getSchema().getRandomTableNonEmptyTables();
         PrestoTypedExpressionGenerator gen = new PrestoTypedExpressionGenerator(globalState)
-            .setColumns(targetTables.getColumns());
+                .setColumns(targetTables.getColumns());
         PrestoSelect select = new PrestoSelect();
         // TODO: distinct
         // select.setDistinct(Randomly.getBoolean());
@@ -32,7 +32,8 @@ public final class PrestoRandomQuerySynthesizer {
         List<Node<PrestoExpression>> columns = new ArrayList<>();
         for (int i = 0; i < nrColumns; i++) {
             // if (allowAggregates && Randomly.getBoolean()) {
-            Node<PrestoExpression> expression = gen.generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
+            Node<PrestoExpression> expression = gen
+                    .generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
             columns.add(expression);
             // } else {
             // columns.add(gen());
@@ -41,7 +42,7 @@ public final class PrestoRandomQuerySynthesizer {
         select.setFetchColumns(columns);
         List<PrestoTable> tables = targetTables.getTables();
         List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList = tables.stream()
-            .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
+                .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, globalState);
         select.setJoinList(joins.stream().collect(Collectors.toList()));
         select.setFromList(tableList.stream().collect(Collectors.toList()));
@@ -58,10 +59,10 @@ public final class PrestoRandomQuerySynthesizer {
         if (Randomly.getBoolean()) {
             select.setLimitClause(PrestoConstant.createIntConstant(Randomly.getNotCachedInteger(0, Integer.MAX_VALUE)));
         }
-//        if (Randomly.getBoolean()) {
-//            select.setOffsetClause(
-//                    PrestoConstant.createIntConstant(Randomly.getNotCachedInteger(0, Integer.MAX_VALUE)));
-//        }
+        // if (Randomly.getBoolean()) {
+        // select.setOffsetClause(
+        // PrestoConstant.createIntConstant(Randomly.getNotCachedInteger(0, Integer.MAX_VALUE)));
+        // }
         if (Randomly.getBoolean()) {
             select.setHavingClause(gen.generateHavingClause());
         }

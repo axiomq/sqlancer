@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PrestoQueryPartitioningBase
-    extends TernaryLogicPartitioningOracleBase<Node<PrestoExpression>, PrestoGlobalState>
-    implements TestOracle<PrestoGlobalState> {
+        extends TernaryLogicPartitioningOracleBase<Node<PrestoExpression>, PrestoGlobalState>
+        implements TestOracle<PrestoGlobalState> {
 
     PrestoSchema s;
     PrestoTables targetTables;
@@ -44,11 +44,11 @@ public class PrestoQueryPartitioningBase
 
         // TODO: check this
         switch (value) {
-            case "-0.0":
-                return "0.0";
-            case "-0":
-                return "0";
-            default:
+        case "-0.0":
+            return "0.0";
+        case "-0":
+            return "0";
+        default:
         }
 
         return value;
@@ -64,7 +64,7 @@ public class PrestoQueryPartitioningBase
         select.setFetchColumns(generateFetchColumns());
         List<PrestoTable> tables = targetTables.getTables();
         List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList = tables.stream()
-            .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
+                .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, state);
         select.setJoinList(joins.stream().collect(Collectors.toList()));
         select.setFromList(tableList.stream().collect(Collectors.toList()));
@@ -77,7 +77,7 @@ public class PrestoQueryPartitioningBase
             columns.add(new ColumnReferenceNode<>(new PrestoColumn("*", null, false, false)));
         } else {
             columns = Randomly.nonEmptySubset(targetTables.getColumns()).stream()
-                .map(c -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
+                    .map(c -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
         }
         return columns;
     }

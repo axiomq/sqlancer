@@ -20,24 +20,24 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
     }
 
     public enum Action implements AbstractAction<PrestoGlobalState> {
-        //        SHOW_TABLES((g) -> new SQLQueryAdapter("SHOW TABLES", new ExpectedErrors(), false, false)), //
+        // SHOW_TABLES((g) -> new SQLQueryAdapter("SHOW TABLES", new ExpectedErrors(), false, false)), //
         INSERT(PrestoInsertGenerator::getQuery);
-        //        , //
-        //        CREATE_INDEX(PrestoIndexGenerator::getQuery), //
-        //        VACUUM((g) -> new SQLQueryAdapter("VACUUM", new ExpectedErrors(), false, false)), //
-        //        ANALYZE((g) -> new SQLQueryAdapter("ANALYZE", new ExpectedErrors(), false, false)), //
-        //        DELETE(PrestoDeleteGenerator::generate), //
-        //        UPDATE(PrestoUpdateGenerator::getQuery), //
-        //        CREATE_VIEW(PrestoViewGenerator::generate), //
-        //        EXPLAIN((g) -> {
-        //            ExpectedErrors errors = new ExpectedErrors();
-        //            PrestoErrors.addExpressionErrors(errors);
-        //            PrestoErrors.addGroupByErrors(errors);
-        //            return new SQLQueryAdapter(
-        //                "EXPLAIN " + PrestoToStringVisitor
-        //                    .asString(PrestoRandomQuerySynthesizer.generateSelect(g, Randomly.smallNumber() + 1)),
-        //                errors);
-        //        });
+        // , //
+        // CREATE_INDEX(PrestoIndexGenerator::getQuery), //
+        // VACUUM((g) -> new SQLQueryAdapter("VACUUM", new ExpectedErrors(), false, false)), //
+        // ANALYZE((g) -> new SQLQueryAdapter("ANALYZE", new ExpectedErrors(), false, false)), //
+        // DELETE(PrestoDeleteGenerator::generate), //
+        // UPDATE(PrestoUpdateGenerator::getQuery), //
+        // CREATE_VIEW(PrestoViewGenerator::generate), //
+        // EXPLAIN((g) -> {
+        // ExpectedErrors errors = new ExpectedErrors();
+        // PrestoErrors.addExpressionErrors(errors);
+        // PrestoErrors.addGroupByErrors(errors);
+        // return new SQLQueryAdapter(
+        // "EXPLAIN " + PrestoToStringVisitor
+        // .asString(PrestoRandomQuerySynthesizer.generateSelect(g, Randomly.smallNumber() + 1)),
+        // errors);
+        // });
 
         private final SQLQueryProvider<PrestoGlobalState> sqlQueryProvider;
 
@@ -57,16 +57,16 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         Randomly r = globalState.getRandomly();
         if (Objects.requireNonNull(a) == Action.INSERT) {
             return r.getInteger(0, globalState.getOptions().getMaxNumberInserts());
-            //            case UPDATE:
-            //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumUpdates + 1);
-            //        case VACUUM: // seems to be ignored
-            //            case ANALYZE: // seems to be ignored
-            //            case EXPLAIN:
-            //                return r.getInteger(0, 2);
-            //            case DELETE:
-            //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumDeletes + 1);
-            //            case CREATE_VIEW:
-            //                return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumViews + 1);
+            // case UPDATE:
+            // return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumUpdates + 1);
+            // case VACUUM: // seems to be ignored
+            // case ANALYZE: // seems to be ignored
+            // case EXPLAIN:
+            // return r.getInteger(0, 2);
+            // case DELETE:
+            // return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumDeletes + 1);
+            // case CREATE_VIEW:
+            // return r.getInteger(0, globalState.getDbmsSpecificOptions().maxNumViews + 1);
         }
         throw new AssertionError(a);
     }
@@ -84,11 +84,11 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
             throw new IgnoreMeException(); // TODO
         }
         StatementExecutor<PrestoGlobalState, Action> se = new StatementExecutor<>(globalState, Action.values(),
-            PrestoProvider::mapActions, (q) -> {
-            if (globalState.getSchema().getDatabaseTables().isEmpty()) {
-                throw new IgnoreMeException();
-            }
-        });
+                PrestoProvider::mapActions, (q) -> {
+                    if (globalState.getSchema().getDatabaseTables().isEmpty()) {
+                        throw new IgnoreMeException();
+                    }
+                });
         se.executeStatements();
     }
 
@@ -115,8 +115,7 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         globalState.getState().logStatement("DROP SCHEMA IF EXISTS " + catalogName + "." + databaseName);
         globalState.getState().logStatement("CREATE SCHEMA IF NOT EXISTS " + catalogName + "." + databaseName);
         globalState.getState().logStatement("USE " + catalogName + "." + databaseName);
-        String url = String.format("jdbc:presto://%s:%d/%s?SSL=%b",
-            host, port, catalogName, useSSl);
+        String url = String.format("jdbc:presto://%s:%d/%s?SSL=%b", host, port, catalogName, useSSl);
         Connection con = DriverManager.getConnection(url, username, password);
         List<String> schemaNames = new ArrayList<>();
         try (Statement s = con.createStatement()) {

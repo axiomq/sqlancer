@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 
 public class PrestoConstantUtils {
 
-
     public static String removeNoneAscii(String str) {
         return str.replaceAll("[^\\x00-\\x7F]", "");
     }
@@ -19,7 +18,7 @@ public class PrestoConstantUtils {
     }
 
     public static String removeAllControlChars(String str) {
-        return removeOthersControlChar( removeNonePrintable(str)).replaceAll("[\\r\\n\\t]", "");
+        return removeOthersControlChar(removeNonePrintable(str)).replaceAll("[\\r\\n\\t]", "");
     }
 
     public static BigDecimal getDecimal(double val, int scale, int precision) {

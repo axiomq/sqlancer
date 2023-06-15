@@ -12,10 +12,8 @@ public class SimpleJdbcTest {
     public static void main(String[] args) throws Exception {
         // Open a connection
         ResultSet rsx = null;
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(QUERY);) {
-
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS); Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(QUERY);) {
 
             stmt.execute("DROP SCHEMA IF EXISTS test");
             stmt.execute("CREATE SCHEMA IF NOT EXISTS test");

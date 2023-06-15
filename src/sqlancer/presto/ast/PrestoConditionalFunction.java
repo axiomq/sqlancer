@@ -17,7 +17,7 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] { PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType() };
         }
     },
 
@@ -29,8 +29,8 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType(),
-                    returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] { PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType(),
+                    returnType.getPrimitiveDataType() };
         }
     },
 
@@ -42,7 +42,7 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] { returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType() };
         }
     },
 
@@ -70,7 +70,6 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
     ;
 
-
     private final PrestoDataType returnType;
     private final String functionName;
 
@@ -93,6 +92,5 @@ public enum PrestoConditionalFunction implements PrestoFunction {
     public int getNumberOfArguments() {
         return getArgumentTypes(PrestoCompositeDataType.fromDataType(returnType)).length;
     }
-
 
 }

@@ -16,7 +16,6 @@ public class PrestoAtTimeZoneOperator implements Node<PrestoExpression> {
         return expr;
     }
 
-
     public Node<PrestoExpression> getTimeZone() {
         return timeZone;
     }

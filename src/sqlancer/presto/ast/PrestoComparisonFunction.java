@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public enum PrestoComparisonFunction implements PrestoFunction {
 
-    //comparison
+    // comparison
 
     // Returns the largest of the provided values.
     // → [same as input]
@@ -19,7 +19,6 @@ public enum PrestoComparisonFunction implements PrestoFunction {
             return PrestoDataType.getOrderableTypes().contains(returnType.getPrimitiveDataType());
         }
 
-
         @Override
         public int getNumberOfArguments() {
             return -1;
@@ -27,10 +26,10 @@ public enum PrestoComparisonFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[]{returnType.getPrimitiveDataType()};
+            return new PrestoSchema.PrestoDataType[] { returnType.getPrimitiveDataType() };
         }
     },
-    //    Returns the smallest of the provided values.
+    // Returns the smallest of the provided values.
     // → [same as input]#
     LEAST("least", null) {
         @Override
@@ -58,7 +57,6 @@ public enum PrestoComparisonFunction implements PrestoFunction {
     private final PrestoDataType[] argumentTypes;
     private final String functionName;
 
-
     PrestoComparisonFunction(String functionName, PrestoDataType returnType, PrestoDataType... argumentTypes) {
         this.functionName = functionName;
         this.returnType = returnType;
@@ -81,4 +79,3 @@ public enum PrestoComparisonFunction implements PrestoFunction {
     }
 
 }
-

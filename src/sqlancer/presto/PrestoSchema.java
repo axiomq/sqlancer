@@ -17,32 +17,18 @@ import java.util.List;
 public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema.PrestoTable> {
 
     public enum PrestoDataType {
-        BOOLEAN,
-        INT,
-        FLOAT,
-        DECIMAL,
-        VARCHAR,
-        CHAR,
-        VARBINARY,
-        JSON,
-        DATE,
-        TIME,
-        TIMESTAMP,
-        TIME_WITH_TIME_ZONE,
-        TIMESTAMP_WITH_TIME_ZONE,
-        INTERVAL_YEAR_TO_MONTH,
-        INTERVAL_DAY_TO_SECOND,
-        ARRAY,
-        //        MAP,
-        //  ROW,
-        //  IPADDRESS,
-        //  UID,
-        //  IPPREFIX,
-        //  HyperLogLog,
-        //  P4HyperLogLog,
-        //  KHyperLogLog,
-        //  QDigest,
-        //  TDigest,
+        BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR, VARBINARY, JSON, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE,
+        TIMESTAMP_WITH_TIME_ZONE, INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND, ARRAY,
+        // MAP,
+        // ROW,
+        // IPADDRESS,
+        // UID,
+        // IPPREFIX,
+        // HyperLogLog,
+        // P4HyperLogLog,
+        // KHyperLogLog,
+        // QDigest,
+        // TDigest,
         NULL;
 
         public static PrestoDataType getRandomWithoutNull() {
@@ -55,34 +41,30 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
 
         public boolean isNumeric() {
             switch (this) {
-                case INT:
-                case FLOAT:
-                case DECIMAL:
-                    return true;
-                default:
-                    return false;
+            case INT:
+            case FLOAT:
+            case DECIMAL:
+                return true;
+            default:
+                return false;
             }
         }
 
         public static List<PrestoDataType> getNumericTypes() {
-            return Arrays.asList(INT, FLOAT, DECIMAL, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
+            return Arrays.asList(INT, FLOAT, DECIMAL, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE,
+                    TIMESTAMP_WITH_TIME_ZONE);
         }
 
         public static List<PrestoDataType> getComparableTypes() {
-            return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR,
-                    VARBINARY, JSON,
-                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE,
-                    INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND);
+            return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR, VARBINARY, JSON, DATE, TIME, TIMESTAMP,
+                    TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE, INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND);
         }
 
         public static List<PrestoDataType> getOrderableTypes() {
-            return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR,
-                    VARBINARY,
-//                    JSON,
-                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE,
-                    INTERVAL_YEAR_TO_MONTH, INTERVAL_DAY_TO_SECOND
-                    , ARRAY
-            );
+            return Arrays.asList(BOOLEAN, INT, FLOAT, DECIMAL, VARCHAR, CHAR, VARBINARY,
+                    // JSON,
+                    DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE, INTERVAL_YEAR_TO_MONTH,
+                    INTERVAL_DAY_TO_SECOND, ARRAY);
         }
 
         public static List<PrestoDataType> getNumberTypes() {
@@ -164,44 +146,44 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             int size = -1;
             int scale = -1;
             switch (type) {
-                case BOOLEAN:
-                    size = 0;
-                    break;
-                case INT:
-                    size = Randomly.fromOptions(1, 2, 4, 8);
-                    break;
-                case FLOAT:
-                    size = Randomly.fromOptions(4, 8);
-                    break;
-                case DECIMAL:
-                    size = Math.toIntExact(8);
-                    scale = Math.toIntExact(4);
-                    break;
-                case VARBINARY:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case JSON:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case VARCHAR:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case CHAR:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case ARRAY:
-                    return new PrestoCompositeDataType(type, PrestoCompositeDataType.getRandomWithoutNull());
-                case DATE:
-                case TIME:
-                case TIME_WITH_TIME_ZONE:
-                case TIMESTAMP:
-                case TIMESTAMP_WITH_TIME_ZONE:
-                case INTERVAL_DAY_TO_SECOND:
-                case INTERVAL_YEAR_TO_MONTH:
-                    size = 0;
-                    break;
-                default:
-                    throw new AssertionError(type);
+            case BOOLEAN:
+                size = 0;
+                break;
+            case INT:
+                size = Randomly.fromOptions(1, 2, 4, 8);
+                break;
+            case FLOAT:
+                size = Randomly.fromOptions(4, 8);
+                break;
+            case DECIMAL:
+                size = Math.toIntExact(8);
+                scale = Math.toIntExact(4);
+                break;
+            case VARBINARY:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case JSON:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case VARCHAR:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case CHAR:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case ARRAY:
+                return new PrestoCompositeDataType(type, PrestoCompositeDataType.getRandomWithoutNull());
+            case DATE:
+            case TIME:
+            case TIME_WITH_TIME_ZONE:
+            case TIMESTAMP:
+            case TIMESTAMP_WITH_TIME_ZONE:
+            case INTERVAL_DAY_TO_SECOND:
+            case INTERVAL_YEAR_TO_MONTH:
+                size = 0;
+                break;
+            default:
+                throw new AssertionError(type);
             }
 
             return new PrestoCompositeDataType(type, size, scale);
@@ -211,40 +193,40 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             int size = -1;
             int scale = -1;
             switch (type) {
-                case INT:
-                    size = Randomly.fromOptions(1, 2, 4, 8);
-                    break;
-                case FLOAT:
-                    size = Randomly.fromOptions(4, 8);
-                    break;
-                case DECIMAL:
-                    size = Math.toIntExact(8);
-                    scale = Math.toIntExact(4);
-                    break;
-                case JSON:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case VARCHAR:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case CHAR:
-                    size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
-                    break;
-                case ARRAY:
-                    return new PrestoCompositeDataType(type, PrestoCompositeDataType.getRandomWithoutNull());
-                case BOOLEAN:
-                case VARBINARY:
-                case DATE:
-                case TIME:
-                case TIMESTAMP:
-                case TIMESTAMP_WITH_TIME_ZONE:
-                case TIME_WITH_TIME_ZONE:
-                case INTERVAL_DAY_TO_SECOND:
-                case INTERVAL_YEAR_TO_MONTH:
-                    size = 0;
-                    break;
-                default:
-                    throw new AssertionError(type);
+            case INT:
+                size = Randomly.fromOptions(1, 2, 4, 8);
+                break;
+            case FLOAT:
+                size = Randomly.fromOptions(4, 8);
+                break;
+            case DECIMAL:
+                size = Math.toIntExact(8);
+                scale = Math.toIntExact(4);
+                break;
+            case JSON:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case VARCHAR:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case CHAR:
+                size = Math.toIntExact(Randomly.getNotCachedInteger(10, 250));
+                break;
+            case ARRAY:
+                return new PrestoCompositeDataType(type, PrestoCompositeDataType.getRandomWithoutNull());
+            case BOOLEAN:
+            case VARBINARY:
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+            case TIMESTAMP_WITH_TIME_ZONE:
+            case TIME_WITH_TIME_ZONE:
+            case INTERVAL_DAY_TO_SECOND:
+            case INTERVAL_YEAR_TO_MONTH:
+                size = 0;
+                break;
+            default:
+                throw new AssertionError(type);
             }
 
             return new PrestoCompositeDataType(type, size, scale);
@@ -253,60 +235,60 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         @Override
         public String toString() {
             switch (getPrimitiveDataType()) {
-                case INT:
-                    switch (size) {
-                        case 8:
-                            return Randomly.fromOptions("BIGINT");
-                        case 4:
-                            return Randomly.fromOptions("INTEGER");
-                        case 2:
-                            return Randomly.fromOptions("SMALLINT");
-                        case 1:
-                            return Randomly.fromOptions("TINYINT");
-                        default:
-                            throw new AssertionError(size);
-                    }
-                case VARBINARY:
-                    return "VARBINARY";
-                case JSON:
-                    return "JSON";
-                case VARCHAR:
-                    return "VARCHAR" + "(" + size + ")";
-                case CHAR:
-                    return "CHAR" + "(" + size + ")";
-                case FLOAT:
-                    switch (size) {
-                        case 4:
-                            return Randomly.fromOptions("REAL");
-                        case 8:
-                            return Randomly.fromOptions("DOUBLE");
-                        default:
-                            throw new AssertionError(size);
-                    }
-                case DECIMAL:
-                    return "DECIMAL" + "(" + size + ", " + scale + ")";
-                case BOOLEAN:
-                    return "BOOLEAN";
-                case TIMESTAMP_WITH_TIME_ZONE:
-                    return "TIMESTAMP WITH TIME ZONE";
-                case TIMESTAMP:
-                    return "TIMESTAMP";
-                case INTERVAL_YEAR_TO_MONTH:
-                    return "INTERVAL YEAR TO MONTH";
-                case INTERVAL_DAY_TO_SECOND:
-                    return "INTERVAL DAY TO SECOND";
-                case DATE:
-                    return "DATE";
-                case TIME:
-                    return "TIME";
-                case TIME_WITH_TIME_ZONE:
-                    return "TIME WITH TIME ZONE";
-                case ARRAY:
-                    return "ARRAY(" + elementType + ")";
-                case NULL:
-                    return "NULL";
+            case INT:
+                switch (size) {
+                case 8:
+                    return Randomly.fromOptions("BIGINT");
+                case 4:
+                    return Randomly.fromOptions("INTEGER");
+                case 2:
+                    return Randomly.fromOptions("SMALLINT");
+                case 1:
+                    return Randomly.fromOptions("TINYINT");
                 default:
-                    throw new AssertionError(getPrimitiveDataType());
+                    throw new AssertionError(size);
+                }
+            case VARBINARY:
+                return "VARBINARY";
+            case JSON:
+                return "JSON";
+            case VARCHAR:
+                return "VARCHAR" + "(" + size + ")";
+            case CHAR:
+                return "CHAR" + "(" + size + ")";
+            case FLOAT:
+                switch (size) {
+                case 4:
+                    return Randomly.fromOptions("REAL");
+                case 8:
+                    return Randomly.fromOptions("DOUBLE");
+                default:
+                    throw new AssertionError(size);
+                }
+            case DECIMAL:
+                return "DECIMAL" + "(" + size + ", " + scale + ")";
+            case BOOLEAN:
+                return "BOOLEAN";
+            case TIMESTAMP_WITH_TIME_ZONE:
+                return "TIMESTAMP WITH TIME ZONE";
+            case TIMESTAMP:
+                return "TIMESTAMP";
+            case INTERVAL_YEAR_TO_MONTH:
+                return "INTERVAL YEAR TO MONTH";
+            case INTERVAL_DAY_TO_SECOND:
+                return "INTERVAL DAY TO SECOND";
+            case DATE:
+                return "DATE";
+            case TIME:
+                return "TIME";
+            case TIME_WITH_TIME_ZONE:
+                return "TIME WITH TIME ZONE";
+            case ARRAY:
+                return "ARRAY(" + elementType + ")";
+            case NULL:
+                return "NULL";
+            default:
+                throw new AssertionError(getPrimitiveDataType());
             }
         }
 
@@ -314,7 +296,7 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             return elementType;
         }
 
-        public boolean isOrderable(){
+        public boolean isOrderable() {
             if (dataType == PrestoDataType.ARRAY) {
                 assert elementType != null;
                 return (elementType.isOrderable());
@@ -406,13 +388,16 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         return tableNames;
     }
 
-    private static List<PrestoColumn> getTableColumns(SQLConnection con, String databaseName, String tableName) throws SQLException {
+    private static List<PrestoColumn> getTableColumns(SQLConnection con, String databaseName, String tableName)
+            throws SQLException {
         List<PrestoColumn> columns = new ArrayList<>();
         try (Statement s = con.createStatement()) {
             // SHOW COLUMNS FROM memory.test.t0;
             // Column,Type,Extra,Comment
             // c0,tinyint,"",""
-            try (ResultSet rs = s.executeQuery(String.format("select * from information_schema.columns where table_schema = '%s' and table_name = '%s'", databaseName, tableName))) {
+            try (ResultSet rs = s.executeQuery(String.format(
+                    "select * from information_schema.columns where table_schema = '%s' and table_name = '%s'",
+                    databaseName, tableName))) {
                 while (rs.next()) {
                     String columnName = rs.getString("column_name");
                     String dataType = rs.getString("data_type");
@@ -421,7 +406,8 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                     columns.add(c);
                 }
             }
-//            columns.add(new PrestoColumn("rowid", new PrestoCompositeDataType(PrestoDataType.INT, 4, 0), false, false));
+            // columns.add(new PrestoColumn("rowid", new PrestoCompositeDataType(PrestoDataType.INT, 4, 0), false,
+            // false));
         }
 
         return columns;
@@ -450,85 +436,85 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
 
         PrestoDataType primitiveType;
         switch (type) {
-            case "INTEGER":
-                primitiveType = PrestoDataType.INT;
-                size = 4;
-                break;
-            case "SMALLINT":
-                primitiveType = PrestoDataType.INT;
-                size = 2;
-                break;
-            case "BIGINT":
-                primitiveType = PrestoDataType.INT;
-                size = 8;
-                break;
-            case "TINYINT":
-                primitiveType = PrestoDataType.INT;
-                size = 1;
-                break;
-            case "VARCHAR":
-                primitiveType = PrestoDataType.VARCHAR;
-                break;
-            case "VARBINARY":
-                primitiveType = PrestoDataType.VARBINARY;
-                break;
-            case "CHAR":
-                primitiveType = PrestoDataType.CHAR;
-                break;
-            case "FLOAT":
-                primitiveType = PrestoDataType.FLOAT;
-                size = 4;
-                break;
-            case "REAL":
-                primitiveType = PrestoDataType.FLOAT;
-                size = 4;
-                break;
-            case "DOUBLE":
-                primitiveType = PrestoDataType.FLOAT;
-                size = 8;
-                break;
-            case "DECIMAL":
-                primitiveType = PrestoDataType.DECIMAL;
-                break;
-            case "BOOLEAN":
-                primitiveType = PrestoDataType.BOOLEAN;
-                break;
-            case "DATE":
-                primitiveType = PrestoDataType.DATE;
-                break;
-            case "TIME":
-                primitiveType = PrestoDataType.TIME;
-                break;
-            case "TIME WITH TIME ZONE":
-                primitiveType = PrestoDataType.TIME_WITH_TIME_ZONE;
-                break;
-            case "TIMESTAMP":
-                primitiveType = PrestoDataType.TIMESTAMP;
-                break;
-            case "TIMESTAMP WITH TIME ZONE":
-                primitiveType = PrestoDataType.TIMESTAMP_WITH_TIME_ZONE;
-                break;
-            case "INTERVAL DAY TO SECOND":
-                primitiveType = PrestoDataType.INTERVAL_DAY_TO_SECOND;
-                break;
-            case "INTERVAL YEAR TO MONTH":
-                primitiveType = PrestoDataType.INTERVAL_YEAR_TO_MONTH;
-                break;
-            case "JSON":
-                primitiveType = PrestoDataType.JSON;
-                break;
-            case "ARRAY":
-                primitiveType = PrestoDataType.ARRAY;
-                break;
-            case "NULL":
-                primitiveType = PrestoDataType.NULL;
-                break;
-            case "INTERVAL":
-                throw new IgnoreMeException();
-                // TODO: caused when a view contains a computation like ((TIMESTAMP '1970-01-05 11:26:57')-(TIMESTAMP
-                // '1969-12-29 06:50:27'))
-            default:
-                throw new AssertionError(typeString);
+        case "INTEGER":
+            primitiveType = PrestoDataType.INT;
+            size = 4;
+            break;
+        case "SMALLINT":
+            primitiveType = PrestoDataType.INT;
+            size = 2;
+            break;
+        case "BIGINT":
+            primitiveType = PrestoDataType.INT;
+            size = 8;
+            break;
+        case "TINYINT":
+            primitiveType = PrestoDataType.INT;
+            size = 1;
+            break;
+        case "VARCHAR":
+            primitiveType = PrestoDataType.VARCHAR;
+            break;
+        case "VARBINARY":
+            primitiveType = PrestoDataType.VARBINARY;
+            break;
+        case "CHAR":
+            primitiveType = PrestoDataType.CHAR;
+            break;
+        case "FLOAT":
+            primitiveType = PrestoDataType.FLOAT;
+            size = 4;
+            break;
+        case "REAL":
+            primitiveType = PrestoDataType.FLOAT;
+            size = 4;
+            break;
+        case "DOUBLE":
+            primitiveType = PrestoDataType.FLOAT;
+            size = 8;
+            break;
+        case "DECIMAL":
+            primitiveType = PrestoDataType.DECIMAL;
+            break;
+        case "BOOLEAN":
+            primitiveType = PrestoDataType.BOOLEAN;
+            break;
+        case "DATE":
+            primitiveType = PrestoDataType.DATE;
+            break;
+        case "TIME":
+            primitiveType = PrestoDataType.TIME;
+            break;
+        case "TIME WITH TIME ZONE":
+            primitiveType = PrestoDataType.TIME_WITH_TIME_ZONE;
+            break;
+        case "TIMESTAMP":
+            primitiveType = PrestoDataType.TIMESTAMP;
+            break;
+        case "TIMESTAMP WITH TIME ZONE":
+            primitiveType = PrestoDataType.TIMESTAMP_WITH_TIME_ZONE;
+            break;
+        case "INTERVAL DAY TO SECOND":
+            primitiveType = PrestoDataType.INTERVAL_DAY_TO_SECOND;
+            break;
+        case "INTERVAL YEAR TO MONTH":
+            primitiveType = PrestoDataType.INTERVAL_YEAR_TO_MONTH;
+            break;
+        case "JSON":
+            primitiveType = PrestoDataType.JSON;
+            break;
+        case "ARRAY":
+            primitiveType = PrestoDataType.ARRAY;
+            break;
+        case "NULL":
+            primitiveType = PrestoDataType.NULL;
+            break;
+        case "INTERVAL":
+            throw new IgnoreMeException();
+        // TODO: caused when a view contains a computation like ((TIMESTAMP '1970-01-05 11:26:57')-(TIMESTAMP
+        // '1969-12-29 06:50:27'))
+        default:
+            throw new AssertionError(typeString);
         }
         return new PrestoCompositeDataType(primitiveType, size, precision);
     }

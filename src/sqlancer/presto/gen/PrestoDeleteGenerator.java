@@ -21,8 +21,9 @@ public final class PrestoDeleteGenerator {
         sb.append(table.getName());
         if (Randomly.getBoolean()) {
             sb.append(" WHERE ");
-            sb.append(PrestoToStringVisitor.asString(
-                    new PrestoTypedExpressionGenerator(globalState).setColumns(table.getColumns()).generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull())));
+            sb.append(PrestoToStringVisitor
+                    .asString(new PrestoTypedExpressionGenerator(globalState).setColumns(table.getColumns())
+                            .generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull())));
         }
         PrestoErrors.addExpressionErrors(errors);
         return new SQLQueryAdapter(sb.toString(), errors, false, false);

@@ -2,7 +2,15 @@ package sqlancer.presto;
 
 import sqlancer.common.ast.newast.NewToStringVisitor;
 import sqlancer.common.ast.newast.Node;
-import sqlancer.presto.ast.*;
+import sqlancer.presto.ast.FunctionWithoutParenthesis;
+import sqlancer.presto.ast.PrestoAtTimeZoneOperator;
+import sqlancer.presto.ast.PrestoCastFunction;
+import sqlancer.presto.ast.PrestoConstant;
+import sqlancer.presto.ast.PrestoExpression;
+import sqlancer.presto.ast.PrestoJoin;
+import sqlancer.presto.ast.PrestoMultiValuedComparison;
+import sqlancer.presto.ast.PrestoQuantifiedComparison;
+import sqlancer.presto.ast.PrestoSelect;
 
 public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> {
 
@@ -22,10 +30,9 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
             visit((PrestoAtTimeZoneOperator) expr);
         } else if (expr instanceof PrestoMultiValuedComparison) {
             visit((PrestoMultiValuedComparison) expr);
-        }  else if (expr instanceof PrestoQuantifiedComparison) {
+        } else if (expr instanceof PrestoQuantifiedComparison) {
             visit((PrestoQuantifiedComparison) expr);
         } else {
-            System.err.println(expr);
             throw new AssertionError(expr.getClass());
         }
     }
