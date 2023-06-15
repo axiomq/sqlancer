@@ -1,5 +1,9 @@
 package sqlancer.presto.gen;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
 import sqlancer.common.ast.newast.TableReferenceNode;
@@ -11,10 +15,6 @@ import sqlancer.presto.ast.PrestoConstant;
 import sqlancer.presto.ast.PrestoExpression;
 import sqlancer.presto.ast.PrestoJoin;
 import sqlancer.presto.ast.PrestoSelect;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public final class PrestoRandomQuerySynthesizer {
 

@@ -3,7 +3,10 @@ package sqlancer.presto;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class PrestoConstantUtils {
+public final class PrestoConstantUtils {
+
+    private PrestoConstantUtils() {
+    }
 
     public static String removeNoneAscii(String str) {
         return str.replaceAll("[^\\x00-\\x7F]", "");
@@ -23,18 +26,15 @@ public class PrestoConstantUtils {
 
     public static BigDecimal getDecimal(double val, int scale, int precision) {
         int part = precision - scale;
-
         // long part
         long lng = (long) val;
         // decimal places
         double d1 = val - lng;
-
-        String x_str = Long.toString(lng);
-        long new_x = Long.parseLong(x_str.substring(x_str.length() - part));
-
-        double finalD = new_x + d1;
-        BigDecimal finalBD = new BigDecimal(finalD).setScale(scale, RoundingMode.CEILING);
-        return finalBD;
+        String xStr = Long.toString(lng);
+        String substring = xStr.substring(xStr.length() - part);
+        long newX = substring.isEmpty() ? 0 : Long.parseLong(substring);
+        double finalD = newX + d1;
+        return new BigDecimal(finalD).setScale(scale, RoundingMode.CEILING);
     }
 
 }

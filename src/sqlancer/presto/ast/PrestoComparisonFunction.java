@@ -1,11 +1,11 @@
 package sqlancer.presto.ast;
 
+import java.util.ArrayList;
+
 import sqlancer.Randomly;
 import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
 import sqlancer.presto.PrestoSchema.PrestoDataType;
-
-import java.util.ArrayList;
 
 public enum PrestoComparisonFunction implements PrestoFunction {
 
@@ -26,7 +26,7 @@ public enum PrestoComparisonFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
     },
     // Returns the smallest of the provided values.

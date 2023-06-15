@@ -1,16 +1,28 @@
 package sqlancer.presto;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import com.google.auto.service.AutoService;
-import sqlancer.*;
+
+import sqlancer.AbstractAction;
+import sqlancer.DatabaseProvider;
+import sqlancer.IgnoreMeException;
+import sqlancer.MainOptions;
+import sqlancer.Randomly;
+import sqlancer.SQLConnection;
+import sqlancer.SQLProviderAdapter;
+import sqlancer.StatementExecutor;
 import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.common.query.SQLQueryProvider;
 import sqlancer.presto.gen.PrestoInsertGenerator;
 import sqlancer.presto.gen.PrestoTableGenerator;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @AutoService(DatabaseProvider.class)
 public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, PrestoOptions> {
@@ -85,10 +97,10 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         }
         StatementExecutor<PrestoGlobalState, Action> se = new StatementExecutor<>(globalState, Action.values(),
                 PrestoProvider::mapActions, (q) -> {
-                    if (globalState.getSchema().getDatabaseTables().isEmpty()) {
-                        throw new IgnoreMeException();
-                    }
-                });
+            if (globalState.getSchema().getDatabaseTables().isEmpty()) {
+                throw new IgnoreMeException();
+            }
+        });
         se.executeStatements();
     }
 

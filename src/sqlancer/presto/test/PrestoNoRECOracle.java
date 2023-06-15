@@ -1,5 +1,12 @@
 package sqlancer.presto.test;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.SQLConnection;
@@ -14,20 +21,17 @@ import sqlancer.common.query.SQLancerResultSet;
 import sqlancer.presto.PrestoErrors;
 import sqlancer.presto.PrestoGlobalState;
 import sqlancer.presto.PrestoSchema;
-import sqlancer.presto.PrestoSchema.*;
+import sqlancer.presto.PrestoSchema.PrestoColumn;
+import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
+import sqlancer.presto.PrestoSchema.PrestoDataType;
+import sqlancer.presto.PrestoSchema.PrestoTable;
+import sqlancer.presto.PrestoSchema.PrestoTables;
 import sqlancer.presto.PrestoToStringVisitor;
 import sqlancer.presto.ast.PrestoCastFunction;
 import sqlancer.presto.ast.PrestoExpression;
 import sqlancer.presto.ast.PrestoJoin;
 import sqlancer.presto.ast.PrestoSelect;
 import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements TestOracle<PrestoGlobalState> {
 
@@ -65,7 +69,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
     }
 
     private int getSecondQuery(List<Node<PrestoExpression>> tableList, Node<PrestoExpression> randomWhereCondition,
-            List<Node<PrestoExpression>> joins) throws SQLException {
+                               List<Node<PrestoExpression>> joins) throws SQLException {
         PrestoSelect select = new PrestoSelect();
 
         // select.setGroupByClause(groupBys);
@@ -106,7 +110,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
     }
 
     private int getFirstQueryCount(SQLConnection con, List<Node<PrestoExpression>> tableList,
-            List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition, List<Node<PrestoExpression>> joins)
+                                   List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition, List<Node<PrestoExpression>> joins)
             throws SQLException {
         PrestoSelect select = new PrestoSelect();
         // select.setGroupByClause(groupBys);
@@ -137,7 +141,6 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
                 }
             }
         } catch (SQLException e) {
-            // System.out.println(e.getMessage());
             throw new IgnoreMeException();
         }
         return firstCount;

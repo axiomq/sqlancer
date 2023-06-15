@@ -1,14 +1,23 @@
 package sqlancer.presto.ast;
 
-import sqlancer.Randomly;
-import sqlancer.presto.PrestoSchema;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.CHAR;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.DATE;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.DECIMAL;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.FLOAT;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.INT;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.TIME;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.TIMESTAMP;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.TIMESTAMP_WITH_TIME_ZONE;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.TIME_WITH_TIME_ZONE;
+import static sqlancer.presto.PrestoSchema.PrestoDataType.VARCHAR;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static sqlancer.presto.PrestoSchema.PrestoDataType.*;
+import sqlancer.Randomly;
+import sqlancer.presto.PrestoSchema;
 
 public enum PrestoAggregateFunctionOld {
     MAX(0, 3, List.of(INT, FLOAT, DECIMAL, DATE, TIME, TIMESTAMP, TIME_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE),
@@ -32,7 +41,7 @@ public enum PrestoAggregateFunctionOld {
     private final int maxNrArgs;
 
     PrestoAggregateFunctionOld(int nrArgs, int maxNrArgs, List<PrestoSchema.PrestoDataType> supportedReturnTypes,
-            List<PrestoSchema.PrestoDataType> supportedParamTypes) {
+                               List<PrestoSchema.PrestoDataType> supportedParamTypes) {
         this.nrArgs = nrArgs;
         this.maxNrArgs = maxNrArgs;
         this.supportedReturnTypes = supportedReturnTypes;

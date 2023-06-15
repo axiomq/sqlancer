@@ -1,16 +1,16 @@
 package sqlancer.presto.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
 import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
 import sqlancer.presto.PrestoSchema.PrestoDataType;
 import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public enum PrestoDefaultFunction implements PrestoFunction {
 
@@ -23,8 +23,8 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { PrestoSchema.PrestoDataType.BOOLEAN,
-                    returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {PrestoSchema.PrestoDataType.BOOLEAN,
+                    returnType.getPrimitiveDataType()};
         }
     },
 
@@ -36,8 +36,8 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { PrestoSchema.PrestoDataType.BOOLEAN,
-                    returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {PrestoSchema.PrestoDataType.BOOLEAN,
+                    returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
         }
     },
 
@@ -49,7 +49,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[] { returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType() };
+            return new PrestoDataType[] {returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
         }
     },
 
@@ -76,7 +76,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-                PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
+                                                                      PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
 
             return super.getArgumentsForReturnType(gen, depth, argumentTypes2, returnType2);
         }
@@ -98,7 +98,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
     },
     // Returns the smallest of the provided values. → [same as input]
@@ -192,10 +192,9 @@ public enum PrestoDefaultFunction implements PrestoFunction {
      *
      */
 
-    private int numberOfArguments = 0;
-    private PrestoDataType returnType;
-    private PrestoDataType[] argumentTypes;
-    private String functionName;
+    private final PrestoDataType returnType;
+    private final PrestoDataType[] argumentTypes;
+    private final String functionName;
 
     PrestoDefaultFunction(String functionName, PrestoDataType returnType) {
         this.functionName = functionName;
@@ -228,7 +227,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
     @Override
     public int getNumberOfArguments() {
-        return numberOfArguments;
+        return argumentTypes == null ? 0 : argumentTypes.length;
     }
 
     @Override
@@ -243,7 +242,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
     @Override
     public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-            PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
+                                                                  PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
 
         // This is a workaround based on the assumption that array types should refer to the same element type.
@@ -252,7 +251,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
             savedArrayType = returnType2;
         }
 
-        if (numberOfArguments == -1) {
+        if (getNumberOfArguments() == -1) {
             PrestoDataType dataType = getArgumentTypes(returnType2)[0];
             // TODO: consider upper
             long no = Randomly.getNotCachedInteger(2, 10);
@@ -300,8 +299,9 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
     @Override
     public String toString() {
-        if (functionName != null)
+        if (functionName != null) {
             return functionName;
+        }
         return super.toString();
     }
 

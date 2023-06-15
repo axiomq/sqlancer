@@ -1,16 +1,22 @@
 package sqlancer.presto;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
 import sqlancer.DBMSSpecificOptions;
 import sqlancer.OracleFactory;
 import sqlancer.common.oracle.CompositeTestOracle;
 import sqlancer.common.oracle.TestOracle;
-import sqlancer.presto.test.*;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import sqlancer.presto.test.PrestoNoRECOracle;
+import sqlancer.presto.test.PrestoQueryPartitioningAggregateTester;
+import sqlancer.presto.test.PrestoQueryPartitioningDistinctTester;
+import sqlancer.presto.test.PrestoQueryPartitioningGroupByTester;
+import sqlancer.presto.test.PrestoQueryPartitioningHavingTester;
+import sqlancer.presto.test.PrestoQueryPartitioningWhereTester;
 
 @Parameters(commandDescription = "Presto")
 public class PrestoOptions implements DBMSSpecificOptions<PrestoOptions.PrestoOracleFactory> {

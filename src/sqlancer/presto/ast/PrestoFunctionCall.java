@@ -1,8 +1,8 @@
 package sqlancer.presto.ast;
 
-import sqlancer.common.ast.newast.Node;
-
 import java.util.List;
+
+import sqlancer.common.ast.newast.Node;
 
 public class PrestoFunctionCall implements Node<PrestoExpression> {
 

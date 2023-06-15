@@ -1,10 +1,10 @@
 package sqlancer.presto;
 
-import sqlancer.common.ast.newast.Node;
-import sqlancer.presto.ast.PrestoExpression;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import sqlancer.common.ast.newast.Node;
+import sqlancer.presto.ast.PrestoExpression;
 
 public final class PrestoExpressionToNode {
 

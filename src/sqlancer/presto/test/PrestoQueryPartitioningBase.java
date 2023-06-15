@@ -1,5 +1,10 @@
 package sqlancer.presto.test;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.ColumnReferenceNode;
 import sqlancer.common.ast.newast.Node;
@@ -17,11 +22,6 @@ import sqlancer.presto.ast.PrestoExpression;
 import sqlancer.presto.ast.PrestoJoin;
 import sqlancer.presto.ast.PrestoSelect;
 import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PrestoQueryPartitioningBase
         extends TernaryLogicPartitioningOracleBase<Node<PrestoExpression>, PrestoGlobalState>
@@ -44,11 +44,11 @@ public class PrestoQueryPartitioningBase
 
         // TODO: check this
         switch (value) {
-        case "-0.0":
-            return "0.0";
-        case "-0":
-            return "0";
-        default:
+            case "-0.0":
+                return "0.0";
+            case "-0":
+                return "0";
+            default:
         }
 
         return value;

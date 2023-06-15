@@ -1,5 +1,8 @@
 package sqlancer.presto.gen;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import sqlancer.common.ast.newast.Node;
 import sqlancer.common.gen.AbstractInsertGenerator;
 import sqlancer.common.query.ExpectedErrors;
@@ -10,9 +13,6 @@ import sqlancer.presto.PrestoSchema.PrestoColumn;
 import sqlancer.presto.PrestoSchema.PrestoTable;
 import sqlancer.presto.PrestoToStringVisitor;
 import sqlancer.presto.ast.PrestoExpression;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PrestoInsertGenerator extends AbstractInsertGenerator<PrestoColumn> {
 

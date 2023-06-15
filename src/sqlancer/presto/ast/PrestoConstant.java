@@ -1,10 +1,5 @@
 package sqlancer.presto.ast;
 
-import sqlancer.Randomly;
-import sqlancer.common.ast.newast.Node;
-import sqlancer.presto.PrestoConstantUtils;
-import sqlancer.presto.PrestoSchema;
-
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
@@ -14,9 +9,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import sqlancer.Randomly;
+import sqlancer.common.ast.newast.Node;
+import sqlancer.presto.PrestoConstantUtils;
+import sqlancer.presto.PrestoSchema;
+
 public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoExpression {
 
-    private static final String[] timeZones = { "Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa",
+    private static final String[] TIME_ZONES = {"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa",
             "Africa/Algiers", "Africa/Asmara", "Africa/Asmera", "Africa/Bamako", "Africa/Bangui", "Africa/Banjul",
             "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville", "Africa/Bujumbura", "Africa/Cairo",
             "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar", "Africa/Dar_es_Salaam",
@@ -142,6 +142,8 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             // "ECT", "IET", "IST", "JST", "MIT", "NET", "NST", "PLT", "PNT", "PRT",
             // "PST", "SST", "VST"
     };
+    private static final String FALSE = "false";
+    private static final String TRUE = "true";
 
     private PrestoConstant() {
     }
@@ -160,13 +162,13 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
 
     public static Node<PrestoExpression> createFloatConstant(PrestoSchema.PrestoCompositeDataType type, double val) {
         switch (type.getSize()) {
-        case 4:
-            float floatValue = (float) val;
-            return new PrestoFloatConstant(floatValue);
-        case 8:
-            return new PrestoFloatConstant(val);
-        default:
-            return new PrestoFloatConstant(val);
+            case 4:
+                float floatValue = (float) val;
+                return new PrestoFloatConstant(floatValue);
+            case 8:
+                return new PrestoFloatConstant(val);
+            default:
+                return new PrestoFloatConstant(val);
         }
     }
 
@@ -190,20 +192,20 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
     }
 
     public static Node<PrestoExpression> createIntConstant(PrestoSchema.PrestoCompositeDataType type, long val,
-            boolean castInteger) {
+                                                           boolean castInteger) {
         PrestoIntConstant intConstant;
         switch (type.getSize()) {
-        case 1:
-            intConstant = new PrestoIntConstant((byte) val);
-            break;
-        case 2:
-            intConstant = new PrestoIntConstant((short) val);
-            break;
-        case 4:
-            intConstant = new PrestoIntConstant((int) val);
-            break;
-        default:
-            intConstant = new PrestoIntConstant(val);
+            case 1:
+                intConstant = new PrestoIntConstant((byte) val);
+                break;
+            case 2:
+                intConstant = new PrestoIntConstant((short) val);
+                break;
+            case 4:
+                intConstant = new PrestoIntConstant((int) val);
+                break;
+            default:
+                intConstant = new PrestoIntConstant(val);
         }
         if (castInteger) {
             return new PrestoCastFunction(intConstant, type);
@@ -253,12 +255,11 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
     }
 
     public static Node<PrestoExpression> createTimezoneConstant() {
-        String string = Randomly.fromOptions(timeZones);
+        String string = Randomly.fromOptions(TIME_ZONES);
         return new PrestoTextConstant(string);
     }
 
     public static Node<PrestoExpression> createArrayConstant(PrestoSchema.PrestoCompositeDataType type) {
-
         PrestoSchema.PrestoCompositeDataType elementType = type.getElementType();
         long size = Randomly.getNotCachedInteger(0, 10);
 
@@ -288,126 +289,47 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         return new PrestoArrayConstant(elements, type);
     }
 
-    public static void main(String[] args) {
-
-        // long nonCachedInteger = Randomly.getNonCachedInteger();
-        // double aDouble = new Randomly().getDouble();
-        // double val = aDouble + ((int)nonCachedInteger);
-        //
-        // System.out.println(val);
-        //
-        // int scale = 4;
-        // int precision = 8;
-        // int longPart = precision - scale;
-        //
-        // BigDecimal bigDecimal = new BigDecimal(val).setScale(scale, RoundingMode.CEILING);
-        //
-        // // long part
-        // long lng = (long) val;
-        //
-        // double d1 = val - lng;
-        //
-        // String x_str = Long.toString(lng);
-        // long new_x = Long.parseLong(x_str.substring(x_str.length() - longPart));
-        // System.out.println(new_x);
-        //
-        //
-        // long r = Math.abs(lng / (int)Math.pow(10,longPart - 1));
-        //
-        // System.out.println(r);
-        //
-        // System.out.println(longPart);
-        // System.out.println(bigDecimal);
-        // System.out.println(lng);
-        // System.out.println(d1);
-        //
-        // System.out.println();
-        // System.out.println();
-        // System.out.println();
-        // System.out.println("---------------------------------");
-        // System.out.println();
-        //
-        // double finalD = new_x + d1;
-        // BigDecimal finalBD = new BigDecimal(finalD).setScale(scale, RoundingMode.CEILING);
-        // double doubleValue = finalBD.doubleValue();
-        // System.out.println(doubleValue);
-        //
-        //
-        // System.out.println();
-        //
-        // long nonCachedInteger = Randomly.getNonCachedInteger();
-        // double aDouble = new Randomly().getDouble();
-        // double val = aDouble + ((int) nonCachedInteger);
-        //
-        // System.out.println(val);
-        //
-        // int scale = 4;
-        // int precision = 8;
-        // int longPart = precision - scale;
-        //
-        // // long part
-        // long lng = (long) val;
-        // double d1 = val - lng;
-        //
-        // String x_str = Long.toString(lng);
-        // long new_x = Long.parseLong(x_str.substring(x_str.length() - longPart));
-        //
-        // System.out.println();
-        // System.out.println("---------------------------------");
-        // System.out.println();
-        //
-        // double finalD = new_x + d1;
-        // BigDecimal finalBD = new BigDecimal(finalD).setScale(scale, RoundingMode.CEILING);
-        // double doubleValue = finalBD.doubleValue();
-        // System.out.println(doubleValue);
-        //
-        // System.out.println();
-
-        for (String timeZone : timeZones) {
-            System.out.println("SELECT TIMESTAMP '1980-04-05 20:27:28 " + timeZone + "' ;");
-        }
-
-    }
-
     public static Node<PrestoExpression> generateConstant(PrestoSchema.PrestoCompositeDataType type,
-            boolean castInteger) {
+                                                          boolean castInteger) {
         Randomly randomly = new Randomly();
         switch (type.getPrimitiveDataType()) {
-        case NULL:
-            return PrestoConstant.createNullConstant();
-        case CHAR:
-            return PrestoConstant.PrestoTextConstant.createStringConstant(randomly.getAlphabeticChar(), type.getSize());
-        case VARCHAR:
-            return PrestoConstant.PrestoTextConstant.createStringConstant(randomly.getString(), type.getSize());
-        case VARBINARY:
-            return PrestoConstant.createVarbinaryConstant(randomly.getString());
-        case JSON:
-            return PrestoConstant.PrestoJsonConstant.createJsonConstant();
-        case TIME:
-            return PrestoConstant.createTimeConstant(randomly.getLong(0, System.currentTimeMillis()));
-        case TIME_WITH_TIME_ZONE:
-            return PrestoConstant.createTimeWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
-        case TIMESTAMP:
-            return PrestoConstant.createTimestampConstant(randomly.getLong(0, System.currentTimeMillis()));
-        case TIMESTAMP_WITH_TIME_ZONE:
-            return PrestoConstant.createTimestampWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
-        case INTERVAL_YEAR_TO_MONTH:
-            return PrestoConstant.createIntervalYearToMonth(randomly.getLong(0, System.currentTimeMillis()));
-        case INTERVAL_DAY_TO_SECOND:
-            return PrestoConstant.createIntervalDayToSecond(randomly.getLong(0, System.currentTimeMillis()));
-        case INT:
-            return PrestoConstant.PrestoIntConstant.createIntConstant(type, Randomly.getNonCachedInteger(),
-                    castInteger);
-        case FLOAT:
-            return PrestoConstant.PrestoFloatConstant.createFloatConstant(randomly.getDouble());
-        case BOOLEAN:
-            return PrestoConstant.PrestoBooleanConstant.createBooleanConstant(Randomly.getBoolean());
-        case DATE:
-            return PrestoConstant.createDateConstant(randomly.getLong(0, System.currentTimeMillis()));
-        case DECIMAL:
-            return PrestoConstant.createDecimalConstant(type, randomly.getLong(0, System.currentTimeMillis()));
-        default:
-            throw new AssertionError("Unknown type: " + type);
+            case ARRAY:
+                return PrestoConstant.createArrayConstant(type);
+            case NULL:
+                return PrestoConstant.createNullConstant();
+            case CHAR:
+                return PrestoConstant.PrestoTextConstant.createStringConstant(randomly.getAlphabeticChar(), type.getSize());
+            case VARCHAR:
+                return PrestoConstant.PrestoTextConstant.createStringConstant(randomly.getString(), type.getSize());
+            case VARBINARY:
+                return PrestoConstant.createVarbinaryConstant(randomly.getString());
+            case JSON:
+                return PrestoConstant.PrestoJsonConstant.createJsonConstant();
+            case TIME:
+                return PrestoConstant.createTimeConstant(randomly.getLong(0, System.currentTimeMillis()));
+            case TIME_WITH_TIME_ZONE:
+                return PrestoConstant.createTimeWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
+            case TIMESTAMP:
+                return PrestoConstant.createTimestampConstant(randomly.getLong(0, System.currentTimeMillis()));
+            case TIMESTAMP_WITH_TIME_ZONE:
+                return PrestoConstant.createTimestampWithTimeZoneConstant(randomly.getLong(0, System.currentTimeMillis()));
+            case INTERVAL_YEAR_TO_MONTH:
+                return PrestoConstant.createIntervalYearToMonth(randomly.getLong(0, System.currentTimeMillis()));
+            case INTERVAL_DAY_TO_SECOND:
+                return PrestoConstant.createIntervalDayToSecond(randomly.getLong(0, System.currentTimeMillis()));
+            case INT:
+                return PrestoConstant.PrestoIntConstant.createIntConstant(type, Randomly.getNonCachedInteger(),
+                        castInteger);
+            case FLOAT:
+                return PrestoConstant.PrestoFloatConstant.createFloatConstant(randomly.getDouble());
+            case BOOLEAN:
+                return PrestoConstant.PrestoBooleanConstant.createBooleanConstant(Randomly.getBoolean());
+            case DATE:
+                return PrestoConstant.createDateConstant(randomly.getLong(0, System.currentTimeMillis()));
+            case DECIMAL:
+                return PrestoConstant.createDecimalConstant(type, randomly.getLong(0, System.currentTimeMillis()));
+            default:
+                throw new AssertionError("Unknown type: " + type);
         }
     }
 
@@ -516,14 +438,14 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public Node<PrestoExpression> cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case BOOLEAN:
-                return new PrestoBooleanConstant(value != 0);
-            case INT:
-                return this;
-            case VARCHAR:
-                return new PrestoTextConstant(String.valueOf(value));
-            default:
-                return null;
+                case BOOLEAN:
+                    return new PrestoBooleanConstant(value != 0);
+                case INT:
+                    return this;
+                case VARCHAR:
+                    return new PrestoTextConstant(String.valueOf(value));
+                default:
+                    return null;
             }
         }
 
@@ -589,18 +511,18 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public Node<PrestoExpression> cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case FLOAT:
-                return this;
-            case DECIMAL:
-                return createDecimalConstant(value);
-            case INT:
-                return PrestoConstant.createIntConstant((long) value);
-            case BOOLEAN:
-                return PrestoConstant.createBooleanConstant(value != 0);
-            case VARCHAR:
-                return PrestoConstant.createStringConstant(String.valueOf(value));
-            default:
-                return null;
+                case FLOAT:
+                    return this;
+                case DECIMAL:
+                    return createDecimalConstant(value);
+                case INT:
+                    return PrestoConstant.createIntConstant((long) value);
+                case BOOLEAN:
+                    return PrestoConstant.createBooleanConstant(value != 0);
+                case VARCHAR:
+                    return PrestoConstant.createStringConstant(String.valueOf(value));
+                default:
+                    return null;
             }
         }
 
@@ -631,7 +553,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
 
     public static class PrestoDecimalConstant extends PrestoConstant {
 
-        private static final DecimalFormat df = new DecimalFormat("###0.0000");
+        private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###0.0000");
 
         private final double value;
 
@@ -650,24 +572,24 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             } else if (value == Double.NEGATIVE_INFINITY) {
                 return "'-Inf'";
             }
-            return df.format(value);
+            return DECIMAL_FORMAT.format(value);
         }
 
         @Override
         public Node<PrestoExpression> cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case FLOAT:
-                return createFloatConstant(value);
-            case DECIMAL:
-                return this;
-            case INT:
-                return createIntConstant((long) value);
-            case BOOLEAN:
-                return createBooleanConstant(value != 0);
-            case VARCHAR:
-                return createStringConstant(String.valueOf(value));
-            default:
-                return null;
+                case FLOAT:
+                    return createFloatConstant(value);
+                case DECIMAL:
+                    return this;
+                case INT:
+                    return createIntConstant((long) value);
+                case BOOLEAN:
+                    return createBooleanConstant(value != 0);
+                case VARCHAR:
+                    return createStringConstant(String.valueOf(value));
+                default:
+                    return null;
             }
         }
 
@@ -720,30 +642,30 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public Node<PrestoExpression> cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case VARCHAR:
-                return this;
-            case INT:
-                try {
-                    return new PrestoIntConstant(Long.parseLong(value));
-                } catch (NumberFormatException e) {
-                    return new PrestoIntConstant(-1);
-                }
-            case BOOLEAN:
-                if ("false".contentEquals(value.toLowerCase())) {
-                    return new PrestoBooleanConstant(false);
-                } else if ("true".contentEquals(value.toLowerCase())) {
-                    return new PrestoBooleanConstant(true);
-                } else {
-                    throw new AssertionError(String.format("string: %s, cannot be forced to boolean", value));
-                }
-            case FLOAT:
-                try {
-                    return new PrestoFloatConstant(Double.parseDouble(value));
-                } catch (NumberFormatException e) {
-                    return new PrestoFloatConstant(-1);
-                }
-            default:
-                return null;
+                case VARCHAR:
+                    return this;
+                case INT:
+                    try {
+                        return new PrestoIntConstant(Long.parseLong(value));
+                    } catch (NumberFormatException e) {
+                        return new PrestoIntConstant(-1);
+                    }
+                case BOOLEAN:
+                    if (FALSE.contentEquals(value.toLowerCase())) {
+                        return new PrestoBooleanConstant(false);
+                    } else if (TRUE.contentEquals(value.toLowerCase())) {
+                        return new PrestoBooleanConstant(true);
+                    } else {
+                        throw new AssertionError(String.format("string: %s, cannot be forced to boolean", value));
+                    }
+                case FLOAT:
+                    try {
+                        return new PrestoFloatConstant(Double.parseDouble(value));
+                    } catch (NumberFormatException e) {
+                        return new PrestoFloatConstant(-1);
+                    }
+                default:
+                    return null;
             }
         }
 
@@ -791,30 +713,30 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public Node<PrestoExpression> cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case VARCHAR:
-                return createStringConstant(value);
-            case INT:
-                try {
-                    return new PrestoIntConstant(Long.parseLong(value));
-                } catch (NumberFormatException e) {
-                    return new PrestoConstant.PrestoIntConstant(-1);
-                }
-            case BOOLEAN:
-                if ("false".contentEquals(value.toLowerCase())) {
-                    return new PrestoConstant.PrestoBooleanConstant(false);
-                } else if ("true".contentEquals(value.toLowerCase())) {
-                    return new PrestoConstant.PrestoBooleanConstant(true);
-                } else {
-                    throw new AssertionError(String.format("string: %s, cannot be forced to boolean", value));
-                }
-            case FLOAT:
-                try {
-                    return new PrestoConstant.PrestoFloatConstant(Double.parseDouble(value));
-                } catch (NumberFormatException e) {
-                    return new PrestoConstant.PrestoFloatConstant(-1);
-                }
-            default:
-                return null;
+                case VARCHAR:
+                    return createStringConstant(value);
+                case INT:
+                    try {
+                        return new PrestoIntConstant(Long.parseLong(value));
+                    } catch (NumberFormatException e) {
+                        return new PrestoConstant.PrestoIntConstant(-1);
+                    }
+                case BOOLEAN:
+                    if (FALSE.contentEquals(value.toLowerCase())) {
+                        return new PrestoConstant.PrestoBooleanConstant(false);
+                    } else if (TRUE.contentEquals(value.toLowerCase())) {
+                        return new PrestoConstant.PrestoBooleanConstant(true);
+                    } else {
+                        throw new AssertionError(String.format("string: %s, cannot be forced to boolean", value));
+                    }
+                case FLOAT:
+                    try {
+                        return new PrestoConstant.PrestoFloatConstant(Double.parseDouble(value));
+                    } catch (NumberFormatException e) {
+                        return new PrestoConstant.PrestoFloatConstant(-1);
+                    }
+                default:
+                    return null;
             }
         }
 
@@ -845,54 +767,54 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
     public static class PrestoJsonConstant extends PrestoConstant {
 
         private final String value;
-        private final JSON_VALUE_TYPE jvt;
+        private final JsonValueType jvt;
         private final String val;
 
         public PrestoJsonConstant() {
             Randomly rand = new Randomly();
-            JSON_VALUE_TYPE jvt = Randomly.fromOptions(JSON_VALUE_TYPE.values());
+            JsonValueType jvt = Randomly.fromOptions(JsonValueType.values());
             String val = null;
             switch (jvt) {
-            case NULL:
-                val = "null";
-                value = "{\"val\":" + val + "}";
-                break;
-            case FALSE:
-                val = "false";
-                value = "{\"val\":" + val + "}";
-                break;
-            case TRUE:
-                val = "true";
-                value = "{\"val\":" + val + "}";
-                break;
-            case STRING:
-                String randString = rand.getString();
-                String string = randString.substring(0, Math.min(randString.length(), 250));
-                string = string.replace("'", "");
-                // https://www.rfc-editor.org/rfc/rfc8259#page-8
-                string = PrestoConstantUtils.removeAllControlChars(string);
-                string = string.replace("\\", "\\\\");
+                case NULL:
+                    val = "null";
+                    value = "{\"val\":" + val + "}";
+                    break;
+                case FALSE:
+                    val = FALSE;
+                    value = "{\"val\":" + val + "}";
+                    break;
+                case TRUE:
+                    val = TRUE;
+                    value = "{\"val\":" + val + "}";
+                    break;
+                case STRING:
+                    String randString = rand.getString();
+                    String string = randString.substring(0, Math.min(randString.length(), 250));
+                    string = string.replace("'", "");
+                    // https://www.rfc-editor.org/rfc/rfc8259#page-8
+                    string = PrestoConstantUtils.removeAllControlChars(string);
+                    string = string.replace("\\", "\\\\");
 
-                value = "{\"val\": \"" + string + "\"}";
-                break;
-            case NUMBER:
-                if (Randomly.getBoolean()) {
-                    int no = (int) rand.getInteger();
-                    val = String.valueOf(no);
-                } else {
-                    double no = rand.getDouble();
-                    val = String.valueOf(no);
-                }
-                value = "{\"val\": " + val + "}";
-                break;
-            case ARRAY:
-                value = "{\"employees\":[\"John\", \"Anna\", \"Peter\"]}";
-                break;
-            case OBJECT:
-                value = "{\"employee\":{\"name\":\"John\", \"age\":30, \"city\":\"New York\"}}";
-                break;
-            default:
-                value = "{}";
+                    value = "{\"val\": \"" + string + "\"}";
+                    break;
+                case NUMBER:
+                    if (Randomly.getBoolean()) {
+                        int no = (int) rand.getInteger();
+                        val = String.valueOf(no);
+                    } else {
+                        double no = rand.getDouble();
+                        val = String.valueOf(no);
+                    }
+                    value = "{\"val\": " + val + "}";
+                    break;
+                case ARRAY:
+                    value = "{\"employees\":[\"John\", \"Anna\", \"Peter\"]}";
+                    break;
+                case OBJECT:
+                    value = "{\"employee\":{\"name\":\"John\", \"age\":30, \"city\":\"New York\"}}";
+                    break;
+                default:
+                    value = "{}";
             }
             this.jvt = jvt;
             this.val = val;
@@ -910,34 +832,34 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public Node<PrestoExpression> cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case VARCHAR:
-                return createStringConstant(value);
-            case INT:
-                if (jvt == JSON_VALUE_TYPE.NUMBER) {
-                    try {
-                        return new PrestoIntConstant(Long.parseLong(val));
-                    } catch (NumberFormatException e) {
-                        return new PrestoIntConstant(-1);
+                case VARCHAR:
+                    return createStringConstant(value);
+                case INT:
+                    if (jvt == JsonValueType.NUMBER) {
+                        try {
+                            return new PrestoIntConstant(Long.parseLong(val));
+                        } catch (NumberFormatException e) {
+                            return new PrestoIntConstant(-1);
+                        }
+                    } else {
+                        return null;
                     }
-                } else {
+                case BOOLEAN:
+                    if (FALSE.contentEquals(val.toLowerCase())) {
+                        return new PrestoConstant.PrestoBooleanConstant(false);
+                    } else if (TRUE.contentEquals(val.toLowerCase())) {
+                        return new PrestoConstant.PrestoBooleanConstant(true);
+                    } else {
+                        throw new AssertionError(String.format("string: %s, cannot be forced to boolean", val));
+                    }
+                case FLOAT:
+                    try {
+                        return new PrestoConstant.PrestoFloatConstant(Double.parseDouble(val));
+                    } catch (NumberFormatException e) {
+                        return new PrestoConstant.PrestoFloatConstant(-1);
+                    }
+                default:
                     return null;
-                }
-            case BOOLEAN:
-                if ("false".contentEquals(val.toLowerCase())) {
-                    return new PrestoConstant.PrestoBooleanConstant(false);
-                } else if ("true".contentEquals(val.toLowerCase())) {
-                    return new PrestoConstant.PrestoBooleanConstant(true);
-                } else {
-                    throw new AssertionError(String.format("string: %s, cannot be forced to boolean", val));
-                }
-            case FLOAT:
-                try {
-                    return new PrestoConstant.PrestoFloatConstant(Double.parseDouble(val));
-                } catch (NumberFormatException e) {
-                    return new PrestoConstant.PrestoFloatConstant(-1);
-                }
-            default:
-                return null;
             }
         }
 
@@ -963,7 +885,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             }
         }
 
-        private enum JSON_VALUE_TYPE {
+        private enum JsonValueType {
             OBJECT, ARRAY, NUMBER, STRING, TRUE, FALSE, NULL
         }
 
@@ -1117,7 +1039,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             Timestamp timestamp = new Timestamp(val);
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
             textRepresentation = dateFormat.format(timestamp);
-            this.timeZone = Randomly.fromOptions(timeZones);
+            this.timeZone = Randomly.fromOptions(TIME_ZONES);
             this.value = val;
         }
 
@@ -1223,7 +1145,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             Timestamp timestamp = new Timestamp(val);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             textRepr = dateFormat.format(timestamp);
-            this.timeZone = Randomly.fromOptions(timeZones);
+            this.timeZone = Randomly.fromOptions(TIME_ZONES);
             this.value = val;
         }
 
@@ -1277,63 +1199,63 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             SimpleDateFormat dateFormat;
             dateFormat = new SimpleDateFormat("dd HH:mm:ss");
             switch (fromInterval) {
-            case DAY:
-                dateFormat = new SimpleDateFormat("dd");
-                // toInterval = Randomly.fromOptions(Interval.HOUR, Interval.MINUTE, Interval.SECOND, null);
-                // if (toInterval == null)
-                // break;
-                // switch (toInterval) {
-                // case HOUR:
-                // dateFormat = new SimpleDateFormat("dd HH");
-                // break;
-                // case MINUTE:
-                // dateFormat = new SimpleDateFormat("dd HH:mm");
-                // break;
-                // case SECOND:
-                // dateFormat = new SimpleDateFormat("dd HH:mm:ss");
-                // break;
-                // default:
-                // dateFormat = new SimpleDateFormat("dd HH:mm:ss");
-                // break;
-                // }
-                break;
-            case HOUR:
-                dateFormat = new SimpleDateFormat("HH");
-                // toInterval = Randomly.fromOptions(Interval.MINUTE, Interval.SECOND, null);
-                // if (toInterval == null)
-                // break;
-                // switch (toInterval) {
-                // case MINUTE:
-                // dateFormat = new SimpleDateFormat("HH:mm");
-                // break;
-                // case SECOND:
-                // dateFormat = new SimpleDateFormat("HH:mm:ss");
-                // break;
-                // default:
-                // dateFormat = new SimpleDateFormat("HH:mm:ss");
-                // break;
-                // }
-                break;
-            case MINUTE:
-                dateFormat = new SimpleDateFormat("mm");
-                // toInterval = Randomly.fromOptions(Interval.SECOND, null);
-                // if (toInterval == null)
-                // break;
-                // switch (toInterval) {
-                // case SECOND:
-                // dateFormat = new SimpleDateFormat("mm:ss");
-                // break;
-                // default:
-                // dateFormat = new SimpleDateFormat("mm:ss");
-                // break;
-                // }
-                break;
-            case SECOND:
-                dateFormat = new SimpleDateFormat("ss");
-                // toInterval = null;
-                break;
-            default:
-                // toInterval = null;
+                case DAY:
+                    dateFormat = new SimpleDateFormat("dd");
+                    // toInterval = Randomly.fromOptions(Interval.HOUR, Interval.MINUTE, Interval.SECOND, null);
+                    // if (toInterval == null)
+                    // break;
+                    // switch (toInterval) {
+                    // case HOUR:
+                    // dateFormat = new SimpleDateFormat("dd HH");
+                    // break;
+                    // case MINUTE:
+                    // dateFormat = new SimpleDateFormat("dd HH:mm");
+                    // break;
+                    // case SECOND:
+                    // dateFormat = new SimpleDateFormat("dd HH:mm:ss");
+                    // break;
+                    // default:
+                    // dateFormat = new SimpleDateFormat("dd HH:mm:ss");
+                    // break;
+                    // }
+                    break;
+                case HOUR:
+                    dateFormat = new SimpleDateFormat("HH");
+                    // toInterval = Randomly.fromOptions(Interval.MINUTE, Interval.SECOND, null);
+                    // if (toInterval == null)
+                    // break;
+                    // switch (toInterval) {
+                    // case MINUTE:
+                    // dateFormat = new SimpleDateFormat("HH:mm");
+                    // break;
+                    // case SECOND:
+                    // dateFormat = new SimpleDateFormat("HH:mm:ss");
+                    // break;
+                    // default:
+                    // dateFormat = new SimpleDateFormat("HH:mm:ss");
+                    // break;
+                    // }
+                    break;
+                case MINUTE:
+                    dateFormat = new SimpleDateFormat("mm");
+                    // toInterval = Randomly.fromOptions(Interval.SECOND, null);
+                    // if (toInterval == null)
+                    // break;
+                    // switch (toInterval) {
+                    // case SECOND:
+                    // dateFormat = new SimpleDateFormat("mm:ss");
+                    // break;
+                    // default:
+                    // dateFormat = new SimpleDateFormat("mm:ss");
+                    // break;
+                    // }
+                    break;
+                case SECOND:
+                    dateFormat = new SimpleDateFormat("ss");
+                    // toInterval = null;
+                    break;
+                default:
+                    // toInterval = null;
             }
 
             Randomly rand = new Randomly();
@@ -1372,7 +1294,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         }
 
         private enum Interval {
-            DAY, HOUR, MINUTE, SECOND;
+            DAY, HOUR, MINUTE, SECOND
         }
 
     }
@@ -1388,16 +1310,16 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             SimpleDateFormat dateFormat;
             dateFormat = new SimpleDateFormat("yyyy-MM");
             switch (fromInterval) {
-            case YEAR:
-                // toInterval = Randomly.fromOptions(Interval.MONTH, null);
-                // if (toInterval == null)
-                dateFormat = new SimpleDateFormat("yyyy");
-                break;
-            case MONTH:
-                dateFormat = new SimpleDateFormat("MM");
-                break;
-            default:
-                toInterval = null;
+                case YEAR:
+                    // toInterval = Randomly.fromOptions(Interval.MONTH, null);
+                    // if (toInterval == null)
+                    dateFormat = new SimpleDateFormat("yyyy");
+                    break;
+                case MONTH:
+                    dateFormat = new SimpleDateFormat("MM");
+                    break;
+                default:
+                    toInterval = null;
             }
 
             Randomly rand = new Randomly();
@@ -1435,7 +1357,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         }
 
         private enum Interval {
-            YEAR, MONTH;
+            YEAR, MONTH
         }
 
     }
@@ -1470,16 +1392,16 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
         @Override
         public PrestoConstant cast(PrestoSchema.PrestoDataType dataType) {
             switch (dataType) {
-            case BOOLEAN:
-                return this;
-            case INT:
-                return new PrestoConstant.PrestoIntConstant(value ? 1 : 0);
-            case FLOAT:
-                return new PrestoConstant.PrestoFloatConstant(value ? 1 : 0);
-            case VARCHAR:
-                return new PrestoConstant.PrestoTextConstant(value ? "1" : "0");
-            default:
-                return null;
+                case BOOLEAN:
+                    return this;
+                case INT:
+                    return new PrestoConstant.PrestoIntConstant(value ? 1 : 0);
+                case FLOAT:
+                    return new PrestoConstant.PrestoFloatConstant(value ? 1 : 0);
+                case VARCHAR:
+                    return new PrestoConstant.PrestoTextConstant(value ? "1" : "0");
+                default:
+                    return null;
             }
         }
 

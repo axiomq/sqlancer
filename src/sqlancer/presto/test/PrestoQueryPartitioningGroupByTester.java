@@ -1,5 +1,10 @@
 package sqlancer.presto.test;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import sqlancer.ComparatorHelper;
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.ColumnReferenceNode;
@@ -9,11 +14,6 @@ import sqlancer.presto.PrestoGlobalState;
 import sqlancer.presto.PrestoSchema.PrestoColumn;
 import sqlancer.presto.PrestoToStringVisitor;
 import sqlancer.presto.ast.PrestoExpression;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PrestoQueryPartitioningGroupByTester extends PrestoQueryPartitioningBase {
 

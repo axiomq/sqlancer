@@ -1,8 +1,8 @@
 package sqlancer.presto;
 
-import sqlancer.SQLGlobalState;
-
 import java.sql.SQLException;
+
+import sqlancer.SQLGlobalState;
 
 public class PrestoGlobalState extends SQLGlobalState<PrestoOptions, PrestoSchema> {
 

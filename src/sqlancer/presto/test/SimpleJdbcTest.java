@@ -1,8 +1,15 @@
 package sqlancer.presto.test;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-public class SimpleJdbcTest {
+public final class SimpleJdbcTest {
+
+    private SimpleJdbcTest() {
+    }
 
     static final String DB_URL = "jdbc:presto://localhost:8080/memory?SSL=false";
     static final String USER = "presto";
@@ -13,7 +20,7 @@ public class SimpleJdbcTest {
         // Open a connection
         ResultSet rsx = null;
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS); Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(QUERY);) {
+             ResultSet rs = stmt.executeQuery(QUERY)) {
 
             stmt.execute("DROP SCHEMA IF EXISTS test");
             stmt.execute("CREATE SCHEMA IF NOT EXISTS test");
@@ -21,8 +28,9 @@ public class SimpleJdbcTest {
 
             System.out.println("Executing without \";\" at the end");
             rsx = stmt.executeQuery("SELECT current_date");
-            if (rsx.next())
+            if (rsx.next()) {
                 System.out.println("got result : " + rsx.getString(1));
+            }
 
             System.out.println("Executing with \";\" at the end");
             rsx = stmt.executeQuery("SELECT current_date;");

@@ -1,10 +1,10 @@
 package sqlancer.presto.ast;
 
+import java.util.ArrayList;
+
 import sqlancer.Randomly;
 import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
 import sqlancer.presto.PrestoSchema.PrestoDataType;
-
-import java.util.ArrayList;
 
 public enum PrestoConditionalFunction implements PrestoFunction {
 
@@ -17,7 +17,7 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[] { PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType() };
+            return new PrestoDataType[] {PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType()};
         }
     },
 
@@ -29,8 +29,8 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[] { PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType(),
-                    returnType.getPrimitiveDataType() };
+            return new PrestoDataType[] {PrestoDataType.BOOLEAN, returnType.getPrimitiveDataType(),
+                    returnType.getPrimitiveDataType()};
         }
     },
 
@@ -42,7 +42,7 @@ public enum PrestoConditionalFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[] { returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType() };
+            return new PrestoDataType[] {returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
         }
     },
 
@@ -66,9 +66,7 @@ public enum PrestoConditionalFunction implements PrestoFunction {
             }
             return prestoDataTypes.toArray(new PrestoDataType[0]);
         }
-    },
-
-    ;
+    };
 
     private final PrestoDataType returnType;
     private final String functionName;
