@@ -39,16 +39,16 @@ public class PrestoQueryPartitioningBase
 
     public static String canonicalizeResultValue(String value) {
         if (value == null) {
-            return value;
+            return null;
         }
 
         // TODO: check this
         switch (value) {
-            case "-0.0":
-                return "0.0";
-            case "-0":
-                return "0";
-            default:
+        case "-0.0":
+            return "0.0";
+        case "-0":
+            return "0";
+        default:
         }
 
         return value;
@@ -66,8 +66,8 @@ public class PrestoQueryPartitioningBase
         List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList = tables.stream()
                 .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, state);
-        select.setJoinList(joins.stream().collect(Collectors.toList()));
-        select.setFromList(tableList.stream().collect(Collectors.toList()));
+        select.setJoinList(new ArrayList<>(joins));
+        select.setFromList(new ArrayList<>(tableList));
         select.setWhereClause(null);
     }
 

@@ -17,7 +17,7 @@ public interface PrestoFunction {
     PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType);
 
     default List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-                                                                   PrestoSchema.PrestoDataType[] argumentTypes, PrestoSchema.PrestoCompositeDataType returnType) {
+            PrestoSchema.PrestoDataType[] argumentTypes, PrestoSchema.PrestoCompositeDataType returnType) {
 
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public interface PrestoFunction {
     }
 
     default List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-                                                                   PrestoSchema.PrestoCompositeDataType returnType) {
+            PrestoSchema.PrestoCompositeDataType returnType) {
 
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
 

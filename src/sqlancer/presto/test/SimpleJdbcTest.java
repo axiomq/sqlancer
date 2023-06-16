@@ -8,19 +8,19 @@ import java.sql.Statement;
 
 public final class SimpleJdbcTest {
 
-    private SimpleJdbcTest() {
-    }
-
     static final String DB_URL = "jdbc:presto://localhost:8080/memory?SSL=false";
     static final String USER = "presto";
     static final String PASS = null;
     static final String QUERY = "SELECT current_date";
 
+    private SimpleJdbcTest() {
+    }
+
     public static void main(String[] args) throws Exception {
         // Open a connection
         ResultSet rsx = null;
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS); Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(QUERY)) {
+                ResultSet rs = stmt.executeQuery(QUERY)) {
 
             stmt.execute("DROP SCHEMA IF EXISTS test");
             stmt.execute("CREATE SCHEMA IF NOT EXISTS test");

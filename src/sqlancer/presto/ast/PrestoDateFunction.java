@@ -347,7 +347,7 @@ public enum PrestoDateFunction implements PrestoFunction {
      *
      * 1 Timestamp is truncated to milliseconds.
      *
-     * 2 When parsing, two-digit year format assumes range 1970 .. 2069, so “70” will result in year 1970 but “69” will
+     * 2 When parsing, two-digit year format assumes range 1970 ... 2069, so “70” will result in year 1970 but “69” will
      * produce 2069.
      *
      * 3 This specifier is not supported yet. Consider using day_of_week() (it uses 1-7 instead of 0-6).

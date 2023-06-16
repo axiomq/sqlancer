@@ -69,7 +69,7 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
     }
 
     private int getSecondQuery(List<Node<PrestoExpression>> tableList, Node<PrestoExpression> randomWhereCondition,
-                               List<Node<PrestoExpression>> joins) throws SQLException {
+            List<Node<PrestoExpression>> joins) throws SQLException {
         PrestoSelect select = new PrestoSelect();
 
         // select.setGroupByClause(groupBys);
@@ -110,8 +110,8 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
     }
 
     private int getFirstQueryCount(SQLConnection con, List<Node<PrestoExpression>> tableList,
-                                   List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition, List<Node<PrestoExpression>> joins)
-            throws SQLException {
+            List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition,
+            List<Node<PrestoExpression>> joins) {
         PrestoSelect select = new PrestoSelect();
         // select.setGroupByClause(groupBys);
         // PrestoAggregate aggr = new PrestoAggregate(

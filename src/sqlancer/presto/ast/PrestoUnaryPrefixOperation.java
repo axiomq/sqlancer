@@ -12,11 +12,6 @@ public class PrestoUnaryPrefixOperation extends NewUnaryPrefixOperatorNode<Prest
         super(expression, operation);
     }
 
-    @Override
-    public String getOperatorRepresentation() {
-        return this.op.getTextRepresentation();
-    }
-
     public enum PrestoUnaryPrefixOperator implements BinaryOperatorNode.Operator {
         NOT("NOT", PrestoSchema.PrestoDataType.BOOLEAN) {
             @Override

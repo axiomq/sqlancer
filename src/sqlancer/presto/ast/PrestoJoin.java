@@ -37,8 +37,8 @@ public class PrestoJoin implements Node<PrestoExpression> {
     }
 
     public PrestoJoin(TableReferenceNode<PrestoExpression, PrestoTable> leftTable,
-                      TableReferenceNode<PrestoExpression, PrestoTable> rightTable, JoinType joinType,
-                      Node<PrestoExpression> whereCondition) {
+            TableReferenceNode<PrestoExpression, PrestoTable> rightTable, JoinType joinType,
+            Node<PrestoExpression> whereCondition) {
         this.leftTable = leftTable;
         this.rightTable = rightTable;
         this.joinType = joinType;
@@ -81,37 +81,37 @@ public class PrestoJoin implements Node<PrestoExpression> {
             PrestoTypedExpressionGenerator joinGen = new PrestoTypedExpressionGenerator(globalState)
                     .setColumns(columns);
             switch (JoinType.getRandom()) {
-                case INNER:
-                    joinExpressions.add(PrestoJoin.createInnerJoin(leftTable, rightTable, joinGen.generateExpression(
-                            PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
-                    break;
-                case LEFT:
-                    joinExpressions.add(PrestoJoin.createLeftOuterJoin(leftTable, rightTable, joinGen.generateExpression(
-                            PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
-                    break;
-                case RIGHT:
-                    joinExpressions.add(PrestoJoin.createRightOuterJoin(leftTable, rightTable, joinGen.generateExpression(
-                            PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
-                    break;
-                default:
-                    throw new AssertionError();
+            case INNER:
+                joinExpressions.add(PrestoJoin.createInnerJoin(leftTable, rightTable, joinGen.generateExpression(
+                        PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
+                break;
+            case LEFT:
+                joinExpressions.add(PrestoJoin.createLeftOuterJoin(leftTable, rightTable, joinGen.generateExpression(
+                        PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
+                break;
+            case RIGHT:
+                joinExpressions.add(PrestoJoin.createRightOuterJoin(leftTable, rightTable, joinGen.generateExpression(
+                        PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
+                break;
+            default:
+                throw new AssertionError();
             }
         }
         return joinExpressions;
     }
 
     public static PrestoJoin createRightOuterJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
-                                                  TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
+            TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
         return new PrestoJoin(left, right, JoinType.RIGHT, predicate);
     }
 
     public static PrestoJoin createLeftOuterJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
-                                                 TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
+            TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
         return new PrestoJoin(left, right, JoinType.LEFT, predicate);
     }
 
     public static PrestoJoin createInnerJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
-                                             TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
+            TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
         return new PrestoJoin(left, right, JoinType.INNER, predicate);
     }
 

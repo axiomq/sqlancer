@@ -44,8 +44,8 @@ public final class PrestoRandomQuerySynthesizer {
         List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList = tables.stream()
                 .map(t -> new TableReferenceNode<PrestoExpression, PrestoTable>(t)).collect(Collectors.toList());
         List<Node<PrestoExpression>> joins = PrestoJoin.getJoins(tableList, globalState);
-        select.setJoinList(joins.stream().collect(Collectors.toList()));
-        select.setFromList(tableList.stream().collect(Collectors.toList()));
+        select.setJoinList(new ArrayList<>(joins));
+        select.setFromList(new ArrayList<>(tableList));
         if (Randomly.getBoolean()) {
             select.setWhereClause(gen.generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull()));
         }

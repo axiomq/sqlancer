@@ -1,13 +1,5 @@
 package sqlancer.presto.gen;
 
-import static sqlancer.presto.PrestoSchema.PrestoDataType.ARRAY;
-import static sqlancer.presto.PrestoSchema.PrestoDataType.BOOLEAN;
-import static sqlancer.presto.PrestoSchema.PrestoDataType.TIMESTAMP;
-import static sqlancer.presto.PrestoSchema.PrestoDataType.TIMESTAMP_WITH_TIME_ZONE;
-import static sqlancer.presto.PrestoSchema.PrestoDataType.VARCHAR;
-import static sqlancer.presto.PrestoSchema.PrestoDataType.getOrderableTypes;
-import static sqlancer.presto.ast.PrestoConstant.createTimezoneConstant;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,7 +71,7 @@ public final class PrestoTypedExpressionGenerator extends
 
     @Override
     public Node<PrestoExpression> generateConstant(PrestoSchema.PrestoCompositeDataType type) {
-        if (Objects.requireNonNull(type.getPrimitiveDataType()) == ARRAY) {
+        if (Objects.requireNonNull(type.getPrimitiveDataType()) == PrestoSchema.PrestoDataType.ARRAY) {
             return PrestoConstant.createArrayConstant(type);
             // case MAP:
             // return PrestoConstant.createMapConstant(type);
@@ -88,7 +80,7 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     public Node<PrestoExpression> generateInsertConstant(PrestoSchema.PrestoCompositeDataType type) {
-        if (Objects.requireNonNull(type.getPrimitiveDataType()) == ARRAY) {
+        if (Objects.requireNonNull(type.getPrimitiveDataType()) == PrestoSchema.PrestoDataType.ARRAY) {
             return PrestoConstant.createArrayConstant(type);
             // case MAP:
             // return PrestoConstant.createMapConstant(type);
@@ -124,32 +116,32 @@ public final class PrestoTypedExpressionGenerator extends
                 return getCase(type, depth);
             }
             switch (type.getPrimitiveDataType()) {
-                case BOOLEAN:
-                    return generateBooleanExpression(depth);
-                case VARCHAR:
-                case CHAR:
-                    return generateStringExpression(type, depth);
-                case INT:
-                case DECIMAL:
-                case FLOAT:
-                    return generateNumericExpression(depth);
-                case DATE:
-                case TIME:
-                case TIMESTAMP:
-                case TIME_WITH_TIME_ZONE:
-                case TIMESTAMP_WITH_TIME_ZONE:
-                    return generateTemporalExpression(type, depth);
-                case INTERVAL_YEAR_TO_MONTH:
-                case INTERVAL_DAY_TO_SECOND:
-                    return generateIntervalExpression(type, depth);
-                case JSON:
-                    return generateJsonExpression(type);
-                case VARBINARY:
-                case ARRAY:
-                    // case MAP:
-                    return generateLeafNode(type); // TODO
-                default:
-                    throw new AssertionError(type);
+            case BOOLEAN:
+                return generateBooleanExpression(depth);
+            case VARCHAR:
+            case CHAR:
+                return generateStringExpression(type, depth);
+            case INT:
+            case DECIMAL:
+            case FLOAT:
+                return generateNumericExpression(depth);
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+            case TIME_WITH_TIME_ZONE:
+            case TIMESTAMP_WITH_TIME_ZONE:
+                return generateTemporalExpression(type, depth);
+            case INTERVAL_YEAR_TO_MONTH:
+            case INTERVAL_DAY_TO_SECOND:
+                return generateIntervalExpression(type, depth);
+            case JSON:
+                return generateJsonExpression(type);
+            case VARBINARY:
+            case ARRAY:
+                // case MAP:
+                return generateLeafNode(type); // TODO
+            default:
+                throw new AssertionError(type);
             }
         }
     }
@@ -196,7 +188,7 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> generateFunction(PrestoSchema.PrestoCompositeDataType returnType, int depth,
-                                                    PrestoDefaultFunction function) {
+            PrestoDefaultFunction function) {
 
         PrestoSchema.PrestoDataType[] argumentTypes = function.getArgumentTypes(returnType);
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
@@ -252,10 +244,10 @@ public final class PrestoTypedExpressionGenerator extends
     private NewBinaryOperatorNode<PrestoExpression> getStringOperation(int depth) {
         StringExpression exprType = Randomly.fromOptions(StringExpression.values());
         if (Objects.requireNonNull(exprType) == StringExpression.CONCAT) {
-            Node<PrestoExpression> left = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR),
-                    depth + 1);
+            Node<PrestoExpression> left = generateExpression(
+                    PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.VARCHAR), depth + 1);
             Node<PrestoExpression> right = generateExpression(
-                    PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR), depth + 1);
+                    PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.VARCHAR), depth + 1);
             PrestBinaryStringOperator operator = PrestBinaryStringOperator.CONCAT;
             return new NewBinaryOperatorNode<>(left, right, operator);
         }
@@ -273,30 +265,30 @@ public final class PrestoTypedExpressionGenerator extends
 
         BooleanExpression exprType = Randomly.fromList(booleanExpressions);
         switch (exprType) {
-            case NOT:
-                return generateNOT(depth + 1);
-            case BINARY_COMPARISON:
-                return getBinaryComparison(depth);
-            case BINARY_LOGICAL:
-                return getBinaryLogical(depth);
-            case AND_OR_CHAIN:
-                return getAndOrChain(depth);
-            case REGEX:
-                return getRegex(depth);
-            case IS_NULL:
-                return new PrestoUnaryPostfixOperation(generateExpression(getRandomType(), depth + 1),
-                        Randomly.fromOptions(PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NULL,
-                                PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NOT_NULL));
-            case IN:
-                return getInOperation(depth);
-            case BETWEEN:
-                return getBetween(depth);
-            case LIKE:
-                return getLike(depth);
-            case MULTI_VALUED_COMPARISON: // TODO other operators
-                return getMultiValuedComparison(depth);
-            default:
-                throw new AssertionError(exprType);
+        case NOT:
+            return generateNOT(depth + 1);
+        case BINARY_COMPARISON:
+            return getBinaryComparison(depth);
+        case BINARY_LOGICAL:
+            return getBinaryLogical(depth);
+        case AND_OR_CHAIN:
+            return getAndOrChain(depth);
+        case REGEX:
+            return getRegex(depth);
+        case IS_NULL:
+            return new PrestoUnaryPostfixOperation(generateExpression(getRandomType(), depth + 1),
+                    Randomly.fromOptions(PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NULL,
+                            PrestoUnaryPostfixOperation.PrestoUnaryPostfixOperator.IS_NOT_NULL));
+        case IN:
+            return getInOperation(depth);
+        case BETWEEN:
+            return getBetween(depth);
+        case LIKE:
+            return getLike(depth);
+        case MULTI_VALUED_COMPARISON: // TODO other operators
+            return getMultiValuedComparison(depth);
+        default:
+            throw new AssertionError(exprType);
         }
     }
 
@@ -304,8 +296,10 @@ public final class PrestoTypedExpressionGenerator extends
 
         PrestoSchema.PrestoCompositeDataType type;
         do {
-            type = PrestoSchema.PrestoCompositeDataType.fromDataType(Randomly.fromList(getOrderableTypes()));
-        } while (type.getPrimitiveDataType() == ARRAY && !type.getElementType().getPrimitiveDataType().isOrderable());
+            type = PrestoSchema.PrestoCompositeDataType
+                    .fromDataType(Randomly.fromList(PrestoSchema.PrestoDataType.getOrderableTypes()));
+        } while (type.getPrimitiveDataType() == PrestoSchema.PrestoDataType.ARRAY
+                && !type.getElementType().getPrimitiveDataType().isOrderable());
 
         PrestoMultiValuedComparisonType comparisonType = PrestoMultiValuedComparisonType.getRandom();
         PrestoMultiValuedComparisonOperator comparisonOperator = PrestoMultiValuedComparisonOperator
@@ -380,9 +374,11 @@ public final class PrestoTypedExpressionGenerator extends
         }
 
         // timestamp at time zone
-        if (Randomly.getBooleanWithSmallProbability() &&
-                (type.getPrimitiveDataType() == TIMESTAMP || type.getPrimitiveDataType() == TIMESTAMP_WITH_TIME_ZONE)) {
-            return new PrestoAtTimeZoneOperator(generateExpression(type, depth + 1), createTimezoneConstant());
+        if (Randomly.getBooleanWithSmallProbability()
+                && (type.getPrimitiveDataType() == PrestoSchema.PrestoDataType.TIMESTAMP
+                        || type.getPrimitiveDataType() == PrestoSchema.PrestoDataType.TIMESTAMP_WITH_TIME_ZONE)) {
+            return new PrestoAtTimeZoneOperator(generateExpression(type, depth + 1),
+                    PrestoConstant.createTimezoneConstant());
         }
         return generateLeafNode(type);
     }
@@ -417,7 +413,8 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> getLike(int depth) {
-        PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR);
+        PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType
+                .fromDataType(PrestoSchema.PrestoDataType.VARCHAR);
         Node<PrestoExpression> expression = generateExpression(type, depth + 1);
         Node<PrestoExpression> pattern = generateExpression(type, depth + 1);
         if (Randomly.getBoolean()) {
@@ -439,15 +436,16 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private NewBinaryOperatorNode<PrestoExpression> getRegex(int depth) {
-        Node<PrestoExpression> left = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR),
-                depth + 1);
-        Node<PrestoExpression> right = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(VARCHAR),
-                depth + 1);
+        Node<PrestoExpression> left = generateExpression(
+                PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.VARCHAR), depth + 1);
+        Node<PrestoExpression> right = generateExpression(
+                PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.VARCHAR), depth + 1);
         return new NewBinaryOperatorNode<>(left, right, PrestoBinaryLogicalOperator.getRandom());
     }
 
     private NewBinaryOperatorNode<PrestoExpression> getBinaryLogical(int depth) {
-        PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN);
+        PrestoSchema.PrestoCompositeDataType type = PrestoSchema.PrestoCompositeDataType
+                .fromDataType(PrestoSchema.PrestoDataType.BOOLEAN);
         Node<PrestoExpression> left = generateExpression(type, depth + 1);
         Node<PrestoExpression> right = generateExpression(type, depth + 1);
         BinaryOperatorNode.Operator operator = PrestoBinaryLogicalOperator.getRandom();
@@ -473,11 +471,11 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     private Node<PrestoExpression> getAndOrChain(int depth) {
-        Node<PrestoExpression> left = generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN),
-                depth + 1);
+        Node<PrestoExpression> left = generateExpression(
+                PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN), depth + 1);
         for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
             Node<PrestoExpression> right = generateExpression(
-                    PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN), depth + 1);
+                    PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN), depth + 1);
             BinaryOperatorNode.Operator operator = PrestoBinaryLogicalOperator.getRandom();
             left = new NewBinaryOperatorNode<>(left, right, operator);
         }
@@ -494,8 +492,8 @@ public final class PrestoTypedExpressionGenerator extends
 
     private Node<PrestoExpression> generateNOT(int depth) {
         PrestoUnaryPrefixOperation.PrestoUnaryPrefixOperator operator = PrestoUnaryPrefixOperation.PrestoUnaryPrefixOperator.NOT;
-        return new PrestoUnaryPrefixOperation(operator,
-                generateExpression(PrestoSchema.PrestoCompositeDataType.fromDataType(BOOLEAN), depth));
+        return new PrestoUnaryPrefixOperation(operator, generateExpression(
+                PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN), depth));
     }
 
     @Override
@@ -550,7 +548,7 @@ public final class PrestoTypedExpressionGenerator extends
         PrestoSchema.PrestoDataType functionReturnType = aggregateFunction.getReturnType();
         PrestoSchema.PrestoCompositeDataType returnType = PrestoSchema.PrestoCompositeDataType
                 .fromDataType(functionReturnType);
-        return aggregateFunction.getArgumentsForReturnType(this, (this.maxDepth - 1), returnType);
+        return aggregateFunction.getArgumentsForReturnType(this, this.maxDepth - 1, returnType);
     }
 
     private Node<PrestoExpression> generateAggregate(PrestoSchema.PrestoCompositeDataType type) {
@@ -561,7 +559,7 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     public List<Node<PrestoExpression>> generateArgsForAggregate(PrestoSchema.PrestoCompositeDataType type,
-                                                                 PrestoAggregateFunction aggregateFunction) {
+            PrestoAggregateFunction aggregateFunction) {
         List<PrestoSchema.PrestoDataType> returnTypes = aggregateFunction.getReturnTypes(type.getPrimitiveDataType());
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
         allowAggregates = false; //
@@ -595,7 +593,7 @@ public final class PrestoTypedExpressionGenerator extends
     }
 
     public Node<PrestoExpression> generateExpressionWithColumns(List<PrestoSchema.PrestoColumn> columns,
-                                                                int remainingDepth) {
+            int remainingDepth) {
         if (columns.isEmpty() || remainingDepth <= 2 && Randomly.getBooleanWithRatherLowProbability()) {
             return generateConstant(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
         }
@@ -608,15 +606,15 @@ public final class PrestoTypedExpressionGenerator extends
         PrestoTypedExpressionGenerator.Expression expr = Randomly.fromList(possibleOptions);
         BinaryOperatorNode.Operator op;
         switch (expr) {
-            case BINARY_LOGICAL:
-            case BINARY_ARITHMETIC:
-                op = PrestoTypedExpressionGenerator.PrestoBinaryLogicalOperator.getRandom();
-                break;
-            case BINARY_COMPARISON:
-                op = PrestoBinaryComparisonOperator.getRandom();
-                break;
-            default:
-                throw new AssertionError();
+        case BINARY_LOGICAL:
+        case BINARY_ARITHMETIC:
+            op = PrestoTypedExpressionGenerator.PrestoBinaryLogicalOperator.getRandom();
+            break;
+        case BINARY_COMPARISON:
+            op = PrestoBinaryComparisonOperator.getRandom();
+            break;
+        default:
+            throw new AssertionError();
         }
         return new NewBinaryOperatorNode<>(generateExpression(column.getType(), remainingDepth - 1),
                 generateExpression(column.getType(), remainingDepth - 1), op);
@@ -741,26 +739,27 @@ public final class PrestoTypedExpressionGenerator extends
             PrestoSchema.PrestoDataType dataType = type.getPrimitiveDataType();
 
             switch (dataType) {
-                case BOOLEAN:
-                case INT:
-                case FLOAT:
-                case DECIMAL:
-                case DATE:
-                case TIME:
-                case TIMESTAMP:
-                case TIME_WITH_TIME_ZONE:
-                case TIMESTAMP_WITH_TIME_ZONE:
-                    return getRandom();
-                case VARCHAR:
-                case CHAR:
-                case VARBINARY:
-                case JSON:
-                case ARRAY:
-                case INTERVAL_YEAR_TO_MONTH:
-                case INTERVAL_DAY_TO_SECOND:
-                    return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);
-                default:
-                    return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);
+            case BOOLEAN:
+            case INT:
+            case FLOAT:
+            case DECIMAL:
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+            case TIME_WITH_TIME_ZONE:
+            case TIMESTAMP_WITH_TIME_ZONE:
+                return getRandom();
+            case VARCHAR:
+            case CHAR:
+            case VARBINARY:
+            case JSON:
+            case ARRAY:
+            case INTERVAL_YEAR_TO_MONTH:
+            case INTERVAL_DAY_TO_SECOND:
+                // return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM,
+                // IS_NOT_DISTINCT_FROM);
+            default:
+                return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT, IS_DISTINCT_FROM, IS_NOT_DISTINCT_FROM);
             }
         }
 

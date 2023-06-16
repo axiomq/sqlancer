@@ -49,9 +49,4 @@ public class PrestoUnaryPostfixOperation extends NewUnaryPostfixOperatorNode<Pre
         return getExpr();
     }
 
-    @Override
-    public String getOperatorRepresentation() {
-        return this.op.getTextRepresentation();
-    }
-
 }

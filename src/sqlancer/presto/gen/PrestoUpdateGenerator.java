@@ -20,7 +20,6 @@ public final class PrestoUpdateGenerator extends AbstractUpdateGenerator<PrestoC
 
     private PrestoUpdateGenerator(PrestoGlobalState globalState) {
         this.globalState = globalState;
-        globalState.getDbmsSpecificOptions();
     }
 
     public static SQLQueryAdapter getQuery(PrestoGlobalState globalState) {
