@@ -2,7 +2,7 @@ package sqlancer.presto;
 
 import sqlancer.common.ast.newast.NewToStringVisitor;
 import sqlancer.common.ast.newast.Node;
-import sqlancer.presto.ast.FunctionWithoutParenthesis;
+import sqlancer.presto.ast.PrestoFunctionWithoutParenthesis;
 import sqlancer.presto.ast.PrestoAtTimeZoneOperator;
 import sqlancer.presto.ast.PrestoCastFunction;
 import sqlancer.presto.ast.PrestoConstant;
@@ -24,8 +24,8 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
             visit((PrestoJoin) expr);
         } else if (expr instanceof PrestoCastFunction) {
             visit((PrestoCastFunction) expr);
-        } else if (expr instanceof FunctionWithoutParenthesis) {
-            visit((FunctionWithoutParenthesis) expr);
+        } else if (expr instanceof PrestoFunctionWithoutParenthesis) {
+            visit((PrestoFunctionWithoutParenthesis) expr);
         } else if (expr instanceof PrestoAtTimeZoneOperator) {
             visit((PrestoAtTimeZoneOperator) expr);
         } else if (expr instanceof PrestoMultiValuedComparison) {
@@ -63,8 +63,8 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
         sb.append(timeZoneOperator.getTimeZone());
     }
 
-    private void visit(FunctionWithoutParenthesis functionWithoutParenthesis) {
-        sb.append(functionWithoutParenthesis.getExpr());
+    private void visit(PrestoFunctionWithoutParenthesis prestoFunctionWithoutParenthesis) {
+        sb.append(prestoFunctionWithoutParenthesis.getExpr());
     }
 
     private void visit(PrestoSelect select) {

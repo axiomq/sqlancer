@@ -3,12 +3,12 @@ package sqlancer.presto.ast;
 import sqlancer.common.ast.newast.Node;
 import sqlancer.presto.PrestoSchema;
 
-public class FunctionWithoutParenthesis implements Node<PrestoExpression> {
+public class PrestoFunctionWithoutParenthesis implements Node<PrestoExpression> {
 
     private final PrestoSchema.PrestoCompositeDataType type;
     private final String expr;
 
-    public FunctionWithoutParenthesis(String expr, PrestoSchema.PrestoCompositeDataType type) {
+    public PrestoFunctionWithoutParenthesis(String expr, PrestoSchema.PrestoCompositeDataType type) {
         this.expr = expr;
         this.type = type;
     }

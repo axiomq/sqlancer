@@ -1,12 +1,12 @@
 package sqlancer.presto.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
 import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public interface PrestoFunction {
 
@@ -17,7 +17,7 @@ public interface PrestoFunction {
     PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType);
 
     default List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-            PrestoSchema.PrestoDataType[] argumentTypes, PrestoSchema.PrestoCompositeDataType returnType) {
+                                                                   PrestoSchema.PrestoDataType[] argumentTypes, PrestoSchema.PrestoCompositeDataType returnType) {
 
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public interface PrestoFunction {
     }
 
     default List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-            PrestoSchema.PrestoCompositeDataType returnType) {
+                                                                   PrestoSchema.PrestoCompositeDataType returnType, boolean orderable) {
 
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
 
@@ -78,30 +78,33 @@ public interface PrestoFunction {
             // TODO: consider upper
             long no = Randomly.getNotCachedInteger(2, 10);
             for (int i = 0; i < no; i++) {
-                PrestoSchema.PrestoCompositeDataType type;
-
+                PrestoSchema.PrestoCompositeDataType compositeDataType;
                 if (dataType == PrestoSchema.PrestoDataType.ARRAY) {
                     if (savedArrayType == null) {
                         savedArrayType = dataType.get();
                     }
-                    type = savedArrayType;
+                    compositeDataType = savedArrayType;
                 } else {
-                    type = PrestoSchema.PrestoCompositeDataType.fromDataType(dataType);
+                    compositeDataType = PrestoSchema.PrestoCompositeDataType.fromDataType(dataType);
                 }
-                arguments.add(gen.generateExpression(type, depth + 1));
+                arguments.add(gen.generateExpression(compositeDataType, depth + 1));
             }
         } else {
-            for (PrestoSchema.PrestoDataType arg : getArgumentTypes(returnType)) {
-                PrestoSchema.PrestoCompositeDataType dataType;
-                if (arg == PrestoSchema.PrestoDataType.ARRAY) {
+            for (PrestoSchema.PrestoDataType dataType : getArgumentTypes(returnType)) {
+                PrestoSchema.PrestoCompositeDataType compositeDataType;
+                if (dataType == PrestoSchema.PrestoDataType.ARRAY) {
                     if (savedArrayType == null) {
-                        savedArrayType = arg.get();
+                        PrestoSchema.PrestoCompositeDataType arrayType;
+                        do {
+                            arrayType = dataType.get();
+                        } while (!arrayType.getElementType().isOrderable());
+                        savedArrayType = arrayType;
                     }
-                    dataType = savedArrayType;
+                    compositeDataType = savedArrayType;
                 } else {
-                    dataType = PrestoSchema.PrestoCompositeDataType.fromDataType(arg);
+                    compositeDataType = PrestoSchema.PrestoCompositeDataType.fromDataType(dataType);
                 }
-                Node<PrestoExpression> expression = gen.generateExpression(dataType, depth + 1);
+                Node<PrestoExpression> expression = gen.generateExpression(compositeDataType, depth + 1);
                 arguments.add(expression);
             }
         }
@@ -119,4 +122,5 @@ public interface PrestoFunction {
     default boolean isStandardFunction() {
         return true;
     }
+
 }
