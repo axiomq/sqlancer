@@ -104,6 +104,11 @@ public class PrestoOptions implements DBMSSpecificOptions<PrestoOptions.PrestoOr
     @Parameter(names = "--typed-generator", description = "the expression generator type - typed and untyped ")
     public boolean typedGenerator = true;
 
+    @Override
+    public List<PrestoOracleFactory> getTestOracleFactory() {
+        return oracles;
+    }
+
     public enum PrestoOracleFactory implements OracleFactory<PrestoGlobalState> {
         NOREC {
             @Override
@@ -156,11 +161,6 @@ public class PrestoOptions implements DBMSSpecificOptions<PrestoOptions.PrestoOr
             }
         }
 
-    }
-
-    @Override
-    public List<PrestoOracleFactory> getTestOracleFactory() {
-        return oracles;
     }
 
 }

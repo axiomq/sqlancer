@@ -1,5 +1,6 @@
 package sqlancer.presto.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sqlancer.common.ast.newast.Node;
@@ -12,9 +13,9 @@ public class PrestoMultiValuedComparison implements Node<PrestoExpression> {
     private final PrestoMultiValuedComparisonOperator op;
 
     public PrestoMultiValuedComparison(Node<PrestoExpression> left, List<Node<PrestoExpression>> right,
-            PrestoMultiValuedComparisonType type, PrestoMultiValuedComparisonOperator op) {
+                                       PrestoMultiValuedComparisonType type, PrestoMultiValuedComparisonOperator op) {
         this.left = left;
-        this.right = right;
+        this.right = new ArrayList<>(right);
         this.type = type;
         this.op = op;
     }
@@ -28,7 +29,7 @@ public class PrestoMultiValuedComparison implements Node<PrestoExpression> {
     }
 
     public List<Node<PrestoExpression>> getRight() {
-        return right;
+        return new ArrayList<>(right);
     }
 
     public PrestoMultiValuedComparisonType getType() {

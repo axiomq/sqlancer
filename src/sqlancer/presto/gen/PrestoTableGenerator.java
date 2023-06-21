@@ -12,6 +12,16 @@ import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
 
 public class PrestoTableGenerator {
 
+    private static List<PrestoColumn> getNewColumns() {
+        List<PrestoColumn> columns = new ArrayList<>();
+        for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
+            String columnName = String.format("c%d", i);
+            PrestoCompositeDataType columnType = PrestoCompositeDataType.getRandomWithoutNull();
+            columns.add(new PrestoColumn(columnName, columnType, false, false));
+        }
+        return columns;
+    }
+
     public SQLQueryAdapter getQuery(PrestoGlobalState globalState) {
         ExpectedErrors errors = new ExpectedErrors();
         StringBuilder sb = new StringBuilder();
@@ -54,16 +64,6 @@ public class PrestoTableGenerator {
         sb.append(")");
 
         return new SQLQueryAdapter(sb.toString(), errors, true, false);
-    }
-
-    private static List<PrestoColumn> getNewColumns() {
-        List<PrestoColumn> columns = new ArrayList<>();
-        for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
-            String columnName = String.format("c%d", i);
-            PrestoCompositeDataType columnType = PrestoCompositeDataType.getRandomWithoutNull();
-            columns.add(new PrestoColumn(columnName, columnType, false, false));
-        }
-        return columns;
     }
 
 }

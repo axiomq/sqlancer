@@ -10,7 +10,7 @@ public class PrestoQuantifiedComparison implements Node<PrestoExpression> {
     private final PrestoMultiValuedComparisonOperator op;
 
     public PrestoQuantifiedComparison(Node<PrestoExpression> left, PrestoSelect right,
-            PrestoMultiValuedComparisonType type, PrestoMultiValuedComparisonOperator op) {
+                                      PrestoMultiValuedComparisonType type, PrestoMultiValuedComparisonOperator op) {
         this.left = left;
         this.right = right;
         this.type = type;

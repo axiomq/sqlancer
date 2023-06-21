@@ -23,8 +23,8 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { PrestoSchema.PrestoDataType.BOOLEAN,
-                    returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {PrestoSchema.PrestoDataType.BOOLEAN,
+                    returnType.getPrimitiveDataType()};
         }
     },
 
@@ -36,8 +36,8 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { PrestoSchema.PrestoDataType.BOOLEAN,
-                    returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {PrestoSchema.PrestoDataType.BOOLEAN,
+                    returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
         }
     },
 
@@ -49,7 +49,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[] { returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType() };
+            return new PrestoDataType[] {returnType.getPrimitiveDataType(), returnType.getPrimitiveDataType()};
         }
     },
 
@@ -76,7 +76,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-                PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
+                                                                      PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
 
             return super.getArgumentsForReturnType(gen, depth, argumentTypes2, returnType2);
         }
@@ -98,7 +98,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
         @Override
         public PrestoSchema.PrestoDataType[] getArgumentTypes(PrestoSchema.PrestoCompositeDataType returnType) {
-            return new PrestoSchema.PrestoDataType[] { returnType.getPrimitiveDataType() };
+            return new PrestoSchema.PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
     },
     // Returns the smallest of the provided values. → [same as input]
@@ -220,6 +220,10 @@ public enum PrestoDefaultFunction implements PrestoFunction {
         this.argumentTypes = argumentTypes.clone();
     }
 
+    public static List<PrestoDefaultFunction> getFunctionsCompatibleWith(PrestoCompositeDataType returnType) {
+        return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
+    }
+
     @Override
     public String getFunctionName() {
         return functionName;
@@ -242,7 +246,7 @@ public enum PrestoDefaultFunction implements PrestoFunction {
 
     @Override
     public List<Node<PrestoExpression>> getArgumentsForReturnType(PrestoTypedExpressionGenerator gen, int depth,
-            PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
+                                                                  PrestoDataType[] argumentTypes2, PrestoCompositeDataType returnType2) {
         List<Node<PrestoExpression>> arguments = new ArrayList<>();
 
         // This is a workaround based on the assumption that array types should refer to the same element type.
@@ -284,10 +288,6 @@ public enum PrestoDefaultFunction implements PrestoFunction {
             }
         }
         return arguments;
-    }
-
-    public static List<PrestoDefaultFunction> getFunctionsCompatibleWith(PrestoCompositeDataType returnType) {
-        return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
     }
 
     // public PrestoFunctionCall getCall(PrestoCompositeDataType returnType, PrestoTypedExpressionGenerator gen,

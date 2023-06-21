@@ -2,17 +2,23 @@ package sqlancer.presto;
 
 import sqlancer.common.ast.newast.NewToStringVisitor;
 import sqlancer.common.ast.newast.Node;
-import sqlancer.presto.ast.PrestoFunctionWithoutParenthesis;
 import sqlancer.presto.ast.PrestoAtTimeZoneOperator;
 import sqlancer.presto.ast.PrestoCastFunction;
 import sqlancer.presto.ast.PrestoConstant;
 import sqlancer.presto.ast.PrestoExpression;
+import sqlancer.presto.ast.PrestoFunctionWithoutParenthesis;
 import sqlancer.presto.ast.PrestoJoin;
 import sqlancer.presto.ast.PrestoMultiValuedComparison;
 import sqlancer.presto.ast.PrestoQuantifiedComparison;
 import sqlancer.presto.ast.PrestoSelect;
 
 public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> {
+
+    public static String asString(Node<PrestoExpression> expr) {
+        PrestoToStringVisitor visitor = new PrestoToStringVisitor();
+        visitor.visit(expr);
+        return visitor.get();
+    }
 
     @Override
     public void visitSpecific(Node<PrestoExpression> expr) {
@@ -105,12 +111,6 @@ public class PrestoToStringVisitor extends NewToStringVisitor<PrestoExpression> 
             sb.append(" OFFSET ");
             visit(select.getOffsetClause());
         }
-    }
-
-    public static String asString(Node<PrestoExpression> expr) {
-        PrestoToStringVisitor visitor = new PrestoToStringVisitor();
-        visitor.visit(expr);
-        return visitor.get();
     }
 
     public void visit(PrestoCastFunction cast) {

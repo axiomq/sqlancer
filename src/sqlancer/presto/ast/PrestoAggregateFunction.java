@@ -1,18 +1,18 @@
 package sqlancer.presto.ast;
 
-import sqlancer.Randomly;
-import sqlancer.common.ast.newast.Node;
-import sqlancer.presto.PrestoSchema;
-import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
-import sqlancer.presto.PrestoSchema.PrestoDataType;
-import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import sqlancer.Randomly;
+import sqlancer.common.ast.newast.Node;
+import sqlancer.presto.PrestoSchema;
+import sqlancer.presto.PrestoSchema.PrestoCompositeDataType;
+import sqlancer.presto.PrestoSchema.PrestoDataType;
+import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
 
 public enum PrestoAggregateFunction implements PrestoFunction {
 
@@ -28,7 +28,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
 
         @Override
@@ -56,7 +56,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     AVG("avg", PrestoDataType.FLOAT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{
+            return new PrestoDataType[] {
                     Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT, PrestoDataType.DECIMAL)};
         }
     },
@@ -76,7 +76,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     CHECKSUM("checksum", PrestoDataType.VARBINARY) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromList(PrestoDataType.getComparableTypes())};
+            return new PrestoDataType[] {Randomly.fromList(PrestoDataType.getComparableTypes())};
         }
     },
 
@@ -88,7 +88,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     COUNT_NOARGS("count", PrestoDataType.INT), COUNT("count", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.getRandomWithoutNull())};
+            return new PrestoDataType[] {Randomly.fromOptions(PrestoDataType.getRandomWithoutNull())};
         }
     },
     // count_if(x) → bigint#
@@ -96,7 +96,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     COUNT_IF("count_if", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.getRandomWithoutNull())};
+            return new PrestoDataType[] {Randomly.fromOptions(PrestoDataType.getRandomWithoutNull())};
         }
     },
     // every(boolean) → boolean#
@@ -107,7 +107,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     GEOMETRIC_MEAN("geometric_mean", PrestoDataType.FLOAT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{
+            return new PrestoDataType[] {
                     Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT, PrestoDataType.DECIMAL)};
         }
     },
@@ -121,7 +121,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType(),
+            return new PrestoDataType[] {returnType.getPrimitiveDataType(),
                     Randomly.fromList(PrestoDataType.getOrderableTypes())};
         }
 
@@ -155,7 +155,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType(),
+            return new PrestoDataType[] {returnType.getPrimitiveDataType(),
                     Randomly.fromList(PrestoDataType.getOrderableTypes())};
         }
 
@@ -185,15 +185,16 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         public boolean isCompatibleWithReturnType(PrestoCompositeDataType returnType) {
             boolean isCompatible = PrestoDataType.getOrderableTypes().contains(returnType.getPrimitiveDataType());
             if (returnType.getPrimitiveDataType() == PrestoDataType.ARRAY) {
-                if (returnType.toString().contains("JSON"))
+                if (returnType.toString().contains("JSON")) {
                     isCompatible = false;
+                }
             }
             return isCompatible;
         }
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
 
         @Override
@@ -233,15 +234,16 @@ public enum PrestoAggregateFunction implements PrestoFunction {
         public boolean isCompatibleWithReturnType(PrestoCompositeDataType returnType) {
             boolean orderable = PrestoDataType.getOrderableTypes().contains(returnType.getPrimitiveDataType());
             if (returnType.getPrimitiveDataType() == PrestoDataType.ARRAY) {
-                if (returnType.toString().contains("JSON"))
+                if (returnType.toString().contains("JSON")) {
                     orderable = false;
+                }
             }
             return orderable;
         }
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
 
         @Override
@@ -331,7 +333,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{returnType.getPrimitiveDataType()};
+            return new PrestoDataType[] {returnType.getPrimitiveDataType()};
         }
 
         @Override
@@ -395,7 +397,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     APPROX_DISTINCT("approx_distinct", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromList(PrestoDataType.getOrderableTypes())};
+            return new PrestoDataType[] {Randomly.fromList(PrestoDataType.getOrderableTypes())};
         }
     },
     //
@@ -410,7 +412,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     APPROX_DISTINCT_2("approx_distinct", PrestoDataType.INT) {
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromList(PrestoDataType.getOrderableTypes()), PrestoDataType.FLOAT};
+            return new PrestoDataType[] {Randomly.fromList(PrestoDataType.getOrderableTypes()), PrestoDataType.FLOAT};
         }
     },
     // approx_percentile(x, percentage) → [same as x]#
@@ -424,7 +426,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
+            return new PrestoDataType[] {Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
                     PrestoDataType.FLOAT};
         }
 
@@ -464,7 +466,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
+            return new PrestoDataType[] {Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
                     PrestoDataType.FLOAT, PrestoDataType.FLOAT};
         }
 
@@ -520,7 +522,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
+            return new PrestoDataType[] {Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
                     PrestoDataType.INT, PrestoDataType.FLOAT};
         }
 
@@ -563,7 +565,7 @@ public enum PrestoAggregateFunction implements PrestoFunction {
 
         @Override
         public PrestoDataType[] getArgumentTypes(PrestoCompositeDataType returnType) {
-            return new PrestoDataType[]{Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
+            return new PrestoDataType[] {Randomly.fromOptions(PrestoDataType.INT, PrestoDataType.FLOAT),
                     PrestoDataType.INT, PrestoDataType.FLOAT, PrestoDataType.FLOAT};
         }
 
@@ -670,6 +672,14 @@ public enum PrestoAggregateFunction implements PrestoFunction {
                 SUM_INTERVAL_YM, SUM_INTERVAL_DS, BITWISE_AND_AGG, BITWISE_OR_AGG);
     }
 
+    public static PrestoAggregateFunction getRandom() {
+        return Randomly.fromOptions(values());
+    }
+
+    public static List<PrestoAggregateFunction> getFunctionsCompatibleWith(PrestoCompositeDataType returnType) {
+        return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
+    }
+
     @Override
     public String getFunctionName() {
         return functionName;
@@ -688,14 +698,6 @@ public enum PrestoAggregateFunction implements PrestoFunction {
     @Override
     public int getNumberOfArguments() {
         return 1;
-    }
-
-    public static PrestoAggregateFunction getRandom() {
-        return Randomly.fromOptions(values());
-    }
-
-    public static List<PrestoAggregateFunction> getFunctionsCompatibleWith(PrestoCompositeDataType returnType) {
-        return Stream.of(values()).filter(f -> f.isCompatibleWithReturnType(returnType)).collect(Collectors.toList());
     }
 
     public List<PrestoSchema.PrestoDataType> getReturnTypes(PrestoSchema.PrestoDataType dataType) {

@@ -31,38 +31,6 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         super(PrestoGlobalState.class, PrestoOptions.class);
     }
 
-    public enum Action implements AbstractAction<PrestoGlobalState> {
-        // SHOW_TABLES((g) -> new SQLQueryAdapter("SHOW TABLES", new ExpectedErrors(), false, false)), //
-        INSERT(PrestoInsertGenerator::getQuery);
-        // , //
-        // CREATE_INDEX(PrestoIndexGenerator::getQuery), //
-        // VACUUM((g) -> new SQLQueryAdapter("VACUUM", new ExpectedErrors(), false, false)), //
-        // ANALYZE((g) -> new SQLQueryAdapter("ANALYZE", new ExpectedErrors(), false, false)), //
-        // DELETE(PrestoDeleteGenerator::generate), //
-        // UPDATE(PrestoUpdateGenerator::getQuery), //
-        // CREATE_VIEW(PrestoViewGenerator::generate), //
-        // EXPLAIN((g) -> {
-        // ExpectedErrors errors = new ExpectedErrors();
-        // PrestoErrors.addExpressionErrors(errors);
-        // PrestoErrors.addGroupByErrors(errors);
-        // return new SQLQueryAdapter(
-        // "EXPLAIN " + PrestoToStringVisitor
-        // .asString(PrestoRandomQuerySynthesizer.generateSelect(g, Randomly.smallNumber() + 1)),
-        // errors);
-        // });
-
-        private final SQLQueryProvider<PrestoGlobalState> sqlQueryProvider;
-
-        Action(SQLQueryProvider<PrestoGlobalState> sqlQueryProvider) {
-            this.sqlQueryProvider = sqlQueryProvider;
-        }
-
-        @Override
-        public SQLQueryAdapter getQuery(PrestoGlobalState state) throws Exception {
-            return sqlQueryProvider.getQuery(state);
-        }
-    }
-
     // BANE:
     // returns number of actions
     private static int mapActions(PrestoGlobalState globalState, Action a) {
@@ -97,10 +65,10 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         }
         StatementExecutor<PrestoGlobalState, Action> se = new StatementExecutor<>(globalState, Action.values(),
                 PrestoProvider::mapActions, (q) -> {
-                    if (globalState.getSchema().getDatabaseTables().isEmpty()) {
-                        throw new IgnoreMeException();
-                    }
-                });
+            if (globalState.getSchema().getDatabaseTables().isEmpty()) {
+                throw new IgnoreMeException();
+            }
+        });
         se.executeStatements();
     }
 
@@ -130,8 +98,9 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
         String url = String.format("jdbc:presto://%s:%d/%s?SSL=%b", host, port, catalogName, useSSl);
         Connection con = DriverManager.getConnection(url, username, password);
         List<String> schemaNames = new ArrayList<>();
+        final String showSchemasSql = "SHOW SCHEMAS FROM " + catalogName + " LIKE '" + databaseName + "'";
         try (Statement s = con.createStatement()) {
-            try (ResultSet rs = s.executeQuery("SHOW SCHEMAS FROM " + catalogName + " LIKE '" + databaseName + "'")) {
+            try (ResultSet rs = s.executeQuery(showSchemasSql)) {
                 while (rs.next()) {
                     schemaNames.add(rs.getString("Schema"));
                 }
@@ -168,6 +137,38 @@ public class PrestoProvider extends SQLProviderAdapter<PrestoGlobalState, Presto
     @Override
     public String getDBMSName() {
         return "presto";
+    }
+
+    public enum Action implements AbstractAction<PrestoGlobalState> {
+        // SHOW_TABLES((g) -> new SQLQueryAdapter("SHOW TABLES", new ExpectedErrors(), false, false)), //
+        INSERT(PrestoInsertGenerator::getQuery);
+        // , //
+        // CREATE_INDEX(PrestoIndexGenerator::getQuery), //
+        // VACUUM((g) -> new SQLQueryAdapter("VACUUM", new ExpectedErrors(), false, false)), //
+        // ANALYZE((g) -> new SQLQueryAdapter("ANALYZE", new ExpectedErrors(), false, false)), //
+        // DELETE(PrestoDeleteGenerator::generate), //
+        // UPDATE(PrestoUpdateGenerator::getQuery), //
+        // CREATE_VIEW(PrestoViewGenerator::generate), //
+        // EXPLAIN((g) -> {
+        // ExpectedErrors errors = new ExpectedErrors();
+        // PrestoErrors.addExpressionErrors(errors);
+        // PrestoErrors.addGroupByErrors(errors);
+        // return new SQLQueryAdapter(
+        // "EXPLAIN " + PrestoToStringVisitor
+        // .asString(PrestoRandomQuerySynthesizer.generateSelect(g, Randomly.smallNumber() + 1)),
+        // errors);
+        // });
+
+        private final SQLQueryProvider<PrestoGlobalState> sqlQueryProvider;
+
+        Action(SQLQueryProvider<PrestoGlobalState> sqlQueryProvider) {
+            this.sqlQueryProvider = sqlQueryProvider;
+        }
+
+        @Override
+        public SQLQueryAdapter getQuery(PrestoGlobalState state) throws Exception {
+            return sqlQueryProvider.getQuery(state);
+        }
     }
 
 }

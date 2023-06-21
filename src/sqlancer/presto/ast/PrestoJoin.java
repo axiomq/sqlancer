@@ -20,29 +20,58 @@ public class PrestoJoin implements Node<PrestoExpression> {
     private final Node<PrestoExpression> onCondition;
     private OuterType outerType;
 
-    public enum JoinType {
-        INNER, LEFT, RIGHT;
-
-        public static JoinType getRandom() {
-            return Randomly.fromOptions(values());
-        }
-    }
-
-    public enum OuterType {
-        FULL, LEFT, RIGHT;
-
-        public static OuterType getRandom() {
-            return Randomly.fromOptions(values());
-        }
-    }
-
     public PrestoJoin(TableReferenceNode<PrestoExpression, PrestoTable> leftTable,
-            TableReferenceNode<PrestoExpression, PrestoTable> rightTable, JoinType joinType,
-            Node<PrestoExpression> whereCondition) {
+                      TableReferenceNode<PrestoExpression, PrestoTable> rightTable, JoinType joinType,
+                      Node<PrestoExpression> whereCondition) {
         this.leftTable = leftTable;
         this.rightTable = rightTable;
         this.joinType = joinType;
         this.onCondition = whereCondition;
+    }
+
+    public static List<Node<PrestoExpression>> getJoins(
+            List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList, PrestoGlobalState globalState) {
+        List<Node<PrestoExpression>> joinExpressions = new ArrayList<>();
+        while (tableList.size() >= 2 && Randomly.getBooleanWithRatherLowProbability()) {
+            TableReferenceNode<PrestoExpression, PrestoTable> leftTable = tableList.remove(0);
+            TableReferenceNode<PrestoExpression, PrestoTable> rightTable = tableList.remove(0);
+            List<PrestoColumn> columns = new ArrayList<>(leftTable.getTable().getColumns());
+            columns.addAll(rightTable.getTable().getColumns());
+            PrestoTypedExpressionGenerator joinGen = new PrestoTypedExpressionGenerator(globalState)
+                    .setColumns(columns);
+            switch (JoinType.getRandom()) {
+                case INNER:
+                    joinExpressions.add(PrestoJoin.createInnerJoin(leftTable, rightTable, joinGen.generateExpression(
+                            PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
+                    break;
+                case LEFT:
+                    joinExpressions.add(PrestoJoin.createLeftOuterJoin(leftTable, rightTable, joinGen.generateExpression(
+                            PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
+                    break;
+                case RIGHT:
+                    joinExpressions.add(PrestoJoin.createRightOuterJoin(leftTable, rightTable, joinGen.generateExpression(
+                            PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        }
+        return joinExpressions;
+    }
+
+    public static PrestoJoin createRightOuterJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
+                                                  TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
+        return new PrestoJoin(left, right, JoinType.RIGHT, predicate);
+    }
+
+    public static PrestoJoin createLeftOuterJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
+                                                 TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
+        return new PrestoJoin(left, right, JoinType.LEFT, predicate);
+    }
+
+    public static PrestoJoin createInnerJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
+                                             TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
+        return new PrestoJoin(left, right, JoinType.INNER, predicate);
     }
 
     public TableReferenceNode<PrestoExpression, PrestoTable> getLeftTable() {
@@ -61,58 +90,29 @@ public class PrestoJoin implements Node<PrestoExpression> {
         return onCondition;
     }
 
+    public OuterType getOuterType() {
+        return outerType;
+    }
+
     @SuppressWarnings("unused")
     private void setOuterType(OuterType outerType) {
         this.outerType = outerType;
     }
 
-    public OuterType getOuterType() {
-        return outerType;
-    }
+    public enum JoinType {
+        INNER, LEFT, RIGHT;
 
-    public static List<Node<PrestoExpression>> getJoins(
-            List<TableReferenceNode<PrestoExpression, PrestoTable>> tableList, PrestoGlobalState globalState) {
-        List<Node<PrestoExpression>> joinExpressions = new ArrayList<>();
-        while (tableList.size() >= 2 && Randomly.getBooleanWithRatherLowProbability()) {
-            TableReferenceNode<PrestoExpression, PrestoTable> leftTable = tableList.remove(0);
-            TableReferenceNode<PrestoExpression, PrestoTable> rightTable = tableList.remove(0);
-            List<PrestoColumn> columns = new ArrayList<>(leftTable.getTable().getColumns());
-            columns.addAll(rightTable.getTable().getColumns());
-            PrestoTypedExpressionGenerator joinGen = new PrestoTypedExpressionGenerator(globalState)
-                    .setColumns(columns);
-            switch (JoinType.getRandom()) {
-            case INNER:
-                joinExpressions.add(PrestoJoin.createInnerJoin(leftTable, rightTable, joinGen.generateExpression(
-                        PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
-                break;
-            case LEFT:
-                joinExpressions.add(PrestoJoin.createLeftOuterJoin(leftTable, rightTable, joinGen.generateExpression(
-                        PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
-                break;
-            case RIGHT:
-                joinExpressions.add(PrestoJoin.createRightOuterJoin(leftTable, rightTable, joinGen.generateExpression(
-                        PrestoSchema.PrestoCompositeDataType.fromDataType(PrestoSchema.PrestoDataType.BOOLEAN))));
-                break;
-            default:
-                throw new AssertionError();
-            }
+        public static JoinType getRandom() {
+            return Randomly.fromOptions(values());
         }
-        return joinExpressions;
     }
 
-    public static PrestoJoin createRightOuterJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
-            TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
-        return new PrestoJoin(left, right, JoinType.RIGHT, predicate);
-    }
+    public enum OuterType {
+        FULL, LEFT, RIGHT;
 
-    public static PrestoJoin createLeftOuterJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
-            TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
-        return new PrestoJoin(left, right, JoinType.LEFT, predicate);
-    }
-
-    public static PrestoJoin createInnerJoin(TableReferenceNode<PrestoExpression, PrestoTable> left,
-            TableReferenceNode<PrestoExpression, PrestoTable> right, Node<PrestoExpression> predicate) {
-        return new PrestoJoin(left, right, JoinType.INNER, predicate);
+        public static OuterType getRandom() {
+            return Randomly.fromOptions(values());
+        }
     }
 
 }

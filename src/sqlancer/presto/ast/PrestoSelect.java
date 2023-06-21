@@ -7,12 +7,12 @@ public class PrestoSelect extends SelectBase<Node<PrestoExpression>> implements 
 
     private boolean isDistinct;
 
-    public void setDistinct(boolean isDistinct) {
-        this.isDistinct = isDistinct;
-    }
-
     public boolean isDistinct() {
         return isDistinct;
+    }
+
+    public void setDistinct(boolean isDistinct) {
+        this.isDistinct = isDistinct;
     }
 
 }

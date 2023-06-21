@@ -1,12 +1,12 @@
 package sqlancer.presto.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.Node;
 import sqlancer.presto.PrestoSchema;
 import sqlancer.presto.gen.PrestoTypedExpressionGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public interface PrestoFunction {
 

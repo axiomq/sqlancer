@@ -52,11 +52,11 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
         List<Node<PrestoExpression>> aggregateArgs = gen.generateArgsForAggregate(aggregateFunction);
         NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate = new NewFunctionNode<>(aggregateArgs,
                 aggregateFunction);
-        List<Node<PrestoExpression>> fetchColumns = new ArrayList<>();
-        fetchColumns.add(aggregate);
-        while (Randomly.getBooleanWithRatherLowProbability()) {
-            fetchColumns.add(gen.generateAggregate());
-        }
+//        List<Node<PrestoExpression>> fetchColumns = new ArrayList<>();
+//        fetchColumns.add(aggregate);
+//        while (Randomly.getBooleanWithRatherLowProbability()) {
+//            fetchColumns.add(gen.generateAggregate());
+//        }
         select.setFetchColumns(List.of(aggregate));
         if (Randomly.getBooleanWithRatherLowProbability()) {
             select.setOrderByExpressions(gen.generateOrderBys());
@@ -89,7 +89,7 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
     }
 
     private String createMetamorphicUnionQuery(PrestoSelect select,
-            NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate, List<Node<PrestoExpression>> from) {
+                                               NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate, List<Node<PrestoExpression>> from) {
         String metamorphicQuery;
         Node<PrestoExpression> whereClause = gen.generatePredicate();
         Node<PrestoExpression> negatedClause = new NewUnaryPrefixOperatorNode<>(whereClause,
@@ -159,31 +159,31 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
     private List<Node<PrestoExpression>> mapped(NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate) {
         PrestoCastFunction count;
         switch (aggregate.getFunc()) {
-        case COUNT:
-        case MAX:
-        case MIN:
-        case SUM:
-            return aliasArgs(List.of(aggregate));
-        case AVG:
-            NewFunctionNode<PrestoExpression, PrestoAggregateFunction> sum = new NewFunctionNode<>(aggregate.getArgs(),
-                    PrestoAggregateFunction.SUM);
-            count = new PrestoCastFunction(new NewFunctionNode<>(aggregate.getArgs(), PrestoAggregateFunction.COUNT),
-                    new PrestoCompositeDataType(PrestoDataType.FLOAT, 8, 0));
-            return aliasArgs(Arrays.asList(sum, count));
-        // case STDDEV_POP:
-        // NewFunctionNode<PrestoExpression, PrestoAggregateFunction> sumSquared = new NewFunctionNode<>(
-        // List.of(new NewBinaryOperatorNode<>(aggregate.getArgs().get(0), aggregate.getArgs().get(0),
-        // PrestoBinaryArithmeticOperator.MULT)),
-        // PrestoAggregateFunction.SUM);
-        // count = new PrestoCastFunction(
-        // new NewFunctionNode<PrestoExpression, PrestoAggregateFunction>(aggregate.getArgs(),
-        // PrestoAggregateFunction.COUNT),
-        // new PrestoCompositeDataType(PrestoDataType.FLOAT, 8, 0));
-        // NewFunctionNode<PrestoExpression, PrestoAggregateFunction> avg = new NewFunctionNode<>(aggregate.getArgs(),
-        // PrestoAggregateFunction.AVG);
-        // return aliasArgs(Arrays.asList(sumSquared, count, avg));
-        default:
-            throw new AssertionError(aggregate.getFunc());
+            case COUNT:
+            case MAX:
+            case MIN:
+            case SUM:
+                return aliasArgs(List.of(aggregate));
+            case AVG:
+                NewFunctionNode<PrestoExpression, PrestoAggregateFunction> sum = new NewFunctionNode<>(aggregate.getArgs(),
+                        PrestoAggregateFunction.SUM);
+                count = new PrestoCastFunction(new NewFunctionNode<>(aggregate.getArgs(), PrestoAggregateFunction.COUNT),
+                        new PrestoCompositeDataType(PrestoDataType.FLOAT, 8, 0));
+                return aliasArgs(Arrays.asList(sum, count));
+            // case STDDEV_POP:
+            // NewFunctionNode<PrestoExpression, PrestoAggregateFunction> sumSquared = new NewFunctionNode<>(
+            // List.of(new NewBinaryOperatorNode<>(aggregate.getArgs().get(0), aggregate.getArgs().get(0),
+            // PrestoBinaryArithmeticOperator.MULT)),
+            // PrestoAggregateFunction.SUM);
+            // count = new PrestoCastFunction(
+            // new NewFunctionNode<PrestoExpression, PrestoAggregateFunction>(aggregate.getArgs(),
+            // PrestoAggregateFunction.COUNT),
+            // new PrestoCompositeDataType(PrestoDataType.FLOAT, 8, 0));
+            // NewFunctionNode<PrestoExpression, PrestoAggregateFunction> avg = new NewFunctionNode<>(aggregate.getArgs(),
+            // PrestoAggregateFunction.AVG);
+            // return aliasArgs(Arrays.asList(sumSquared, count, avg));
+            default:
+                throw new AssertionError(aggregate.getFunc());
         }
     }
 
@@ -198,20 +198,20 @@ public class PrestoQueryPartitioningAggregateTester extends PrestoQueryPartition
 
     private String getOuterAggregateFunction(NewFunctionNode<PrestoExpression, PrestoAggregateFunction> aggregate) {
         switch (aggregate.getFunc()) {
-        // case STDDEV_POP:
-        // return "sqrt(SUM(agg0)/SUM(agg1)-SUM(agg2)*SUM(agg2))";
-        case AVG:
-            // return "SUM(agg0::FLOAT)/SUM(agg1)::FLOAT";
-            return "SUM(CAST(agg0 AS DOUBLE))/CAST(SUM(agg1) AS DOUBLE)";
-        case COUNT:
-            return PrestoAggregateFunction.SUM + "(agg0)";
-        default:
-            return aggregate.getFunc().toString() + "(agg0)";
+            // case STDDEV_POP:
+            // return "sqrt(SUM(agg0)/SUM(agg1)-SUM(agg2)*SUM(agg2))";
+            case AVG:
+                // return "SUM(agg0::FLOAT)/SUM(agg1)::FLOAT";
+                return "SUM(CAST(agg0 AS DOUBLE))/CAST(SUM(agg1) AS DOUBLE)";
+            case COUNT:
+                return PrestoAggregateFunction.SUM + "(agg0)";
+            default:
+                return aggregate.getFunc().toString() + "(agg0)";
         }
     }
 
     private PrestoSelect getSelect(List<Node<PrestoExpression>> aggregates, List<Node<PrestoExpression>> from,
-            Node<PrestoExpression> whereClause, List<Node<PrestoExpression>> joinList) {
+                                   Node<PrestoExpression> whereClause, List<Node<PrestoExpression>> joinList) {
         PrestoSelect leftSelect = new PrestoSelect();
         leftSelect.setFetchColumns(aggregates);
         leftSelect.setFromList(from);

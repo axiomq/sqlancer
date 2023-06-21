@@ -12,6 +12,10 @@ public class PrestoUnaryPostfixOperation extends NewUnaryPostfixOperatorNode<Pre
         super(expr, op);
     }
 
+    public Node<PrestoExpression> getExpression() {
+        return getExpr();
+    }
+
     public enum PrestoUnaryPostfixOperator implements BinaryOperatorNode.Operator {
         IS_NULL("IS NULL") {
             @Override
@@ -43,10 +47,6 @@ public class PrestoUnaryPostfixOperation extends NewUnaryPostfixOperatorNode<Pre
 
         public abstract PrestoSchema.PrestoDataType[] getInputDataTypes();
 
-    }
-
-    public Node<PrestoExpression> getExpression() {
-        return getExpr();
     }
 
 }

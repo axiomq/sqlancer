@@ -13,14 +13,6 @@ public enum PrestoMultiValuedComparisonOperator {
         this.stringRepresentation = stringRepresentation;
     }
 
-    public String getStringRepresentation() {
-        return stringRepresentation;
-    }
-
-    public static PrestoMultiValuedComparisonOperator getRandomGenericComparisonOperator() {
-        return Randomly.fromOptions(SMALLER, GREATER);
-    }
-
     public static PrestoMultiValuedComparisonOperator getRandom() {
         return Randomly.fromOptions(values());
     }
@@ -29,19 +21,23 @@ public enum PrestoMultiValuedComparisonOperator {
         PrestoSchema.PrestoDataType dataType = type.getPrimitiveDataType();
 
         switch (dataType) {
-        case BOOLEAN:
-        case INT:
-        case FLOAT:
-        case DECIMAL:
-        case DATE:
-        case TIME:
-        case TIMESTAMP:
-        case TIME_WITH_TIME_ZONE:
-        case TIMESTAMP_WITH_TIME_ZONE:
-            return getRandom();
-        default:
-            return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT);
+            case BOOLEAN:
+            case INT:
+            case FLOAT:
+            case DECIMAL:
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+            case TIME_WITH_TIME_ZONE:
+            case TIMESTAMP_WITH_TIME_ZONE:
+                return getRandom();
+            default:
+                return Randomly.fromOptions(EQUALS, NOT_EQUALS, NOT_EQUALS_ALT);
         }
+    }
+
+    public String getStringRepresentation() {
+        return stringRepresentation;
     }
 
 }

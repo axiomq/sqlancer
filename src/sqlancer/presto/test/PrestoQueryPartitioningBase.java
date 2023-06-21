@@ -44,11 +44,11 @@ public class PrestoQueryPartitioningBase
 
         // TODO: check this
         switch (value) {
-        case "-0.0":
-            return "0.0";
-        case "-0":
-            return "0";
-        default:
+            case "-0.0":
+                return "0.0";
+            case "-0":
+                return "0";
+            default:
         }
 
         return value;
