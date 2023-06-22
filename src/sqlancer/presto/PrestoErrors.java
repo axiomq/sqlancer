@@ -54,6 +54,8 @@ public final class PrestoErrors {
         errors.add("Decimal overflow");
         errors.add("IN value and list items must be the same type");
         errors.add("is not a valid timestamp literal");
+        errors.add("Unknown time-zone ID");
+        errors.add("GROUP BY position");
 
         // ARRAY
         errors.add("Unknown type: ARRAY");
