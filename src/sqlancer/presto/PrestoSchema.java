@@ -8,10 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.SQLConnection;
-import sqlancer.common.DBMSCommon;
 import sqlancer.common.schema.AbstractRelationalTable;
 import sqlancer.common.schema.AbstractSchema;
 import sqlancer.common.schema.AbstractTableColumn;
@@ -28,9 +26,6 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         List<PrestoTable> databaseTables = new ArrayList<>();
         List<String> tableNames = getTableNames(con);
         for (String tableName : tableNames) {
-            if (DBMSCommon.matchesIndexName(tableName)) {
-                continue; // TODO: unexpected?
-            }
             List<PrestoColumn> databaseColumns = getTableColumns(con, databaseName, tableName);
             boolean isView = tableName.startsWith("v");
             PrestoTable t = new PrestoTable(tableName, databaseColumns, isView);
@@ -38,7 +33,6 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                 c.setTable(t);
             }
             databaseTables.add(t);
-
         }
         return new PrestoSchema(databaseTables);
     }
@@ -46,8 +40,7 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
     private static List<String> getTableNames(SQLConnection con) throws SQLException {
         List<String> tableNames = new ArrayList<>();
         try (Statement s = con.createStatement()) {
-
-            // TODO: UPDATE
+            // BANE: UPDATE
             // SHOW TABLES [ FROM schema ] [ LIKE pattern [ ESCAPE 'escape_character' ] ]
             try (ResultSet rs = s.executeQuery("SHOW TABLES")) {
                 while (rs.next()) {
@@ -62,11 +55,16 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             throws SQLException {
         List<PrestoColumn> columns = new ArrayList<>();
         try (Statement s = con.createStatement()) {
-            // SHOW COLUMNS FROM memory.test.t0;
-            // Column,Type,Extra,Comment
-            // c0,tinyint,"",""
             try (ResultSet rs = s.executeQuery(String.format(
-                    "select * from information_schema.columns where table_schema = '%s' and table_name = '%s'",
+                    "select " +
+                            " table_catalog " +
+                            " , table_schema " +
+                            " , table_name " +
+                            " , column_name " +
+                            " , is_nullable " +
+                            " , data_type " +
+                            " from information_schema.columns " +
+                            " where table_schema = '%s' and table_name = '%s'",
                     databaseName, tableName))) {
                 while (rs.next()) {
                     String columnName = rs.getString("column_name");
@@ -76,8 +74,6 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
                     columns.add(c);
                 }
             }
-            // columns.add(new PrestoColumn("rowid", new PrestoCompositeDataType(PrestoDataType.INT, 4, 0), false,
-            // false));
         }
 
         return columns;
@@ -90,6 +86,13 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         int precision = 0;
         if (bracesStart != -1) {
             type = typeString.substring(0, bracesStart);
+        } else {
+            type = typeString;
+        }
+        type = type.toUpperCase();
+
+        if ("MAP".equals(type)) {
+
             String sizeString = typeString.substring(bracesStart + 1, typeString.indexOf(')'));
             String[] sizes = sizeString.split(",");
             if (sizes.length == 2) {
@@ -98,11 +101,7 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             } else if (sizes.length == 1) {
                 size = Integer.parseInt(sizes[0].strip());
             }
-
-        } else {
-            type = typeString;
         }
-        type = type.toUpperCase();
 
         PrestoDataType primitiveType;
         switch (type) {
@@ -176,10 +175,6 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
             case "NULL":
                 primitiveType = PrestoDataType.NULL;
                 break;
-            case "INTERVAL":
-                throw new IgnoreMeException();
-                // TODO: caused when a view contains a computation like ((TIMESTAMP '1970-01-05 11:26:57')-(TIMESTAMP
-                // '1969-12-29 06:50:27'))
             default:
                 throw new AssertionError(typeString);
         }
