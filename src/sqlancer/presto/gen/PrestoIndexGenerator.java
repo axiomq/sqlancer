@@ -51,9 +51,6 @@ public final class PrestoIndexGenerator {
             sb.append(PrestoToStringVisitor.asString(expr));
         }
         errors.add("already exists!");
-        // if (globalState.getDbmsSpecificOptions().testRowid) {
-        // errors.add("Cannot create an index on the rowid!");
-        // }
         return new SQLQueryAdapter(sb.toString(), errors, true, false);
     }
 

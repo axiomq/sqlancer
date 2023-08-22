@@ -1162,61 +1162,18 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
             switch (fromInterval) {
                 case DAY:
                     dateFormat = new SimpleDateFormat("dd");
-                    // toInterval = Randomly.fromOptions(Interval.HOUR, Interval.MINUTE, Interval.SECOND, null);
-                    // if (toInterval == null)
-                    // break;
-                    // switch (toInterval) {
-                    // case HOUR:
-                    // dateFormat = new SimpleDateFormat("dd HH");
-                    // break;
-                    // case MINUTE:
-                    // dateFormat = new SimpleDateFormat("dd HH:mm");
-                    // break;
-                    // case SECOND:
-                    // dateFormat = new SimpleDateFormat("dd HH:mm:ss");
-                    // break;
-                    // default:
-                    // dateFormat = new SimpleDateFormat("dd HH:mm:ss");
-                    // break;
-                    // }
                     break;
                 case HOUR:
                     dateFormat = new SimpleDateFormat("HH");
-                    // toInterval = Randomly.fromOptions(Interval.MINUTE, Interval.SECOND, null);
-                    // if (toInterval == null)
-                    // break;
-                    // switch (toInterval) {
-                    // case MINUTE:
-                    // dateFormat = new SimpleDateFormat("HH:mm");
-                    // break;
-                    // case SECOND:
-                    // dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    // break;
-                    // default:
-                    // dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    // break;
-                    // }
                     break;
                 case MINUTE:
                     dateFormat = new SimpleDateFormat("mm");
-                    // toInterval = Randomly.fromOptions(Interval.SECOND, null);
-                    // if (toInterval == null)
-                    // break;
-                    // switch (toInterval) {
-                    // case SECOND:
-                    // dateFormat = new SimpleDateFormat("mm:ss");
-                    // break;
-                    // default:
-                    // dateFormat = new SimpleDateFormat("mm:ss");
-                    // break;
-                    // }
                     break;
                 case SECOND:
                     dateFormat = new SimpleDateFormat("ss");
-                    // toInterval = null;
                     break;
                 default:
-                    // toInterval = null;
+                    break;
             }
 
             Randomly rand = new Randomly();
@@ -1263,24 +1220,20 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
     public static class PrestoIntervalYearToMonthConstant extends PrestoConstant {
 
         public String textRepresentation;
-        public Interval fromInterval;
-//        public Interval toInterval;
+        private Interval fromInterval;
 
         public PrestoIntervalYearToMonthConstant() {
             fromInterval = Randomly.fromOptions(Interval.values());
             SimpleDateFormat dateFormat;
-            dateFormat = new SimpleDateFormat("yyyy-MM");
             switch (fromInterval) {
                 case YEAR:
-                    // toInterval = Randomly.fromOptions(Interval.MONTH, null);
-                    // if (toInterval == null)
                     dateFormat = new SimpleDateFormat("yyyy");
                     break;
                 case MONTH:
                     dateFormat = new SimpleDateFormat("MM");
                     break;
-//                default:
-//                    toInterval = null;
+                default:
+                    dateFormat = new SimpleDateFormat("yyyy-MM");
             }
 
             Randomly rand = new Randomly();
@@ -1310,11 +1263,7 @@ public abstract class PrestoConstant implements Node<PrestoExpression>, PrestoEx
 
         @Override
         public String toString() {
-//            if (toInterval == null) {
             return String.format("INTERVAL '%s' %s", textRepresentation, fromInterval.name());
-//            } else {
-//                return String.format("INTERVAL '%s' %s TO %s", textRepresentation, fromInterval, toInterval);
-//            }
         }
 
         private enum Interval {

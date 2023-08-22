@@ -56,15 +56,15 @@ public class PrestoSchema extends AbstractSchema<PrestoGlobalState, PrestoSchema
         List<PrestoColumn> columns = new ArrayList<>();
         try (Statement s = con.createStatement()) {
             try (ResultSet rs = s.executeQuery(String.format(
-                    "select " +
-                            " table_catalog " +
-                            " , table_schema " +
-                            " , table_name " +
-                            " , column_name " +
-                            " , is_nullable " +
-                            " , data_type " +
-                            " from information_schema.columns " +
-                            " where table_schema = '%s' and table_name = '%s'",
+                    "select "
+                            + " table_catalog "
+                            + " , table_schema "
+                            + " , table_name "
+                            + " , column_name "
+                            + " , is_nullable "
+                            + " , data_type "
+                            + " from information_schema.columns "
+                            + " where table_schema = '%s' and table_name = '%s'",
                     databaseName, tableName))) {
                 while (rs.next()) {
                     String columnName = rs.getString("column_name");

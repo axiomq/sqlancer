@@ -32,8 +32,7 @@ public final class PrestoRandomQuerySynthesizer {
         List<Node<PrestoExpression>> columns = new ArrayList<>();
         for (int i = 0; i < nrColumns; i++) {
             // if (allowAggregates && Randomly.getBoolean()) {
-            Node<PrestoExpression> expression = gen
-                    .generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
+            Node<PrestoExpression> expression = gen.generateExpression(PrestoSchema.PrestoCompositeDataType.getRandomWithoutNull());
             columns.add(expression);
             // } else {
             // columns.add(gen());

@@ -14,8 +14,6 @@ public final class PrestoAlterTableGenerator {
 
     public static SQLQueryAdapter getQuery(PrestoGlobalState globalState) {
         ExpectedErrors errors = new ExpectedErrors();
-        errors.add(" does not have a column with name \"rowid\"");
-        errors.add("Table does not contain column rowid referenced in alter statement");
         StringBuilder sb = new StringBuilder("ALTER TABLE ");
         PrestoTable table = globalState.getSchema().getRandomTable(t -> !t.isView());
         // PrestoTypedExpressionGenerator gen = new

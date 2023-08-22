@@ -72,10 +72,6 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
                                List<Node<PrestoExpression>> joins) throws SQLException {
         PrestoSelect select = new PrestoSelect();
 
-        // select.setGroupByClause(groupBys);
-        // PrestoExpression isTrue = PrestoPostfixOperation.create(randomWhereCondition,
-        // PostfixOperator.IS_TRUE);
-
         Node<PrestoExpression> asText = new NewPostfixTextNode<>(
 
                 new PrestoCastFunction(
@@ -86,7 +82,6 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
 
         select.setFetchColumns(List.of(asText));
         select.setFromList(tableList);
-        // select.setSelectType(SelectType.ALL);
         select.setJoinList(joins);
         int secondCount = 0;
         unoptimizedQueryString = "SELECT SUM(count) FROM (" + PrestoToStringVisitor.asString(select) + ") as res";
@@ -113,12 +108,8 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
                                    List<PrestoColumn> columns, Node<PrestoExpression> randomWhereCondition,
                                    List<Node<PrestoExpression>> joins) {
         PrestoSelect select = new PrestoSelect();
-        // select.setGroupByClause(groupBys);
-        // PrestoAggregate aggr = new PrestoAggregate(
         List<Node<PrestoExpression>> allColumns = columns.stream()
                 .map((c) -> new ColumnReferenceNode<PrestoExpression, PrestoColumn>(c)).collect(Collectors.toList());
-        // PrestoAggregateFunction.COUNT);
-        // select.setFetchColumns(Arrays.asList(aggr));
         select.setFetchColumns(allColumns);
         select.setFromList(tableList);
         select.setWhereClause(randomWhereCondition);
@@ -126,12 +117,10 @@ public class PrestoNoRECOracle extends NoRECBase<PrestoGlobalState> implements T
             select.setOrderByExpressions(
                     new PrestoTypedExpressionGenerator(state).setColumns(columns).generateOrderBys());
         }
-        // select.setSelectType(SelectType.ALL);
         select.setJoinList(joins);
         int firstCount = 0;
         try (Statement stat = con.createStatement()) {
             optimizedQueryString = PrestoToStringVisitor.asString(select);
-            // System.out.println("optimizedQueryString : " + optimizedQueryString);
             if (options.logEachSelect()) {
                 logger.writeCurrent(optimizedQueryString);
             }
